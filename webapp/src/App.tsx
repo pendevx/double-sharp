@@ -1,8 +1,9 @@
-import { MusicPlayerControl, FrequencyGraph, MusicList, Lyrics, BlurredModal, SettingsButton, FullScreenOverlay, UploadSongButton } from "./components";
-import React from "react";
+import { MusicPlayerControl, FrequencyGraph, SettingsButton, UploadSongButton, BlurredModal, FullScreenOverlay } from "./components";
+import React, { Suspense } from "react";
 import { MusicContext } from "./contexts/MusicContext";
 import { ToggleSonglist } from "./icons";
-import getViewportResolution, { ViewportResolution } from "./utils/viewportResolution";
+import { RouterProvider } from "react-router";
+import router from "./pages/router";
 import { CurrentSongModal, RequestSongModal, SettingsModal } from "./components/modals";
 
 const modalReducer = (state: Modal, action: { type: Modal; toggle?: boolean }): Modal => (action.toggle === false ? action.type : action.type === state ? Modal.None : action.type);
@@ -15,28 +16,9 @@ enum Modal {
 }
 
 export default function App() {
-    const [showSonglist, setShowSonglist] = React.useState<boolean>(true);
-    const [bodyHeight, setBodyHeight] = React.useState<number>(0);
     const [activeModal, dispatchModal] = React.useReducer(modalReducer, Modal.None);
     const audioRef = React.useRef<HTMLAudioElement>(null);
-    const bodyRef = React.useRef<HTMLDivElement | null>(null);
     const musicContext = React.useContext(MusicContext);
-
-    React.useEffect(function () {
-        const resizeHandler = () => {
-            if (bodyRef.current) {
-                setBodyHeight(bodyRef.current.clientHeight);
-            }
-        };
-
-        resizeHandler();
-
-        window.addEventListener("resize", resizeHandler);
-
-        return function () {
-            window.removeEventListener("resize", resizeHandler);
-        };
-    }, []);
 
     function onKeyDown(e: React.KeyboardEvent) {
         switch (e.key.toLowerCase()) {
@@ -66,26 +48,13 @@ export default function App() {
                 break;
             }
 
-            case "d": {
-                setShowSonglist(!showSonglist);
-                break;
-            }
-
             case "u": {
                 dispatchModal({ type: Modal.RequestSong });
                 break;
             }
         }
     }
-
-    const resolution = getViewportResolution();
-
-    function onSongSelected() {
-        if (resolution < ViewportResolution.Laptop) {
-            setShowSonglist(false);
-        }
-    }
-
+    
     const hideFullscreen = () => dispatchModal({ type: Modal.None });
 
     return (
@@ -93,11 +62,11 @@ export default function App() {
             <h1 className="hidden">pendevx music</h1>
             <div className="fixed inset-0 flex">
                 <div className="flex h-full w-full flex-col justify-between">
-                    <div className="mt-4 h-full overflow-hidden">
-                        <div ref={bodyRef} className="r-0 relative flex h-full max-h-full w-full justify-end laptop:right-[33.33333%] laptop:w-[133.33333%] desktop:right-[25%] desktop:w-[125%]">
-                            <MusicList showSonglist={showSonglist} onSongSelected={onSongSelected} />
-                            <Lyrics height={bodyHeight / 2} showSonglist={showSonglist} />
-                        </div>
+                    <div className="mt-4 h-full overflow-hidden px-4">
+                        {/* <Suspense fallback={<p className="text-white">page loading...</p>}> */}
+                            {/* <RouterProvider router={router} /> */}
+                        {/* </Suspense> */}
+                        {router}
                     </div>
 
                     <div>
@@ -123,7 +92,11 @@ export default function App() {
 
             <div className="fixed right-6 top-6 w-12 p-1 laptop:w-14">
                 <div className="flex flex-col gap-2">
-                    <ToggleSonglist onClick={() => setShowSonglist(!showSonglist)} />
+                    {/* In the near future:
+                    - Settings should become its own page
+                    - RequestSong can become its own page, likely will do so.
+
+                    Can extract the left-right and hideable left-side layout into a reusable component to use in landing page, admin page, and settings pages. */}
                     <SettingsButton onClick={() => dispatchModal({ type: Modal.Settings })} />
                     <UploadSongButton onClick={() => dispatchModal({ type: Modal.RequestSong })} />
                 </div>

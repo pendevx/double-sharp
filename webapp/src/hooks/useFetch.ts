@@ -1,7 +1,9 @@
 import React from "react";
 
 export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
-    const [data, setData] = React.useState<T | undefined>(fallbackValue);
+    const fallback = fallbackValue as T;
+
+    const [data, setData] = React.useState<T>(fallback);
     const [error, setError] = React.useState<Error | null>(null);
     const [isFetching, setIsFetching] = React.useState<boolean>(false);
     const aborter = React.useRef<AbortController | null>(null);
@@ -18,10 +20,8 @@ export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
             aborter.current && aborter.current.abort();
             aborter.current = new AbortController();
 
-            console.log(url, defaultUrl);
-
             if (!url && !defaultUrl) {
-                setData(fallbackValue);
+                setData(fallback);
                 setError(new Error("A URL must be provided."));
                 return;
             }
@@ -48,7 +48,7 @@ export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
                 return json;
             } catch (err) {
                 setError(err as Error);
-                setData(fallbackValue);
+                setData(fallback);
             }
         },
         []

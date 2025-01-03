@@ -70,7 +70,7 @@ export default function Lyrics({ height, showSonglist }: LyricsProps) {
 
     return (
         <Scrollable
-            className={`relative flex w-full px-4 text-center text-white transition-all duration-1000 laptop:w-2/4 laptop:grow-0 laptop:pl-0 desktop:w-3/5 ${!showSonglist && "laptop:w-3/4 desktop:w-4/5"}`}
+            className={`relative flex w-full pl-4 text-center text-white transition-all duration-1000 laptop:w-2/4 laptop:grow-0 laptop:pl-0 desktop:w-3/5 ${!showSonglist && "laptop:w-3/4 desktop:w-4/5"}`}
             showScroller={false}
             scrollTop={scrollTop || 0}
             onScroll={handleScroll}
