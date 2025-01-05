@@ -2,17 +2,18 @@ using System.Security.Cryptography;
 using System.Text;
 using Music.Commands.Accounts;
 using Music.Repositories.Contracts;
+using Music.Repository.EF.DatabaseContexts;
 using Music.Repository.EF.Models.Generated;
 
 namespace Music.CommandHandlers.Accounts;
 
 public class RegisterAccountHandler : IBaseCommandHandler<RegisterAccountCommand, bool>
 {
-    private readonly IAccountRepository _accountRepository;
+    private readonly MusicContext _dbContext;
 
-    public RegisterAccountHandler(IAccountRepository accountRepository)
+    public RegisterAccountHandler(MusicContext dbContext)
     {
-        _accountRepository = accountRepository;
+        _dbContext = dbContext;
     }
 
     private static byte[] GenerateSaltedHash(byte[] raw, byte[] salt)
@@ -23,21 +24,35 @@ public class RegisterAccountHandler : IBaseCommandHandler<RegisterAccountCommand
 
     public bool Execute(RegisterAccountCommand command)
     {
-        var existingAccount = _accountRepository.GetByUsername(command.Username);
+        var existingAccount = _dbContext.Accounts.FirstOrDefault(acc => acc.Username == command.Username);
 
-        if (!(existingAccount is null))
+        if (existingAccount is not null)
             return false;
 
         var newGuid = Guid.NewGuid();
         var saltedPassword = GenerateSaltedHash(Encoding.UTF8.GetBytes(command.Password), newGuid.ToByteArray());
 
-        _accountRepository.Create(new Account
+        var createdAccount = _dbContext.Accounts.Add(new Account
         {
             Guid = newGuid,
             Username = command.Username,
             SaltedPassword = saltedPassword,
             DisplayName = command.DisplayName
         });
+
+        _dbContext.SaveChanges();
+
+        var userRoleId = _dbContext.Roles.Where(r => r.Name == nameof(RoleName.User))
+            .Select(r => r.Id)
+            .Single();
+
+        _dbContext.AccountRoles.Add(new AccountRole
+        {
+            RoleId = userRoleId,
+            AccountId = createdAccount.Entity.Id
+        });
+
+        _dbContext.SaveChanges();
 
         return true;
     }

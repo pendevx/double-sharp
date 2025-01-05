@@ -49,6 +49,8 @@ export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
             } catch (err) {
                 setError(err as Error);
                 setData(fallback);
+            } finally {
+                setIsFetching(false);
             }
         },
         []

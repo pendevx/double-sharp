@@ -26,8 +26,9 @@
       <EmbeddedResource Include="Scripts\01_DbSetup\[2024-09-29T02.28.45.900Z] Alter Accounts Unique Username.sql" />
       <EmbeddedResource Include="Scripts\01_DbSetup\[2024-09-29T03.22.26.634Z] Alter Songs Add CreatedOn.sql" />
       <EmbeddedResource Include="Scripts\01_DbSetup\[2024-11-29T09.38.04.116Z] Create SongRequests Table.sql" />
-      <None Remove="Scripts\01_DbSetup\[2024-12-21T11.40.54.435Z] Create Permissions Table.sql" />
       <EmbeddedResource Include="Scripts\01_DbSetup\[2024-12-21T11.40.54.435Z] Create Permissions Table.sql" />
+      <EmbeddedResource Include="Scripts\01_DbSetup\[2025-01-04T22.12.26.156Z] Alter Roles Table Name Column Unique.sql" />
+      <EmbeddedResource Include="Scripts\01_DbSetup\[2025-01-04T23.40.16.658Z] Add User Admin Roles.sql" />
     </ItemGroup>
 
     <ItemGroup>

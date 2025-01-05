@@ -1,5 +1,5 @@
 import { MusicPlayerControl, FrequencyGraph, SettingsButton, UploadSongButton, BlurredModal, FullScreenOverlay } from "./components";
-import React from "react";
+import React, { RefObject } from "react";
 import { MusicContext } from "./contexts/MusicContext";
 import router from "./pages/router";
 import { CurrentSongModal, RequestSongModal, SettingsModal } from "./components/modals";
@@ -65,8 +65,8 @@ export default function App() {
                     </div>
 
                     <div>
-                        <FrequencyGraph audioRef={audioRef} />
-                        <MusicPlayerControl audioRef={audioRef} goFullscreen={() => dispatchModal({ type: Modal.Fullscreen, toggle: false })} />
+                        <FrequencyGraph audioRef={audioRef as RefObject<HTMLAudioElement>} />
+                        <MusicPlayerControl audioRef={audioRef as RefObject<HTMLAudioElement>} goFullscreen={() => dispatchModal({ type: Modal.Fullscreen, toggle: false })} />
                     </div>
                 </div>
             </div>

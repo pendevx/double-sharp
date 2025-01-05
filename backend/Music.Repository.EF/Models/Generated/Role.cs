@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Music.Repository.EF.Models.Generated;
 
+[Index("Name", Name = "UQ_Name", IsUnique = true)]
 public partial class Role : Entity
 {
     public Role() : base()

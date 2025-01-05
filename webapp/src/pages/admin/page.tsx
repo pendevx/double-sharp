@@ -1,3 +1,9 @@
+import AuthGuard from "../../components/AuthGuard"
+
 export default function AdminLayout() {
-    return <p className="text-white">asdlfhasdjlhfjdsal</p>
+    return (
+        <AuthGuard>
+            <p className="text-white">asdlfhasdjlhfjdsal</p>
+        </AuthGuard>
+    );
 }

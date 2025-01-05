@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Music.Repository.EF.Models.Generated;
 
-[Index("PermissionName", Name = "UQ__Permissi__0FFDA357A0D1BFFD", IsUnique = true)]
+[Index("PermissionName", Name = "UQ__Permissi__0FFDA357DAD6BA83", IsUnique = true)]
 public partial class Permission : Entity
 {
     public Permission() : base()
