@@ -19,7 +19,7 @@ public class Program
         builder.Services.AddDbContext<MusicContext>(opt =>
         {
             var connectionString = builder.Configuration.GetConnectionString("music-thing");
-            opt.UseSqlServer(connectionString);
+            opt.UseSqlServer(connectionString);f
         });
 
         builder.Services.AddFastEndpoints()
