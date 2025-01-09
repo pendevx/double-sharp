@@ -1,44 +1,39 @@
-import React, { Suspense, use } from "react";
+import React, { Suspense } from "react";
 import { useNavigate } from "react-router";
-import useFetch from "../hooks/useFetch";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
     return (
         <Suspense fallback={<p className="text-white">loading!!!!!!!</p>}>
-            <AuthGuardHelper>
-                {children}
-            </AuthGuardHelper>
+            <Requires.Admin>{children}</Requires.Admin>
         </Suspense>
-    )
+    );
 }
 
-function AuthGuardHelper({ children }: { children: React.ReactNode }) {
-    // const { data: isAuthenticated, refreshData, isFetching } = useFetch(null, "/api/accounts/checkRole?role=Admin");
-    const isPermitted = use(fetch("/api/accounts/checkRole?role=Admin"));
-    const navigate = useNavigate();
+const checkRole = async (role: string): Promise<boolean> => {
+    const res = await fetch(`/api/accounts/checkRole?role=${role}`);
+    return res.json();
+};
 
-    // console.log(isPermitted);
+const AuthGuardHelperGenerator = (role: string) =>
+    React.lazy(() =>
+        checkRole(role).then(p => {
+            return {
+                default: ({ children }: { children: React.ReactNode }) => {
+                    const navigate = useNavigate();
 
-    // React.useEffect(() => {
-    //     refreshData();
-    // }, []);
+                    React.useEffect(() => {
+                        if (p === false) {
+                            navigate("/");
+                        }
+                    }, []);
 
-    // if (isFetching) {
-    //     return <></>
-    // } else if (!isFetching && isAuthenticated === false) {
-    //     navigate("/");
-    // } else {
-    //     return <>{children}</>;
-    // }
+                    return <>{p && children}</>;
+                },
+            };
+        })
+    );
 
-    React.useEffect(() => {
-        // isPermitted.json().then(p => {
-        //     console.log("hi");
-        //     if (p === false) {
-        //         navigate("/");
-        //     }
-        // })
-    }, [isPermitted]);
-
-    return children;
-}
+const Requires = {
+    Admin: AuthGuardHelperGenerator("Admin"),
+    User: AuthGuardHelperGenerator("User"),
+};

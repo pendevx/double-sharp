@@ -20,9 +20,9 @@ public class CheckCurrentAccountHasRoleHandler : IBaseQueryHandler<string, bool>
         var account = _authContext.GetAccount();
 
         if (account is null)
-            throw new AuthenticationException();
+            return false;
 
-        var accountHasRole = _dbContext.AccountRoles.Any(ar => ar.AccountId == account.Id && ar.Role!.Name == roleName);
+        var accountHasRole = _dbContext.AccountRoles.Any(ar => ar.AccountId == account.Id && ar.Role.Name == roleName);
 
         return accountHasRole;
     }
