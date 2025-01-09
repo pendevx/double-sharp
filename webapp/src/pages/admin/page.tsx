@@ -1,8 +1,8 @@
-import AuthGuard from "../../components/AuthGuard"
+import AuthGuard, { Role } from "../../components/AuthGuard";
 
 export default function AdminLayout() {
     return (
-        <AuthGuard>
+        <AuthGuard requiredRole={Role.Admin}>
             <p className="text-white">asdlfhasdjlhfjdsal</p>
         </AuthGuard>
     );

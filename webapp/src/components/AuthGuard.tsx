@@ -1,10 +1,12 @@
 import React, { Suspense } from "react";
 import { useNavigate } from "react-router";
 
-export default function AuthGuard({ children }: { children: React.ReactNode }) {
+export default function AuthGuard({ children, requiredRole }: { children: React.ReactNode; requiredRole: Role }) {
+    const RoleValidator = AuthGuardHelperGenerator(requiredRole);
+
     return (
         <Suspense fallback={<p className="text-white">loading!!!!!!!</p>}>
-            <Requires.Admin>{children}</Requires.Admin>
+            <RoleValidator>{children}</RoleValidator>
         </Suspense>
     );
 }
@@ -14,9 +16,9 @@ const checkRole = async (role: string): Promise<boolean> => {
     return res.json();
 };
 
-const AuthGuardHelperGenerator = (role: string) =>
+const AuthGuardHelperGenerator = (role: Role) =>
     React.lazy(() =>
-        checkRole(role).then(p => {
+        checkRole(Role[role]).then(p => {
             return {
                 default: ({ children }: { children: React.ReactNode }) => {
                     const navigate = useNavigate();
@@ -33,7 +35,7 @@ const AuthGuardHelperGenerator = (role: string) =>
         })
     );
 
-const Requires = {
-    Admin: AuthGuardHelperGenerator("Admin"),
-    User: AuthGuardHelperGenerator("User"),
-};
+export enum Role {
+    User,
+    Admin,
+}
