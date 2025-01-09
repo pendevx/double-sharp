@@ -1,0 +1,32 @@
+name: Validate Backend
+on:
+    push:
+        branches-ignore:
+            - main
+
+jobs:
+    Compile-WebApi:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ./backend/Music.Backend
+
+        strategy:
+            matrix:
+                dotnet-version: [9.0.x]
+                architecture: [x64]
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Setup .NET Core
+              uses: actions/setup-dotnet@v1
+              with:
+                  dotnet-version: ${{ matrix.dotnet-version }}
+                  architecture: ${{ matrix.architecture }}
+
+            - name: Restore dependencies
+              run: dotnet restore
+
+            - name: Build WebApi
+              run: dotnet build
