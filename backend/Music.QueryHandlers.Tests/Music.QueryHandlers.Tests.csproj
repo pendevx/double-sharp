@@ -18,4 +18,12 @@
         <Using Include="Xunit"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Music.CommandHandlers\Music.CommandHandlers.csproj" />
+      <ProjectReference Include="..\Music.Commands\Music.Commands.csproj" />
+      <ProjectReference Include="..\Music.QueryHandlers\Music.QueryHandlers.csproj" />
+      <ProjectReference Include="..\Music.Services\Music.Services.csproj" />
+      <ProjectReference Include="..\Music.Tests.Base\Music.Tests.Base.csproj" />
+    </ItemGroup>
+
 </Project>

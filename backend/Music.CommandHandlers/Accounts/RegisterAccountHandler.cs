@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using Music.Commands.Accounts;
-using Music.Repositories.Contracts;
 using Music.Repository.EF.DatabaseContexts;
 using Music.Repository.EF.Models.Generated;
 
