@@ -1,0 +1,58 @@
+name: Run Unit Tests
+on:
+    push:
+        branches-ignore:
+            - main
+
+jobs:
+    Test-CommandHandlers:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ./backend/Music.CommandHandler.Tests
+
+        strategy:
+            matrix:
+                dotnet-version: [9.0.x]
+                architecture: [x64]
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Setup .NET Core
+              uses: actions/setup-dotnet@v1
+              with:
+                  dotnet-version: ${{ matrix.dotnet-version }}
+                  architecture: ${{ matrix.architecture }}
+
+            - name: Restore dependencies
+              run: dotnet restore
+
+            - name: Run Unit Tests
+              run: dotnet test
+    
+    Test-QueryHandlers:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ./backend/Music.QueryHandler.Tests
+
+        strategy:
+            matrix:
+                dotnet-version: [9.0.x]
+                architecture: [x64]
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Setup .NET Core
+              uses: actions/setup-dotnet@v1
+              with:
+                  dotnet-version: ${{ matrix.dotnet-version }}
+                  architecture: ${{ matrix.architecture }}
+
+            - name: Restore dependencies
+              run: dotnet restore
+
+            - name: Run Unit Tests
+              run: dotnet test
