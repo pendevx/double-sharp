@@ -1,6 +1,11 @@
 import React, { Suspense } from "react";
 import { useNavigate } from "react-router";
 
+export enum Role {
+    User,
+    Admin,
+}
+
 export default function AuthGuard({ children, requiredRole }: { children: React.ReactNode; requiredRole: Role }) {
     const RoleValidator = AuthGuardHelperGenerator(requiredRole);
 
@@ -11,14 +16,19 @@ export default function AuthGuard({ children, requiredRole }: { children: React.
     );
 }
 
-const checkRole = async (role: string): Promise<boolean> => {
-    const res = await fetch(`/api/accounts/checkRole?role=${role}`);
+const roleEndpoints = {
+    [Role.User]: "checkUserIsUser",
+    [Role.Admin]: "/checkUserIsAdmin",
+}
+
+const checkRole = async (role: Role): Promise<boolean> => {
+    const res = await fetch(`/api/accounts/${roleEndpoints[role]}`);
     return res.json();
 };
 
 const AuthGuardHelperGenerator = (role: Role) =>
     React.lazy(() =>
-        checkRole(Role[role]).then(p => {
+        checkRole(role).then(p => {
             return {
                 default: ({ children }: { children: React.ReactNode }) => {
                     const navigate = useNavigate();
@@ -34,8 +44,3 @@ const AuthGuardHelperGenerator = (role: Role) =>
             };
         })
     );
-
-export enum Role {
-    User,
-    Admin,
-}

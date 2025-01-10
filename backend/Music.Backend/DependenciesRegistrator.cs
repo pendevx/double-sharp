@@ -13,6 +13,7 @@ public static class DependencyInjectionConfiguration
     {
         CommandHandlers.Load.Initialize();
         QueryHandlers.Load.Initialize();
+        Services.Load.Initialize();
     }
 
     private static IEnumerable<Type> ExtractConcreteHandlers(Type[] extractFrom, Type[] baseCommandTypes)
@@ -36,6 +37,14 @@ public static class DependencyInjectionConfiguration
             builder.Services.AddScoped(handler);
     }
 
+    private static void RegisterServices(WebApplicationBuilder builder, Type[] extractFrom)
+    {
+        var services = extractFrom.Where(s => s.Namespace!.StartsWith("Music.Services") &&
+                                              s is { IsAbstract: false, IsSealed: false });
+        foreach (var service in services)
+            builder.Services.AddScoped(service);
+    }
+
     public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
         LoadAssemblies();
@@ -54,6 +63,7 @@ public static class DependencyInjectionConfiguration
 
         RegisterCommandHandlers(builder, types, [ typeof(IBaseCommandHandler), typeof(IBaseCommandHandler<>), typeof(IBaseCommandHandler<,>) ]);
         RegisterQueryHandlers(builder, types, [ typeof(IBaseQueryHandler<>), typeof(IBaseQueryHandler<,>) ]);
+        RegisterServices(builder, types);
 
         return builder;
     }
