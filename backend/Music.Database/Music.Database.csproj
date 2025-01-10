@@ -29,7 +29,6 @@
       <EmbeddedResource Include="Scripts\01_DbSetup\[2024-12-21T11.40.54.435Z] Create Permissions Table.sql" />
       <EmbeddedResource Include="Scripts\01_DbSetup\[2025-01-04T22.12.26.156Z] Alter Roles Table Name Column Unique.sql" />
       <EmbeddedResource Include="Scripts\01_DbSetup\[2025-01-04T23.40.16.658Z] Add User Admin Roles.sql" />
-      <None Remove="Scripts\01_DbSetup\[2025-01-10T06.38.36.207Z] Alter Accounts Make Username Case Sensitive.sql" />
       <EmbeddedResource Include="Scripts\01_DbSetup\[2025-01-10T06.38.36.207Z] Alter Accounts Make Username Case Sensitive.sql" />
     </ItemGroup>
 
