@@ -9,7 +9,7 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
             run:
-                working-directory: ./backend/Music.CommandHandler.Tests
+                working-directory: ./backend/Music.CommandHandlers.Tests
 
         strategy:
             matrix:
@@ -24,7 +24,7 @@ jobs:
               with:
                   dotnet-version: ${{ matrix.dotnet-version }}
                   architecture: ${{ matrix.architecture }}
-
+            
             - name: Restore dependencies
               run: dotnet restore
 
@@ -35,7 +35,7 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
             run:
-                working-directory: ./backend/Music.QueryHandler.Tests
+                working-directory: ./backend/Music.QueryHandlers.Tests
 
         strategy:
             matrix:
@@ -50,7 +50,7 @@ jobs:
               with:
                   dotnet-version: ${{ matrix.dotnet-version }}
                   architecture: ${{ matrix.architecture }}
-
+            
             - name: Restore dependencies
               run: dotnet restore
 
