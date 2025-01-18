@@ -8,8 +8,6 @@ phases:
         commands:
             - echo "Base directory"
             - ls -al
-            - echo "Installing dependencies"
-            - cd backend && dotnet restore
 
     build:
         commands:
