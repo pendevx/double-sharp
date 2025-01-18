@@ -9,7 +9,7 @@ phases:
             - echo "Base directory"
             - ls -al
             - echo "Installing dependencies"
-            - cd webapp
+            - cd ./webapp
             - npm install
 
     build:
