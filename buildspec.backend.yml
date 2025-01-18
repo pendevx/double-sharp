@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            dotnet: 9.0.101
+
+        commands:
+            - echo "Base directory"
+            - ls -al
+            - echo "Installing dependencies"
+            - cd backend && dotnet restore
+
+    build:
+        commands:
+            - echo "Build started on `date`"
+            - dotnet publish -c Release -o ./publish
+
+    post_build:
+        commands:
+            - echo "Build completed on `date`"
+
+artifacts:
+    files:
+        - "**/*"
+    base-directory: "backend/publish"
+    name: "backend"
