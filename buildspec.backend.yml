@@ -14,16 +14,15 @@ phases:
     build:
         commands:
             - echo "Build started on `date`"
-            - dotnet publish -c Release
+            - dotnet publish Music.Backend/Music.Backend.csproj -c Release -o ./Music.Backend/bin/Release/net9.0/publish
 
     post_build:
         commands:
             - echo "Build completed on `date`"
-            - ls -al
-            - cd ../ && ls -al
+            - cd Music.Backend/bin/Release/net9.0/publish && ls -al
 
 artifacts:
     files:
         - "**/*"
-    base-directory: "backend/publish"
+    base-directory: "backend/Music.Backend/bin/Release/net9.0/publish"
     name: "backend"
