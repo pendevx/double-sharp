@@ -14,7 +14,7 @@ phases:
     build:
         commands:
             - echo "Build started on `date`"
-            - dotnet publish Music.Backend/Music.Backend.csproj -c Release --property:OutputPath=./Music.Backend/bin/Release/net9.0/publish
+            - dotnet publish Music.Backend/Music.Backend.csproj -c Release --property:OutputPath=./bin/Release/net9.0/publish
 
     post_build:
         commands:
