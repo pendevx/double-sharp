@@ -23,6 +23,7 @@ phases:
 
 artifacts:
     files:
-        - "**/*"
-    base-directory: "backend/Music.Backend/bin/Release/net9.0/publish"
+        - "bin/Release/net9.0/publish/**/*"
+        - "appspec.yml"
+    base-directory: "backend/Music.Backend"
     name: "backend"
