@@ -19,11 +19,13 @@ phases:
     post_build:
         commands:
             - echo "Build completed on `date`"
+            - ls -al
             - cd Music.Backend/bin/Release/net9.0/publish && ls -al
 
 artifacts:
     files:
         - "bin/Release/net9.0/publish/**/*"
         - "appspec.yml"
+        - "deploy_scripts/**/*"
     base-directory: "backend/Music.Backend"
     name: "backend"
