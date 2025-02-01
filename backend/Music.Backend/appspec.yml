@@ -2,7 +2,7 @@ version: 0.0
 os: windows
 
 files:
-    - source: /
+    - source: /webbackend
       destination: C:\inetpub\wwwroot
 
 hooks:

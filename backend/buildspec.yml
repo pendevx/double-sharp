@@ -14,13 +14,13 @@ phases:
     build:
         commands:
             - echo "Build started on `date`"
-            - dotnet publish Music.Backend/Music.Backend.csproj -c Release --property:OutputPath=./bin/Release/net9.0/publish
+            - cd Music.Backend && dotnet publish -c Release
 
     post_build:
         commands:
             - echo "Build completed on `date`"
             - ls -al
-            - cd Music.Backend/bin/Release/net9.0/publish && ls -al
+            - cd Music.Backend/webbackend && ls -al
 
 artifacts:
     files:
