@@ -2,7 +2,7 @@ version: 0.0
 os: windows
 
 files:
-    - source: /webbackend
+    - source: /bin/Release/net9.0/publish
       destination: C:\inetpub\wwwroot
 
 hooks:

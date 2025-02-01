@@ -19,8 +19,6 @@ phases:
     post_build:
         commands:
             - echo "Build completed on `date`"
-            - ls -al
-            - cd Music.Backend/webbackend && ls -al
 
 artifacts:
     files:
