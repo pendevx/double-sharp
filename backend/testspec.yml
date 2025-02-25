@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            dotnet: 9.0.101
+
+        commands:
+            - echo "Base directory"
+            - ls -al
+            - echo "Installing dependencies"
+            - cd backend/Music.QueryHandlers.Tests && dotnet restore
+            - cd ../Music.CommandHandlers.Tests && dotnet restore
+
+    build:
+        commands:
+            - echo "Test started on `date`"
+            - cd ../Music.QueryHandlers.Tests && dotnet test
+            - cd ../Music.CommandHandlers.Tests && dotnet test
+
+    post_build:
+        commands:
+            - echo "Testing completed on `date`"

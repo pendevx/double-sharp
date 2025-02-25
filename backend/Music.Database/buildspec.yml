@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            dotnet: 9.0.101
+
+        commands:
+            - echo "Installing dependencies"
+            - cd backend && dotnet restore
+
+    build:
+        commands:
+            - echo "Build started on `date`"
+            - dotnet publish Music.Database/Music.Database.csproj -c Release --property:OutputPath=./bin/Release/net9.0/publish
+
+    post_build:
+        commands:
+            - echo "Build completed on `date`"
+            - cd Music.Database/bin/Release/net9.0/publish && ls -al
+
+artifacts:
+    files:
+        - "**/*"
+    base-directory: "backend/Music.Database/bin/Release/net9.0/publish/"
+    name: "db-upgrader"

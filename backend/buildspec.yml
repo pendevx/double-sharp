@@ -1,0 +1,29 @@
+version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            dotnet: 9.0.101
+
+        commands:
+            - echo "Base directory"
+            - ls -al
+            - echo "Installing dependencies"
+            - cd backend && dotnet restore
+
+    build:
+        commands:
+            - echo "Build started on `date`"
+            - cd Music.Backend && dotnet publish -c Release
+
+    post_build:
+        commands:
+            - echo "Build completed on `date`"
+
+artifacts:
+    files:
+        - "bin/Release/net9.0/publish/**/*"
+        - "appspec.yml"
+        - "deploy_scripts/**/*"
+    base-directory: "backend/Music.Backend"
+    name: "backend"
