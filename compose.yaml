@@ -1,12 +1,10 @@
 services:
-    db-schema-update:
-        build: ./backend/Music.Database
-        image: localhost:5000/music-db-schema-update
-        container_name: music-db-schema-update
-
-    frontend:
-        build: ./webapp
-        image: localhost:5000/music-frontend
-        container_name: music-frontend
+    database:
+        image: postgres
+        container_name: music-database
+        environment:
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: double-sharp-developer
+            POSTGRES_DB: double-sharp
         ports:
-            - "8000:80"
+            - 5432:5432
