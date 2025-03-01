@@ -2,8 +2,8 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using Music.Commands.Accounts;
+using Music.Models.Data;
 using Music.Repositories.Contracts;
-using Music.Repository.EF.Models.Generated;
 
 namespace Music.CommandHandlers.Accounts;
 

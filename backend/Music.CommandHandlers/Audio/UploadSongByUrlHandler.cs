@@ -1,8 +1,8 @@
 using System.Security.Authentication;
 using Music.Commands.Audio;
 using Music.Global.Contracts;
-using Music.Repository.EF.DatabaseContexts;
-using Music.Repository.EF.Models.Generated;
+using Music.Models.Data.DbContexts;
+using Music.Models.Domain;
 
 namespace Music.CommandHandlers.Audio;
 

@@ -1,5 +1,4 @@
 using FastEndpoints;
-using Music.Backend.Models.DTO.Http;
 using Music.QueryHandlers.Lyrics;
 
 namespace Music.Backend.Endpoints.Lyrics;

@@ -1,9 +1,10 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Music.Backend.EndpointProcessors.PostProcessors;
 using Music.Backend.EndpointProcessors.PreProcessors;
-using Music.QueryHandlers.Audio;
-using Music.Repository.EF.Models.Utils;
+using Music.Models.Data.DbContexts;
+using Music.Services.DataAccess;
 
 namespace Music.Backend.Endpoints.Audio;
 
@@ -11,24 +12,32 @@ public record GetSongRequest(int Id);
 
 [HttpGet("/music/download/{id}")]
 [PreProcessor<OpenDbConnection<GetSongRequest>>]
-[PostProcessor<CloseDbConnection<GetSongRequest, StreamedAudio>>]
+[PostProcessor<CloseDbConnection<GetSongRequest, Stream>>]
 [AllowAnonymous]
-public class GetSongEndpoint : Endpoint<GetSongRequest, StreamedAudio>
+public class GetSongEndpoint : Endpoint<GetSongRequest, Stream>
 {
-    private readonly GetAudioByIdHandler _getAudioById;
+    private readonly MusicContext _dbContext;
+    private readonly LargeObjectStreamReader _largeObjectStreamReader;
 
-    public GetSongEndpoint(GetAudioByIdHandler getAudioById)
+    public GetSongEndpoint(MusicContext dbContext, LargeObjectStreamReader largeObjectStreamReader)
     {
-        _getAudioById = getAudioById;
+        _dbContext = dbContext;
+        _largeObjectStreamReader = largeObjectStreamReader;
     }
 
     public override async Task HandleAsync(GetSongRequest req, CancellationToken ct)
     {
-        var audio = _getAudioById.Execute(req.Id);
+        if (await _dbContext.Songs.FirstOrDefaultAsync(s => s.Id == req.Id, ct) is not { } song)
+        {
+            await SendNotFoundAsync(ct);
+            return;
+        }
+
+        var contentsPipeReader = await _largeObjectStreamReader.GetPipeReader(song.ContentsOid);
 
         await SendStreamAsync(
-            audio.Contents.Value,
-            contentType: audio.MimeType,
+            contentsPipeReader.AsStream(),
+            contentType: song.MimeType,
             enableRangeProcessing: true,
             cancellation: ct);
     }

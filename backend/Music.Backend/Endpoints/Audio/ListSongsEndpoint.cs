@@ -1,24 +1,27 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Authorization;
-using Music.QueryHandlers.Audio;
-using Music.Repository.EF.Models.Utils;
+using Music.Models.Data.DbContexts;
 
 namespace Music.Backend.Endpoints.Audio;
+
+public record struct SongInfo(int Id, string Name);
 
 [HttpGet("/music/list")]
 [AllowAnonymous]
 public class ListSongs : Ep.NoReq.Res<IEnumerable<SongInfo>>
 {
-    private readonly ListAudioFilesHandler _listAudioFiles;
+    private readonly MusicContext _dbContext;
 
-    public ListSongs(ListAudioFilesHandler listAudioFiles)
+    public ListSongs(MusicContext dbContext)
     {
-        _listAudioFiles = listAudioFiles;
+        _dbContext = dbContext;
     }
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var files = _listAudioFiles.Execute();
+        var files = _dbContext.Songs
+            .Select(song => new SongInfo(song.Id, song.Name));
+
         await SendAsync(files, 200, ct);
     }
 }

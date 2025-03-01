@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
-using Music.Repository.EF.DatabaseContexts;
+using Music.Models.Data.DbContexts;
 
 namespace Music.Repositories.Contracts;
 

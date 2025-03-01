@@ -1,7 +1,7 @@
 ﻿using Music.Global.Contracts;
+using Music.Models.Data.DbContexts;
+using Music.Models.Domain;
 using Music.QueryHandlers.Accounts;
-using Music.Repository.EF.DatabaseContexts;
-using Music.Repository.EF.Models.Generated;
 using Music.Services.Validators;
 using Music.Tests.Base;
 
@@ -58,6 +58,6 @@ class UserRoleCheckerAuthContext : IAuthContext
 
     public Account? GetAccount()
     {
-        return _dbContext.Accounts.FirstOrDefault(acc => acc.Username == "admin");
+        return _dbContext.Accounts.FirstOrDefault(acc => acc.Username == "admin") as Account;
     }
 }

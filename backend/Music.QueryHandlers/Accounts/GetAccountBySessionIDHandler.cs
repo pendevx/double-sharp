@@ -1,5 +1,5 @@
+using Music.Models.Data;
 using Music.Repositories.Contracts;
-using Music.Repository.EF.Models.Generated;
 
 namespace Music.QueryHandlers.Accounts;
 

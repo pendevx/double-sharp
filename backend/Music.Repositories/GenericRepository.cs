@@ -1,12 +1,12 @@
 ﻿using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
+using Music.Models.Data;
+using Music.Models.Data.DbContexts;
 using Music.Repositories.Contracts;
-using Music.Repository.EF;
-using Music.Repository.EF.DatabaseContexts;
 
 namespace Music.Repositories;
 
-public class GenericRepository<T> : IGenericRepository<T> where T : Entity
+public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 {
     public MusicContext MusicContext { get; }
     public DbSet<T> Entities { get; }
@@ -47,7 +47,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : Entity
     {
         foreach (var entity in entities)
         {
-            entity.CreatedOn = DateTime.UtcNow;
             Entities.Add(entity);
         }
 

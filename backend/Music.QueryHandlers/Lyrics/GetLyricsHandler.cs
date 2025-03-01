@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using Music.Backend.Models.DTO.Http;
 
 namespace Music.QueryHandlers.Lyrics;
 
@@ -25,3 +24,5 @@ public class GetLyricsHandler : IBaseQueryHandler<int, IEnumerable<LyricsLine>>
         return [];
     }
 }
+
+public record struct LyricsLine(int Time, string Words);
