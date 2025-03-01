@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Music.Models.Domain;
+using Music.Models.Data;
 
 namespace Music.Database.EF.DbContexts;
 

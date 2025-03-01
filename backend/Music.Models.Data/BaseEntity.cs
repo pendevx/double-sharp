@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Music.Models.Domain;
+namespace Music.Models.Data;
 
 public abstract class BaseEntity
 {

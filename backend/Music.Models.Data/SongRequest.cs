@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Music.Models.Domain;
+namespace Music.Models.Data;
 
 public class SongRequest : BaseEntity
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Music.Models.Domain;
+namespace Music.Models.Data;
 
 public class AccountRole : BaseEntity
 {

@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Music.Models.Domain\Music.Models.Domain.csproj" />
+      <ProjectReference Include="..\Music.Models.Data\Music.Models.Data.csproj" />
     </ItemGroup>
 
 </Project>

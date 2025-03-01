@@ -11,6 +11,7 @@
     <PackageReference Include="FastEndpoints" Version="5.30.0.15-beta" />
     <PackageReference Include="FastEndpoints.Swagger" Version="5.30.0.15-beta" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
     <PackageReference Include="Seq.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
@@ -18,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Music.CommandHandlers\Music.CommandHandlers.csproj" />
     <ProjectReference Include="..\Music.Commands\Music.Commands.csproj" />
+    <ProjectReference Include="..\Music.Database.EF\Music.Database.EF.csproj" />
     <ProjectReference Include="..\Music.Global.Contracts\Music.Global.Contracts.csproj" />
     <ProjectReference Include="..\Music.QueryHandlers\Music.QueryHandlers.csproj" />
     <ProjectReference Include="..\Music.Repositories\Music.Repositories.csproj" />

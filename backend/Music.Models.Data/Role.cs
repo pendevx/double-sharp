@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Music.Models.Domain;
+namespace Music.Models.Data;
 
 [Index(nameof(Name), IsUnique = true)]
 public class Role : BaseEntity
