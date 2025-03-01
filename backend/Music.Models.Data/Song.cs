@@ -10,7 +10,7 @@ namespace Music.Models.Data
         [StringLength(256)]
         public string Name { get; set; } = null!;
 
-        public byte[] Contents { get; set; } = null!; // to turn into in int field `ContentsOid`
+        public int ContentsOid { get; set; }
 
         [StringLength(50)]
         [Unicode(false)]

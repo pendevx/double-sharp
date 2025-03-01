@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿namespace Music.Models.Domain;
 
-namespace Music.Repository.EF.Models.Generated;
-
-public partial class SongRequest
+public class SongRequest : Models.Data.SongRequest
 {
-    [NotMapped]
     public RequestStatus RequestStatusEnum
     {
         get => Enum.Parse<RequestStatus>(RequestStatus);

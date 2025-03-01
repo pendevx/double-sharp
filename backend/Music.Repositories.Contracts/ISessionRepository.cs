@@ -1,4 +1,4 @@
-using Music.Repository.EF.Models.Generated;
+using Music.Models.Data;
 
 namespace Music.Repositories.Contracts;
 

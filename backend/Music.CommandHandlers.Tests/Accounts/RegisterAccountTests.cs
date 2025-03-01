@@ -1,6 +1,6 @@
 ﻿using Music.CommandHandlers.Accounts;
 using Music.Commands.Accounts;
-using Music.Repository.EF.Models.Generated;
+using Music.Models.Domain;
 using Music.Tests.Base;
 
 namespace Music.CommandHandlers.Tests.Accounts;

@@ -23,23 +23,24 @@ public static class DependencyInjectionConfiguration
                 .Any(i => baseCommandTypes.Contains(i.IsGenericType ? i.GetGenericTypeDefinition() : i)));
     }
 
-    private static void RegisterCommandHandlers(WebApplicationBuilder builder, Type[] extractFrom, Type[] baseCommandTypes)
+    private static void RegisterCommandHandlers(WebApplicationBuilder builder, Type[] extractFrom)
     {
-        var commandHandlers = ExtractConcreteHandlers(extractFrom, baseCommandTypes);
+        var commandHandlers = ExtractConcreteHandlers(extractFrom, [ typeof(IBaseCommandHandler), typeof(IBaseCommandHandler<>), typeof(IBaseCommandHandler<,>) ]);
         foreach (var handler in commandHandlers)
             builder.Services.AddScoped(handler);
     }
 
-    private static void RegisterQueryHandlers(WebApplicationBuilder builder, Type[] extractFrom, Type[] baseCommandTypes)
+    private static void RegisterQueryHandlers(WebApplicationBuilder builder, Type[] extractFrom)
     {
-        var queryHandlers = ExtractConcreteHandlers(extractFrom, baseCommandTypes);
+        var queryHandlers = ExtractConcreteHandlers(extractFrom, [ typeof(IBaseQueryHandler<>), typeof(IBaseQueryHandler<,>) ]);
         foreach (var handler in queryHandlers)
             builder.Services.AddScoped(handler);
     }
 
     private static void RegisterServices(WebApplicationBuilder builder, Type[] extractFrom)
     {
-        var services = extractFrom.Where(s => s.Namespace!.StartsWith("Music.Services") &&
+        var services = extractFrom.Where(s => s.Namespace is not null &&
+                                              s.Namespace.StartsWith("Music.Services") &&
                                               s is { IsAbstract: false, IsSealed: false });
         foreach (var service in services)
             builder.Services.AddScoped(service);
@@ -49,7 +50,6 @@ public static class DependencyInjectionConfiguration
     {
         LoadAssemblies();
 
-        builder.Services.AddScoped<ISongRepository, SongRepository>();
         builder.Services.AddScoped<IAccountRepository, AccountRepository>();
         builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 
@@ -61,8 +61,8 @@ public static class DependencyInjectionConfiguration
 
         var types = assemblies.SelectMany(s => s.GetTypes()).ToArray();
 
-        RegisterCommandHandlers(builder, types, [ typeof(IBaseCommandHandler), typeof(IBaseCommandHandler<>), typeof(IBaseCommandHandler<,>) ]);
-        RegisterQueryHandlers(builder, types, [ typeof(IBaseQueryHandler<>), typeof(IBaseQueryHandler<,>) ]);
+        RegisterCommandHandlers(builder, types);
+        RegisterQueryHandlers(builder, types);
         RegisterServices(builder, types);
 
         return builder;
