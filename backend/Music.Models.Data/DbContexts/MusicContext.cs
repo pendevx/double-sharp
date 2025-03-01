@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Music.Models.Data;
 
-namespace Music.Database.EF.DbContexts;
+namespace Music.Models.Data.DbContexts;
 
 public class MusicContext : DbContext
 {

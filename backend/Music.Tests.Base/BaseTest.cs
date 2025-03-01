@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Music.Repository.EF.DatabaseContexts;
+using Music.Models.Data.DbContexts;
 using Music.Repository.EF.Models.Generated;
 
 namespace Music.Tests.Base;

@@ -2,7 +2,7 @@ using FastEndpoints;
 using FastEndpoints.Swagger;
 using Music.Backend.Middleware;
 using Microsoft.EntityFrameworkCore;
-using Music.Database.EF.DbContexts;
+using Music.Models.Data.DbContexts;
 
 namespace Music.Backend;
 
