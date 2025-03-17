@@ -1,8 +1,10 @@
 using System.Security.Cryptography;
 using System.Text;
 using Music.Commands.Accounts;
-using Music.Repository.EF.DatabaseContexts;
-using Music.Repository.EF.Models.Generated;
+using Music.Models.Data.DbContexts;
+using Music.Models.Domain;
+using Account = Music.Models.Data.Account;
+using AccountRole = Music.Models.Data.AccountRole;
 
 namespace Music.CommandHandlers.Accounts;
 

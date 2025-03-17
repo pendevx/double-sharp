@@ -1,5 +1,0 @@
-CREATE TABLE Permissions (
-    Id INT PRIMARY KEY IDENTITY (1,1),
-    PermissionName VARCHAR(100) NOT NULL UNIQUE,
-    CreatedOn DATETIME2 NOT NULL
-)

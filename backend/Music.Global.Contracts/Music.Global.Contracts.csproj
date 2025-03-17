@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Music.Repository.EF\Music.Repository.EF.csproj" />
+      <ProjectReference Include="..\Music.Models.Domain\Music.Models.Domain.csproj" />
     </ItemGroup>
 
 </Project>
