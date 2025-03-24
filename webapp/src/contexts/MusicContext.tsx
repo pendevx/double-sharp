@@ -110,7 +110,7 @@ export default function MusicProvider({ children }: { children: React.ReactNode 
         }
 
         if (playOrder.length) {
-            if (!currentSongId) {
+            if (!currentSongId || !playOrder.some(x => x.id === currentSongId)) {
                 selectSong(playOrder[0]?.name || "", playOrder[0]?.id, 0, false); // default to first song in the list
             } else {
                 selectSongById(currentSongId, false);

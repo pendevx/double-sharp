@@ -1,5 +1,5 @@
-﻿using Music.Repository.EF.DatabaseContexts;
-using Music.Repository.EF.Models.Generated;
+﻿using Music.Models.Data.DbContexts;
+using Music.Models.Domain;
 
 namespace Music.Services.Validators;
 

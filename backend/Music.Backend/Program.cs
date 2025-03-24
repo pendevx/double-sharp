@@ -2,7 +2,7 @@ using FastEndpoints;
 using FastEndpoints.Swagger;
 using Music.Backend.Middleware;
 using Microsoft.EntityFrameworkCore;
-using Music.Repository.EF.DatabaseContexts;
+using Music.Models.Data.DbContexts;
 
 namespace Music.Backend;
 
@@ -19,7 +19,7 @@ public class Program
         builder.Services.AddDbContext<MusicContext>(opt =>
         {
             var connectionString = builder.Configuration.GetConnectionString("music-thing");
-            opt.UseSqlServer(connectionString);
+            opt.UseNpgsql(connectionString);
         });
 
         builder.Services.AddFastEndpoints()
