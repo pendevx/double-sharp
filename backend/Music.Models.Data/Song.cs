@@ -17,5 +17,7 @@ namespace Music.Models.Data
         public string MimeType { get; set; } = null!;
 
         public uint Length { get; set; }
+
+        public Guid Guid { get; set; }
     }
 }
