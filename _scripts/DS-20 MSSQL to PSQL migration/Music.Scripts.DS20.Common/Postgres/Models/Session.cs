@@ -1,13 +1,11 @@
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
-namespace Music.Scripts.DS20.Common.Models;
+namespace Music.Scripts.DS20.Common.Postgres.Models;
 
-public class Session : Entity
+[Index(nameof(Token), IsUnique = true)]
+public class Session : BaseEntity
 {
-    public Session() : base()
-    {
-    }
-
     public int AccountId { get; set; }
 
     public DateTime ExpiresOn { get; set; }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Music.Models.Data;
-using MssqlContext = Music.Scripts.DS20.Common.MusicContext;
-using PsqlContext = Music.Models.Data.DbContexts.MusicContext;
+using Music.Scripts.DS20.Common.Postgres.Models;
+using MssqlContext = Music.Scripts.DS20.Common.MSSQL.MusicContext;
+using PsqlContext = Music.Scripts.DS20.Common.Postgres.MusicContext;
 
 var path = Path.Combine(Environment.CurrentDirectory, "connectionStrings.txt");
 

@@ -1,17 +1,13 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Music.Scripts.DS20.Common.Models;
+namespace Music.Scripts.DS20.Common.Postgres.Models;
 
-public class Role : Entity
+[Index(nameof(Name), IsUnique = true)]
+public class Role : BaseEntity
 {
-    public Role() : base()
-    {
-    }
-
     [StringLength(50)]
-    [Unicode(false)]
     public string Name { get; set; } = null!;
 
     [InverseProperty("Role")]

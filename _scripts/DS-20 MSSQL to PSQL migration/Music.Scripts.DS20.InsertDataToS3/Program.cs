@@ -4,7 +4,7 @@ using Amazon.S3.Transfer;
 using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
 using Microsoft.EntityFrameworkCore;
-using MssqlContext = Music.Scripts.DS20.Common.MusicContext;
+using MssqlContext = Music.Scripts.DS20.Common.MSSQL.MusicContext;
 
 var path = Path.Combine(Environment.CurrentDirectory, "connectionStrings.txt");
 

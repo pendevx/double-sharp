@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Music.Scripts.DS20.Common.Models;
+using Music.Scripts.DS20.Common.MSSQL.Models;
 
-namespace Music.Scripts.DS20.Common;
+namespace Music.Scripts.DS20.Common.MSSQL;
 
 public class MusicContext : DbContext
 {

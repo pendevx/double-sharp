@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Music.Scripts.DS20.Common.Models;
+namespace Music.Scripts.DS20.Common.MSSQL.Models;
 
 public class Entity
 {

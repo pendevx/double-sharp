@@ -1,13 +1,9 @@
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Music.Scripts.DS20.Common.Models;
+namespace Music.Scripts.DS20.Common.Postgres.Models;
 
-public class RolePermission : Entity
+public class RolePermission : BaseEntity
 {
-    public RolePermission() : base()
-    {
-    }
-
     public int? PermissionId { get; set; }
 
     public int? RoleId { get; set; }
