@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Music.Models.Data
+namespace Music.Scripts.DS20.Common.Postgres.Models
 {
     public class Song : BaseEntity
     {
