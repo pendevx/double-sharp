@@ -37,9 +37,3 @@ public class ServiceEnvironment
 
     public string Suffix { get; }
 }
-
-// public enum ServiceEnvironment
-// {
-//     Development,
-//     Production
-// }
