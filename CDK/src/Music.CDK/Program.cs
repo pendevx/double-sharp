@@ -15,20 +15,10 @@ class Program
 
             // Uncomment the next block to specialize this stack for the AWS Account
             // and Region that are implied by the current CLI configuration.
-            /*
-            Env = new Amazon.CDK.Environment
+            Env = new Environment
             {
                 Account = System.Environment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT"),
                 Region = System.Environment.GetEnvironmentVariable("CDK_DEFAULT_REGION"),
-            }
-            */
-
-            // Uncomment the next block if you know exactly what Account and Region you
-            // want to deploy the stack to.
-            Env = new Environment
-            {
-                Account = "144565159812",
-                Region = "ap-southeast-2",
             }
 
             // For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
