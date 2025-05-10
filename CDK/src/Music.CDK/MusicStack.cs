@@ -61,7 +61,14 @@ public class MusicStack : Stack
     {
         var serviceEnvironment = ServiceEnvironment.Production;
 
+        var frontendName = serviceEnvironment.CreateName("frontend-site");
+        var frontend = new Bucket(this, frontendName, new BucketProps
+        {
+            BucketName = "music.pendevx.com",
+        });
+
         Containers.Create(serviceEnvironment.CreateName("backend"), this, vpc);
         Database.Create(this, serviceEnvironment, vpc);
+        Cloudfront.Create(this, serviceEnvironment, frontend);
     }
 }
