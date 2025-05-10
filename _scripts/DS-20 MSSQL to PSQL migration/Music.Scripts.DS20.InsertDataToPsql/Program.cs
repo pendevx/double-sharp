@@ -25,16 +25,16 @@ var mssql = new MssqlContext(mssqlOptionsBuilder.Options);
 var psql = new PsqlContext(psqlOptionsBuilder.Options);
 
 ExtractAccounts();
-ExtractPermissions();
-ExtractRoles();
+// ExtractPermissions();
+// ExtractRoles();
 ExtractSessions();
 ExtractSongs();
-ExtractSongRequests();
+// ExtractSongRequests();
 
 psql.SaveChanges();
 
-ExtractAccountRoles();
-ExtractRolePermissions();
+// ExtractAccountRoles();
+// ExtractRolePermissions();
 
 psql.SaveChanges();
 return;
