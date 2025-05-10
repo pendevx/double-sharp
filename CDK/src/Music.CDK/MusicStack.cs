@@ -1,6 +1,8 @@
 using Amazon.CDK;
+using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.S3;
 using Constructs;
+using Music.CDK.Services;
 
 namespace Music.CDK;
 
@@ -8,32 +10,66 @@ public class MusicStack : Stack
 {
     internal MusicStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
     {
-        CreateEnvironment(ServiceEnvironment.Development);
-        CreateEnvironment(ServiceEnvironment.Production);
+        CreateCommonEnvironment(ServiceEnvironment.Development);
+        var productionVpc = CreateCommonEnvironment(ServiceEnvironment.Production);
+
+        CreateProductionEnvironment(productionVpc);
     }
 
-    private void CreateEnvironment(ServiceEnvironment serviceEnvironment)
+    private Vpc CreateCommonEnvironment(ServiceEnvironment serviceEnvironment)
     {
-        var bucketName = CreateServiceName("doublesharp-files", serviceEnvironment);
+        var bucketName = serviceEnvironment.CreateName("files");
+
         var filesBucket = new Bucket(this, bucketName, new BucketProps
         {
             BucketName = bucketName,
         });
+
+        var vpcName = serviceEnvironment.CreateName("vpc");
+        var privateSubnetName = serviceEnvironment.CreateName("subnet-private");
+        var publicSubnetName = serviceEnvironment.CreateName("subnet-public");
+
+        var vpc = new Vpc(this, vpcName, new VpcProps
+        {
+            VpcName = vpcName,
+            MaxAzs = 2,
+            IpProtocol = IpProtocol.IPV4_ONLY,
+            IpAddresses = IpAddresses.Cidr("192.168.0.0/16"),
+            CreateInternetGateway = true,
+            RestrictDefaultSecurityGroup = false,
+            NatGateways = 0,
+            SubnetConfiguration = [
+                new SubnetConfiguration
+                {
+                    Name = privateSubnetName,
+                    SubnetType = SubnetType.PUBLIC, // should be private_with_egress
+                    CidrMask = 24,
+                },
+                new SubnetConfiguration
+                {
+                    Name = publicSubnetName,
+                    SubnetType = SubnetType.PUBLIC,
+                    CidrMask = 24,
+                }
+            ],
+        });
+
+        return vpc;
     }
 
-    private string CreateServiceName(string name, ServiceEnvironment serviceEnvironment) =>
-        $"{name}{serviceEnvironment.Suffix}";
-}
-
-public class ServiceEnvironment
-{
-    private ServiceEnvironment(string suffix)
+    private void CreateProductionEnvironment(Vpc vpc)
     {
-        Suffix = suffix;
+        var serviceEnvironment = ServiceEnvironment.Production;
+
+        var frontendName = serviceEnvironment.CreateName("frontend-site");
+        var frontend = new Bucket(this, frontendName, new BucketProps
+        {
+            BucketName = "music.pendevx.com",
+            WebsiteIndexDocument = "index.html",
+        });
+
+        Containers.Create(this, serviceEnvironment.CreateName("backend"), vpc);
+        Database.Create(this, serviceEnvironment, vpc);
+        Cloudfront.Create(this, serviceEnvironment, frontend);
     }
-
-    public static ServiceEnvironment Development { get; } = new("-dev");
-    public static ServiceEnvironment Production { get; } = new("");
-
-    public string Suffix { get; }
 }

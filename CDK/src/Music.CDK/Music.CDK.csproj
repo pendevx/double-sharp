@@ -17,4 +17,8 @@
     -->
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Cloudfront\redirect-function.js" />
+  </ItemGroup>
+
 </Project>
