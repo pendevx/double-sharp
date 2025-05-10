@@ -1,9 +1,9 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
-using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.RDS;
 using Amazon.CDK.AWS.S3;
 using Constructs;
+using Music.CDK.Services;
 using InstanceType = Amazon.CDK.AWS.EC2.InstanceType;
 
 namespace Music.CDK;
@@ -44,7 +44,7 @@ public class MusicStack : Stack
                 new SubnetConfiguration
                 {
                     Name = privateSubnetName,
-                    SubnetType = SubnetType.PRIVATE_WITH_EGRESS,
+                    SubnetType = SubnetType.PUBLIC, // should be private_with_egress
                     CidrMask = 24,
                 },
                 new SubnetConfiguration
@@ -52,9 +52,8 @@ public class MusicStack : Stack
                     Name = publicSubnetName,
                     SubnetType = SubnetType.PUBLIC,
                     CidrMask = 24,
-                    MapPublicIpOnLaunch = true,
                 }
-            ]
+            ],
         });
 
         return vpc;
@@ -64,25 +63,26 @@ public class MusicStack : Stack
     {
         var serviceEnvironment = ServiceEnvironment.Production;
 
-        var repositoryName = serviceEnvironment.CreateName("frontend");
-        var repository = new Repository(this, repositoryName, new RepositoryProps
+        Containers.CreateRepository(serviceEnvironment.CreateName("backend"), this, vpc);
+
+        var dbSgName = serviceEnvironment.CreateName("db-sg");
+        var dbSg = new SecurityGroup(this, dbSgName, new SecurityGroupProps
         {
-            RepositoryName = repositoryName,
-            RemovalPolicy = RemovalPolicy.DESTROY,
-            EmptyOnDelete = true,
+            Vpc = vpc,
+            AllowAllOutbound = true,
+            SecurityGroupName = dbSgName,
         });
+
+        dbSg.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(5432)); // Allow port 5432
 
         var dbName = serviceEnvironment.CreateName("db").Replace("-", "");
         var database = new DatabaseInstance(this, dbName, new DatabaseInstanceProps
         {
             DatabaseName = dbName,
-            Engine = DatabaseInstanceEngine.Postgres(new PostgresInstanceEngineProps
-            {
-                Version = PostgresEngineVersion.VER_17,
-            }),
+            Engine = DatabaseInstanceEngine.Postgres(new PostgresInstanceEngineProps { Version = PostgresEngineVersion.VER_17, }),
             Credentials = Credentials.FromGeneratedSecret("superuser", new CredentialsBaseOptions
             {
-                SecretName = "database",
+                SecretName = "doublesharp-database",
                 ExcludeCharacters = "\"@",
             }),
             RemovalPolicy = RemovalPolicy.RETAIN,
@@ -92,13 +92,10 @@ public class MusicStack : Stack
             AllocatedStorage = 20,
             MaxAllocatedStorage = 20,
             Vpc = vpc,
-            PubliclyAccessible = false,
+            PubliclyAccessible = true,
+            Port = 5432,
+            SecurityGroups = [ dbSg ],
+            VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PUBLIC, },
         });
-
-        // var frontendName = serviceEnvironment.CreateName("frontend-s3");
-        // var frontend = new Bucket(this, frontendName, new BucketProps
-        // {
-        //
-        // });
     }
 }
