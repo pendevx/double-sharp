@@ -29,7 +29,7 @@ var bucketName = config[1];
 var prefix = config.Length >= 3 ?
     bool.Parse(config[2]) ?
         "" :
-        AwsEnvironment.UserId :
+        $"{AwsEnvironment.UserId}/" :
     throw new FormatException("The third line should contain 'true' or 'false' based on whether the script's running for production or not. By default, the value is assumed to be 'false'.");
 
 var mssql = new MssqlContext(mssqlOptionsBuilder.Options);
@@ -46,7 +46,7 @@ foreach (var song in mssql.Songs)
     var uploadRequest = new TransferUtilityUploadRequest
     {
         BucketName = bucketName,
-        Key = $"{prefix}/{song.Guid}/audio.mp3",
+        Key = $"{prefix}{song.Guid}/audio.mp3",
         InputStream = new MemoryStream(song.Contents),
         ContentType = song.MimeType,
     };
