@@ -10,7 +10,7 @@ namespace Music.CDK.Services;
 
 public class Containers
 {
-    public static void Create(string baseName, Construct scope, Vpc vpc)
+    public static void Create(Construct scope, string baseName, Vpc vpc)
     {
         var clusterName = baseName + nameof(Cluster);
         var repositoryName = baseName + nameof(Repository).ToLower();

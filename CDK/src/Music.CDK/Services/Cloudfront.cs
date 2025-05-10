@@ -44,8 +44,13 @@ public class Cloudfront
     private static string ReadCodeFromEmbeddedResource(string fileName)
     {
         var assembly = Assembly.GetExecutingAssembly();
+        var assemblyName = assembly.GetName().Name;
 
-        using var stream = assembly.GetManifestResourceStream("Music.CDK.Resources." + fileName)!;
+        using var stream = assembly.GetManifestResourceStream($"{assemblyName}.Resources.{fileName}");
+
+        if (stream is null)
+            throw new FileNotFoundException($"{nameof(fileName)}: Embedded resource '{fileName}' not found.");
+
         using var streamReader = new StreamReader(stream);
 
         return streamReader.ReadToEnd();
