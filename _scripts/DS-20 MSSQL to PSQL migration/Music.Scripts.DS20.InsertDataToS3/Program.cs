@@ -14,6 +14,7 @@ if (!File.Exists(path))
     Console.WriteLine($"Populate the file {path} before continuing.");
     Console.WriteLine("The first line should contain the MSSQL connection string.");
     Console.WriteLine("The second line should contain the S3 bucket name.");
+    Console.WriteLine("The third line should contain 'true' or 'false' based on whether the script's running for production or not. By default, the value is assumed to be 'false'.");
     return;
 }
 
@@ -25,6 +26,11 @@ if (config.Length < 2)
 var mssqlOptionsBuilder = new DbContextOptionsBuilder<MssqlContext>();
 mssqlOptionsBuilder.UseSqlServer(config[0]);
 var bucketName = config[1];
+var prefix = config.Length >= 3 ?
+    bool.Parse(config[2]) ?
+        "" :
+        AwsEnvironment.UserId :
+    throw new FormatException("The third line should contain 'true' or 'false' based on whether the script's running for production or not. By default, the value is assumed to be 'false'.");
 
 var mssql = new MssqlContext(mssqlOptionsBuilder.Options);
 
@@ -40,7 +46,7 @@ foreach (var song in mssql.Songs)
     var uploadRequest = new TransferUtilityUploadRequest
     {
         BucketName = bucketName,
-        Key = $"{AwsEnvironment.UserId}/{song.Guid}/audio.mp3",
+        Key = $"{prefix}/{song.Guid}/audio.mp3",
         InputStream = new MemoryStream(song.Contents),
         ContentType = song.MimeType,
     };
