@@ -11,22 +11,19 @@ using StageProps = Amazon.CDK.AWS.CodePipeline.StageProps;
 
 namespace Music.CDK.Services;
 
-public record PipelinePackage(
-    Construct Scope,
-    ServiceEnvironment ServiceEnvironment,
-    Bucket FrontendDeployTarget
-);
-
 public class CicdPipeline
 {
-    private static Construct _scope;
-    private static ServiceEnvironment _serviceEnvironment;
+    private readonly Construct _scope;
+    private readonly ServiceEnvironment _serviceEnvironment;
 
-    public static void Create(PipelinePackage createPipeline)
+    public CicdPipeline(Construct scope, ServiceEnvironment serviceEnvironment)
     {
-        _scope = createPipeline.Scope;
-        _serviceEnvironment = createPipeline.ServiceEnvironment;
+        _scope = scope;
+        _serviceEnvironment = serviceEnvironment;
+    }
 
+    public void Create(Bucket frontendDeployTarget)
+    {
         var artifactsBucketName = _serviceEnvironment.CreateName("cicd-artifacts");
         var artifactsBucket = new Bucket(_scope, artifactsBucketName, new BucketProps
         {
@@ -38,7 +35,7 @@ public class CicdPipeline
         var buildUIAction = BuildWebUI(sourceCode, out var uiArtifacts);
         var buildBackendAction = BuildWebBackend(sourceCode, out var backendArtifacts);
 
-        var deployUIAction = DeployWebUI(uiArtifacts, createPipeline.FrontendDeployTarget);
+        var deployUIAction = DeployWebUI(uiArtifacts, frontendDeployTarget);
 
         var pipelineName = _serviceEnvironment.CreateName("cicd");
         var pipeline = new Pipeline(_scope, pipelineName, new PipelineProps
@@ -64,7 +61,7 @@ public class CicdPipeline
         });
     }
 
-    private static GitHubSourceAction GetSourceCode(out Artifact_ sourceCode)
+    private GitHubSourceAction GetSourceCode(out Artifact_ sourceCode)
     {
         sourceCode = new Artifact_("repository");
 
@@ -89,7 +86,7 @@ public class CicdPipeline
         return sourceAction;
     }
 
-    private static CodeBuildAction BuildWebUI(Artifact_ sourceCode, out Artifact_ buildArtifacts)
+    private CodeBuildAction BuildWebUI(Artifact_ sourceCode, out Artifact_ buildArtifacts)
     {
         buildArtifacts = new Artifact_("buildUIArtifacts");
 
@@ -108,7 +105,7 @@ public class CicdPipeline
         return buildAction;
     }
 
-    private static CodeBuildAction BuildWebBackend(Artifact_ sourceCode, out Artifact_ buildArtifacts)
+    private CodeBuildAction BuildWebBackend(Artifact_ sourceCode, out Artifact_ buildArtifacts)
     {
         buildArtifacts = new Artifact_("buildWebBackendArtifacts");
 
@@ -127,7 +124,7 @@ public class CicdPipeline
         return buildAction;
     }
 
-    private static S3DeployAction DeployWebUI(Artifact_ uiArtifacts, Bucket s3DeployLocation)
+    private S3DeployAction DeployWebUI(Artifact_ uiArtifacts, Bucket s3DeployLocation)
     {
         return new S3DeployAction(new S3DeployActionProps
         {
@@ -139,7 +136,7 @@ public class CicdPipeline
     }
 
     // Unused for now, until the ECS deployments get figured out.
-    private static EcsDeployAction DeployWebBackend(Artifact_ backendArtifacts, FargateService deployLocation)
+    private EcsDeployAction DeployWebBackend(Artifact_ backendArtifacts, FargateService deployLocation)
     {
         return new EcsDeployAction(new EcsDeployActionProps
         {

@@ -89,6 +89,6 @@ public class MusicStack : Stack
         Containers.Create(this, serviceEnvironment.CreateName("backend"), vpc);
         Database.Create(this, serviceEnvironment, vpc);
         Cloudfront.Create(this, serviceEnvironment, frontend);
-        CicdPipeline.Create(new PipelinePackage(this, serviceEnvironment, frontend));
+        new CicdPipeline(this, serviceEnvironment).Create(frontend);
     }
 }
