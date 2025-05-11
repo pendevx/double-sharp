@@ -1,5 +1,6 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
+using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.S3;
 using Constructs;
 using Music.CDK.Services;
@@ -66,10 +67,28 @@ public class MusicStack : Stack
         {
             BucketName = "music.pendevx.com",
             WebsiteIndexDocument = "index.html",
+            BlockPublicAccess = new BlockPublicAccess(new BlockPublicAccessOptions
+            {
+                BlockPublicAcls = false,
+                BlockPublicPolicy = false,
+                IgnorePublicAcls = false,
+                RestrictPublicBuckets = false,
+            }),
         });
+
+        frontend.AddToResourcePolicy(
+            new PolicyStatement(new PolicyStatementProps
+            {
+                Sid = "AllowPublicAccess",
+                Effect = Effect.ALLOW,
+                Resources = [ $"{frontend.BucketArn}/*" ],
+                Actions = [ "s3:GetObject" ],
+                Principals = [ new AnyPrincipal() ]
+            }));
 
         Containers.Create(this, serviceEnvironment.CreateName("backend"), vpc);
         Database.Create(this, serviceEnvironment, vpc);
         Cloudfront.Create(this, serviceEnvironment, frontend);
+        CicdPipeline.Create(new PipelinePackage(this, serviceEnvironment, frontend));
     }
 }
