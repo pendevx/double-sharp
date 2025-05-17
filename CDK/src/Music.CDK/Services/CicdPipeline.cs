@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using Amazon.CDK;
 using Amazon.CDK.AWS.CodeBuild;
 using Amazon.CDK.AWS.CodePipeline;
 using Amazon.CDK.AWS.CodePipeline.Actions;
+using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ECS;
+using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.S3;
 using Amazon.CDK.AWS.SecretsManager;
 using Constructs;
@@ -15,14 +18,16 @@ public class CicdPipeline
 {
     private readonly Construct _scope;
     private readonly ServiceEnvironment _serviceEnvironment;
+    private readonly Repository _repository;
 
-    public CicdPipeline(Construct scope, ServiceEnvironment serviceEnvironment)
+    public CicdPipeline(Construct scope, ServiceEnvironment serviceEnvironment, Repository repository)
     {
         _scope = scope;
         _serviceEnvironment = serviceEnvironment;
+        _repository = repository;
     }
 
-    public void Create(Bucket frontendDeployTarget)
+    public void Create(Bucket frontendDeployTarget, BaseService backendDeployTarget)
     {
         var artifactsBucketName = _serviceEnvironment.CreateName("cicd-artifacts");
         var artifactsBucket = new Bucket(_scope, artifactsBucketName, new BucketProps
@@ -36,6 +41,7 @@ public class CicdPipeline
         var buildBackendAction = BuildWebBackend(sourceCode, out var backendArtifacts);
 
         var deployUIAction = DeployWebUI(uiArtifacts, frontendDeployTarget);
+        var deployBackendAction = DeployWebBackend(backendArtifacts, backendDeployTarget);
 
         var pipelineName = _serviceEnvironment.CreateName("cicd");
         var pipeline = new Pipeline(_scope, pipelineName, new PipelineProps
@@ -54,7 +60,7 @@ public class CicdPipeline
                 new StageProps
                 {
                     StageName = "Deploy",
-                    Actions = [ deployUIAction ],
+                    Actions = [ deployUIAction, deployBackendAction ],
                 }
             ],
             ArtifactBucket = artifactsBucket,
@@ -109,6 +115,14 @@ public class CicdPipeline
     {
         buildArtifacts = new Artifact_("buildWebBackendArtifacts");
 
+        var roleName = _serviceEnvironment.CreateName("backend-service-role");
+        var ecsRole = new Role(_scope, roleName, new RoleProps
+        {
+            RoleName = roleName,
+            ManagedPolicies = [ ManagedPolicy.FromAwsManagedPolicyName("AmazonEC2ContainerRegistryPowerUser") ],
+            AssumedBy = new AnyPrincipal(),
+        });
+
         var buildAction = new CodeBuildAction(new CodeBuildActionProps
         {
             ActionName = "Build-WebBackend",
@@ -118,7 +132,25 @@ public class CicdPipeline
             {
                 ProjectName = "Build-WebBackend",
                 BuildSpec = BuildSpec.FromSourceFilename("backend/buildspec.yml"),
+                Environment = new BuildEnvironment
+                {
+                    EnvironmentVariables = new Dictionary<string, IBuildEnvironmentVariable>
+                    {
+                        {
+                            "REPOSITORY_URI",
+                            new BuildEnvironmentVariable
+                            {
+                                Type = BuildEnvironmentVariableType.PLAINTEXT,
+                                Value = _repository.RepositoryUri,
+                            }
+                        }
+                    },
+                    Privileged = true,
+                    ComputeType = ComputeType.SMALL,
+                    BuildImage = LinuxBuildImage.STANDARD_7_0,
+                },
             }),
+            Role = ecsRole,
         });
 
         return buildAction;
@@ -135,8 +167,7 @@ public class CicdPipeline
         });
     }
 
-    // Unused for now, until the ECS deployments get figured out.
-    private EcsDeployAction DeployWebBackend(Artifact_ backendArtifacts, FargateService deployLocation)
+    private EcsDeployAction DeployWebBackend(Artifact_ backendArtifacts, BaseService deployLocation)
     {
         return new EcsDeployAction(new EcsDeployActionProps
         {

@@ -2,20 +2,26 @@ using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ECS;
+using Amazon.CDK.AWS.ECS.Patterns;
+using Amazon.CDK.AWS.ElasticLoadBalancingV2;
 using Constructs;
+using ApplicationListenerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.ApplicationListenerProps;
+using ApplicationLoadBalancerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.ApplicationLoadBalancerProps;
 using Cluster = Amazon.CDK.AWS.ECS.Cluster;
 using ClusterProps = Amazon.CDK.AWS.ECS.ClusterProps;
+using Protocol = Amazon.CDK.AWS.ECS.Protocol;
 
 namespace Music.CDK.Services;
 
 public class Containers
 {
-    public static void Create(Construct scope, string baseName, Vpc vpc)
+    public static (Repository, BaseService) Create(Construct scope, string baseName, Vpc vpc)
     {
         var clusterName = baseName + nameof(Cluster);
         var repositoryName = baseName + nameof(Repository).ToLower();
         var containerDefinitionName = baseName + nameof(ContainerDefinition);
         var taskDefinitionName = baseName + nameof(TaskDefinition);
+        var serviceName = baseName = nameof(FargateService);
 
         var cluster = new Cluster(scope, clusterName, new ClusterProps
         {
@@ -48,11 +54,26 @@ public class Containers
             PortMappings = [
                 new PortMapping
                 {
-                    ContainerPort = 80,
-                    HostPort = 80,
+                    ContainerPort = 5000,
+                    HostPort = 5000,
                 }
             ],
             TaskDefinition = taskDefinition,
         });
+
+        var service = new FargateService(scope, serviceName, new FargateServiceProps
+        {
+            ServiceName = serviceName,
+            TaskDefinition = taskDefinition,
+            Cluster = cluster,
+            DesiredCount = 0,
+            VpcSubnets = new SubnetSelection
+            {
+                SubnetType = SubnetType.PUBLIC,
+            },
+            AssignPublicIp = true,
+        });
+
+        return (repo, service);
     }
 }

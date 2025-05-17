@@ -86,9 +86,9 @@ public class MusicStack : Stack
                 Principals = [ new AnyPrincipal() ]
             }));
 
-        Containers.Create(this, serviceEnvironment.CreateName("backend"), vpc);
+        var (repository, service) = Containers.Create(this, serviceEnvironment.CreateName("backend"), vpc);
         Database.Create(this, serviceEnvironment, vpc);
         Cloudfront.Create(this, serviceEnvironment, frontend);
-        new CicdPipeline(this, serviceEnvironment).Create(frontend);
+        new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service);
     }
 }
