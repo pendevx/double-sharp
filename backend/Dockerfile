@@ -10,4 +10,6 @@ RUN dotnet publish ./Music.Backend/Music.Backend.csproj -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /backend
 COPY --from=build /backend/out .
+
+EXPOSE 5000
 ENTRYPOINT ["dotnet", "backend.dll"]
