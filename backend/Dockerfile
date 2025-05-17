@@ -12,4 +12,4 @@ WORKDIR /backend
 COPY --from=build /backend/out .
 
 EXPOSE 5000
-ENTRYPOINT ["dotnet", "backend.dll"]
+ENTRYPOINT ["dotnet", "Music.Backend.dll"]

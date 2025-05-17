@@ -59,6 +59,10 @@ public class Containers
                 }
             ],
             TaskDefinition = taskDefinition,
+            Logging = LogDriver.AwsLogs(new AwsLogDriverProps
+            {
+                StreamPrefix = "doublesharp-backend",
+            }),
         });
 
         var service = new FargateService(scope, serviceName, new FargateServiceProps
@@ -66,7 +70,7 @@ public class Containers
             ServiceName = serviceName,
             TaskDefinition = taskDefinition,
             Cluster = cluster,
-            DesiredCount = 0,
+            DesiredCount = 1,
             VpcSubnets = new SubnetSelection
             {
                 SubnetType = SubnetType.PUBLIC,
