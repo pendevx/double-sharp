@@ -143,7 +143,7 @@ public class CicdPipeline
                                 Type = BuildEnvironmentVariableType.PLAINTEXT,
                                 Value = _repository.RepositoryUri,
                             }
-                        }
+                        },
                     },
                     Privileged = true,
                     ComputeType = ComputeType.SMALL,

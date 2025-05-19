@@ -42,5 +42,8 @@ public class Database
             SecurityGroups = [ dbSg ],
             VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PUBLIC, },
         });
+
+        Domains.CreateCnameForService(scope, serviceEnvironment, Domains.DomainsList[ServicesWithDomains.Database],
+            database.InstanceEndpoint.Hostname);
     }
 }

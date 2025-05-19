@@ -3,25 +3,27 @@ using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.ECS.Patterns;
+using Amazon.CDK.AWS.ElasticLoadBalancing;
 using Amazon.CDK.AWS.ElasticLoadBalancingV2;
 using Constructs;
-using ApplicationListenerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.ApplicationListenerProps;
 using ApplicationLoadBalancerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.ApplicationLoadBalancerProps;
 using Cluster = Amazon.CDK.AWS.ECS.Cluster;
 using ClusterProps = Amazon.CDK.AWS.ECS.ClusterProps;
-using Protocol = Amazon.CDK.AWS.ECS.Protocol;
+using HealthCheck = Amazon.CDK.AWS.ElasticLoadBalancingV2.HealthCheck;
 
 namespace Music.CDK.Services;
 
 public class Containers
 {
-    public static (Repository, BaseService) Create(Construct scope, string baseName, Vpc vpc)
+    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, string baseName, Vpc vpc)
     {
         var clusterName = baseName + nameof(Cluster);
         var repositoryName = baseName + nameof(Repository).ToLower();
         var containerDefinitionName = baseName + nameof(ContainerDefinition);
         var taskDefinitionName = baseName + nameof(TaskDefinition);
         var serviceName = baseName = nameof(FargateService);
+        var backendSgName = baseName + nameof(SecurityGroup);
+        var loadBalancerName = baseName + nameof(LoadBalancer);
 
         var cluster = new Cluster(scope, clusterName, new ClusterProps
         {
@@ -54,8 +56,8 @@ public class Containers
             PortMappings = [
                 new PortMapping
                 {
-                    ContainerPort = 5000,
-                    HostPort = 5000,
+                    ContainerPort = 8080,
+                    HostPort = 8080,
                 }
             ],
             TaskDefinition = taskDefinition,
@@ -65,18 +67,33 @@ public class Containers
             }),
         });
 
-        var service = new FargateService(scope, serviceName, new FargateServiceProps
+        var backendSg = new SecurityGroup(scope, backendSgName, new SecurityGroupProps
+        {
+            Vpc = vpc,
+            AllowAllOutbound = true,
+            SecurityGroupName = backendSgName,
+        });
+        backendSg.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(8080)); // Allow port 5432
+
+        var service = new ApplicationLoadBalancedFargateService(scope, serviceName, new ApplicationLoadBalancedFargateServiceProps
         {
             ServiceName = serviceName,
             TaskDefinition = taskDefinition,
             Cluster = cluster,
             DesiredCount = 1,
-            VpcSubnets = new SubnetSelection
-            {
-                SubnetType = SubnetType.PUBLIC,
-            },
+            TaskSubnets = new SubnetSelection { SubnetType = SubnetType.PUBLIC },
             AssignPublicIp = true,
+            SecurityGroups = [ backendSg ],
+            LoadBalancer = new ApplicationLoadBalancer(scope, loadBalancerName, new ApplicationLoadBalancerProps
+            {
+                Vpc = vpc,
+                VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PUBLIC, OnePerAz = true },
+                LoadBalancerName = loadBalancerName,
+                InternetFacing = true,
+            }),
         });
+
+        service.TargetGroup.ConfigureHealthCheck(new HealthCheck { Path = "/healthcheck.html" });
 
         return (repo, service);
     }

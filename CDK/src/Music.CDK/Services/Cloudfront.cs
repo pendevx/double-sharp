@@ -11,7 +11,7 @@ namespace Music.CDK.Services;
 
 public class Cloudfront
 {
-    public static void Create(Construct scope, ServiceEnvironment serviceEnvironment, Bucket bucket)
+    public static Distribution Create(Construct scope, ServiceEnvironment serviceEnvironment, Bucket bucket)
     {
         var code = ReadCodeFromEmbeddedResource("Cloudfront.redirect-function.js");
 
@@ -24,6 +24,7 @@ public class Cloudfront
         });
 
         var distributionName = serviceEnvironment.CreateName("cf-distribution");
+        var certificate = Domains.GenerateCertificate(scope, serviceEnvironment);
         var distribution = new Distribution(scope, distributionName, new DistributionProps
         {
             DefaultBehavior = new BehaviorOptions
@@ -37,8 +38,15 @@ public class Cloudfront
                     }
                 ],
                 Origin = new S3StaticWebsiteOrigin(bucket),
+                ViewerProtocolPolicy = ViewerProtocolPolicy.ALLOW_ALL,
+                AllowedMethods = AllowedMethods.ALLOW_ALL,
+                CachePolicy = CachePolicy.CACHING_DISABLED,
             },
+            DomainNames = [ Domains.RootDomain ],
+            Certificate = certificate,
         });
+
+        return distribution;
     }
 
     private static string ReadCodeFromEmbeddedResource(string fileName)

@@ -1,6 +1,7 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.IAM;
+using Amazon.CDK.AWS.Route53.Targets;
 using Amazon.CDK.AWS.S3;
 using Constructs;
 using Music.CDK.Services;
@@ -61,11 +62,12 @@ public class MusicStack : Stack
     private void CreateProductionEnvironment(Vpc vpc)
     {
         var serviceEnvironment = ServiceEnvironment.Production;
+        var domainName = "music.pendevx.com";
 
         var frontendName = serviceEnvironment.CreateName("frontend-site");
         var frontend = new Bucket(this, frontendName, new BucketProps
         {
-            BucketName = "music.pendevx.com",
+            BucketName = domainName,
             WebsiteIndexDocument = "index.html",
             BlockPublicAccess = new BlockPublicAccess(new BlockPublicAccessOptions
             {
@@ -88,7 +90,11 @@ public class MusicStack : Stack
 
         var (repository, service) = Containers.Create(this, serviceEnvironment.CreateName("backend"), vpc);
         Database.Create(this, serviceEnvironment, vpc);
-        Cloudfront.Create(this, serviceEnvironment, frontend);
-        new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service);
+        var distribution = Cloudfront.Create(this, serviceEnvironment, frontend);
+        new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service.Service);
+
+        Domains.CreateAliasForRoot(this, serviceEnvironment, distribution);
+        Domains.CreateAliasForService(this, serviceEnvironment, ServicesWithDomains.WebBackend,
+            serviceEnvironment.CreateName("backend"), new LoadBalancerTarget(service.LoadBalancer));
     }
 }
