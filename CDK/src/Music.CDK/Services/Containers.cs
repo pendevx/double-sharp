@@ -21,7 +21,7 @@ public class Containers
         var repositoryName = baseName + nameof(Repository).ToLower();
         var containerDefinitionName = baseName + nameof(ContainerDefinition);
         var taskDefinitionName = baseName + nameof(TaskDefinition);
-        var serviceName = baseName = nameof(FargateService);
+        var serviceName = baseName + nameof(FargateService);
         var backendSgName = baseName + nameof(SecurityGroup);
         var loadBalancerName = baseName + nameof(LoadBalancer);
 
@@ -73,7 +73,7 @@ public class Containers
             AllowAllOutbound = true,
             SecurityGroupName = backendSgName,
         });
-        backendSg.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(8080)); // Allow port 5432
+        backendSg.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(8080)); // Allow port 8080
 
         var service = new ApplicationLoadBalancedFargateService(scope, serviceName, new ApplicationLoadBalancedFargateServiceProps
         {
