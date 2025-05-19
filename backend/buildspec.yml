@@ -2,23 +2,26 @@ version: 0.2
 
 phases:
     install:
-        runtime-versions:
-            dotnet: 9.0.101
-
         commands:
-            - echo "Base directory"
-            - ls -al
-            - echo "Installing dependencies"
-            - cd backend && dotnet restore
+            - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0 --runtime dotnet --install-dir /usr/share/dotnet
+            - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0 --runtime aspnetcore --install-dir /usr/share/dotnet
+            - ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+
+    pre_build:
+        commands:
+            - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+            - IMAGE_TAG=${COMMIT_HASH:=latest}
+            - aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin ${REPOSITORY_NAME}
 
     build:
         commands:
-            - echo "Build started on `date`"
-            - cd Music.Backend && dotnet publish -c Release
+            - docker build -t ${REPOSITORY_NAME}:latest .
+            - docker tag ${REPOSITORY_NAME}:latest ${REPOSITORY_NAME}:$IMAGE_TAG
 
     post_build:
         commands:
-            - echo "Build completed on `date`"
+            - docker push ${REPOSITORY_NAME}:latest
+            - docker push ${REPOSITORY_NAME}:$IMAGE_TAG
 
 artifacts:
     files:

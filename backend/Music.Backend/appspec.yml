@@ -1,19 +1,10 @@
 version: 0.0
-os: windows
 
-files:
-    - source: /bin/Release/net9.0/publish
-      destination: C:\inetpub\wwwroot
-
-hooks:
-    ApplicationStop:
-        - location: deploy_scripts/stop_server.ps1 # stop the server
-          timeout: 300
-
-    ApplicationStart:
-        - location: deploy_scripts/start_server.ps1 # start the server
-          timeout: 300
-
-    ValidateService:
-        - location: deploy_scripts/validate_service.ps1 # validate the service
-          timeout: 300
+Resources:
+    - TargetService:
+          Type: AWS::ECS::Service
+          Properties:
+              TaskDefinition: "arn"
+              LoadBalancerInfo:
+                  ContainerName: "DoubleSharp-Backend"
+                  ContainerPort: 80

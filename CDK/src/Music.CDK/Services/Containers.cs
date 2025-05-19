@@ -2,20 +2,28 @@ using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ECS;
+using Amazon.CDK.AWS.ECS.Patterns;
+using Amazon.CDK.AWS.ElasticLoadBalancing;
+using Amazon.CDK.AWS.ElasticLoadBalancingV2;
 using Constructs;
+using ApplicationLoadBalancerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.ApplicationLoadBalancerProps;
 using Cluster = Amazon.CDK.AWS.ECS.Cluster;
 using ClusterProps = Amazon.CDK.AWS.ECS.ClusterProps;
+using HealthCheck = Amazon.CDK.AWS.ElasticLoadBalancingV2.HealthCheck;
 
 namespace Music.CDK.Services;
 
 public class Containers
 {
-    public static void Create(Construct scope, string baseName, Vpc vpc)
+    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, string baseName, Vpc vpc)
     {
         var clusterName = baseName + nameof(Cluster);
         var repositoryName = baseName + nameof(Repository).ToLower();
         var containerDefinitionName = baseName + nameof(ContainerDefinition);
         var taskDefinitionName = baseName + nameof(TaskDefinition);
+        var serviceName = baseName + nameof(FargateService);
+        var backendSgName = baseName + nameof(SecurityGroup);
+        var loadBalancerName = baseName + nameof(LoadBalancer);
 
         var cluster = new Cluster(scope, clusterName, new ClusterProps
         {
@@ -48,11 +56,45 @@ public class Containers
             PortMappings = [
                 new PortMapping
                 {
-                    ContainerPort = 80,
-                    HostPort = 80,
+                    ContainerPort = 8080,
+                    HostPort = 8080,
                 }
             ],
             TaskDefinition = taskDefinition,
+            Logging = LogDriver.AwsLogs(new AwsLogDriverProps
+            {
+                StreamPrefix = "doublesharp-backend",
+            }),
         });
+
+        var backendSg = new SecurityGroup(scope, backendSgName, new SecurityGroupProps
+        {
+            Vpc = vpc,
+            AllowAllOutbound = true,
+            SecurityGroupName = backendSgName,
+        });
+        backendSg.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(8080)); // Allow port 8080
+
+        var service = new ApplicationLoadBalancedFargateService(scope, serviceName, new ApplicationLoadBalancedFargateServiceProps
+        {
+            ServiceName = serviceName,
+            TaskDefinition = taskDefinition,
+            Cluster = cluster,
+            DesiredCount = 1,
+            TaskSubnets = new SubnetSelection { SubnetType = SubnetType.PUBLIC },
+            AssignPublicIp = true,
+            SecurityGroups = [ backendSg ],
+            LoadBalancer = new ApplicationLoadBalancer(scope, loadBalancerName, new ApplicationLoadBalancerProps
+            {
+                Vpc = vpc,
+                VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PUBLIC, OnePerAz = true },
+                LoadBalancerName = loadBalancerName,
+                InternetFacing = true,
+            }),
+        });
+
+        service.TargetGroup.ConfigureHealthCheck(new HealthCheck { Path = "/healthcheck.html" });
+
+        return (repo, service);
     }
 }
