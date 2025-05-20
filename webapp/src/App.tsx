@@ -1,8 +1,8 @@
 import { MusicPlayerControl, FrequencyGraph, SettingsButton, UploadSongButton, BlurredModal, FullScreenOverlay } from "./components";
 import React, { RefObject } from "react";
 import { MusicContext } from "./contexts/MusicContext";
-import router from "./pages/router";
 import { CurrentSongModal, RequestSongModal, SettingsModal } from "./components/modals";
+import { Outlet } from "react-router";
 
 const modalReducer = (state: Modal, action: { type: Modal; toggle?: boolean }): Modal => (action.toggle === false ? action.type : action.type === state ? Modal.None : action.type);
 
@@ -52,7 +52,7 @@ export default function App() {
             }
         }
     }
-    
+
     const hideFullscreen = () => dispatchModal({ type: Modal.None });
 
     return (
@@ -61,7 +61,7 @@ export default function App() {
             <div className="fixed inset-0 flex">
                 <div className="flex h-full w-full flex-col justify-between">
                     <div className="mt-4 h-full overflow-hidden px-4">
-                        {router}
+                        <Outlet />
                     </div>
 
                     <div>
