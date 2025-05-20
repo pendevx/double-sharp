@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import router from "@pages/router";
 import "./reset.css";
 import "./index.css";
 import MusicProvider from "./contexts/MusicContext";
@@ -11,9 +11,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
         <AccountProvider>
             <MusicProvider>
-                <AudioTimeProvider>
-                    <App />
-                </AudioTimeProvider>
+                <AudioTimeProvider>{router}</AudioTimeProvider>
             </MusicProvider>
         </AccountProvider>
     </React.StrictMode>
