@@ -18,7 +18,10 @@ public class Program
         builder.Services.AddLogging(logging => { logging.AddSeq(); });
         builder.Services.AddDbContext<MusicContext>(opt =>
         {
-            var connectionString = builder.Configuration.GetConnectionString("music-thing");
+            const string connectionStringKey = "doublesharp-db-connection-string";
+            var connectionString = builder.Configuration.GetConnectionString("music-thing") ??
+                                   Environment.GetEnvironmentVariable(connectionStringKey, EnvironmentVariableTarget.Machine) ??
+                                   throw new Exception($"Please specify the connection string in appsettings.json or in an environment variable called {nameof(connectionStringKey)}.");
             opt.UseNpgsql(connectionString);
         });
 

@@ -1,12 +1,6 @@
 version: 0.2
 
 phases:
-    install:
-        commands:
-            - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0 --runtime dotnet --install-dir /usr/share/dotnet
-            - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0 --runtime aspnetcore --install-dir /usr/share/dotnet
-            - ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
-
     pre_build:
         commands:
             - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)

@@ -10,12 +10,13 @@ using ApplicationLoadBalancerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.Appli
 using Cluster = Amazon.CDK.AWS.ECS.Cluster;
 using ClusterProps = Amazon.CDK.AWS.ECS.ClusterProps;
 using HealthCheck = Amazon.CDK.AWS.ElasticLoadBalancingV2.HealthCheck;
+using Secret = Amazon.CDK.AWS.SecretsManager.Secret;
 
 namespace Music.CDK.Services;
 
 public class Containers
 {
-    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, string baseName, Vpc vpc)
+    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, string baseName, Vpc vpc, Secret dbConnectionString)
     {
         var clusterName = baseName + nameof(Cluster);
         var repositoryName = baseName + nameof(Repository).ToLower();
@@ -61,11 +62,10 @@ public class Containers
                 }
             ],
             TaskDefinition = taskDefinition,
-            Logging = LogDriver.AwsLogs(new AwsLogDriverProps
-            {
-                StreamPrefix = "doublesharp-backend",
-            }),
+            Logging = LogDriver.AwsLogs(new AwsLogDriverProps { StreamPrefix = "doublesharp-backend", }),
         });
+
+        containerDefinition.AddSecret("ConnectionString", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(dbConnectionString));
 
         var backendSg = new SecurityGroup(scope, backendSgName, new SecurityGroupProps
         {

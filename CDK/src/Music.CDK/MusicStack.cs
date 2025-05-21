@@ -88,8 +88,8 @@ public class MusicStack : Stack
                 Principals = [ new AnyPrincipal() ]
             }));
 
-        var (repository, service) = Containers.Create(this, serviceEnvironment.CreateName("backend"), vpc);
-        Database.Create(this, serviceEnvironment, vpc);
+        var connectionStringSecret = Database.Create(this, serviceEnvironment, vpc);
+        var (repository, service) = Containers.Create(this, serviceEnvironment.CreateName("backend"), vpc, connectionStringSecret);
         var distribution = Cloudfront.Create(this, serviceEnvironment, frontend);
         new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service.Service);
 
