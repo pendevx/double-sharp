@@ -36,9 +36,11 @@ public class CicdPipeline
             RemovalPolicy = RemovalPolicy.DESTROY,
         });
 
+        var (pipelineRole, buildServiceRole) = GetIamRoles();
+
         var sourceAction = GetSourceCode(out var sourceCode);
         var buildUIAction = BuildWebUI(sourceCode, out var uiArtifacts);
-        var buildBackendAction = BuildWebBackend(sourceCode, out var backendArtifacts);
+        var buildBackendAction = BuildWebBackend(sourceCode, buildServiceRole, out var backendArtifacts);
 
         var deployUIAction = DeployWebUI(uiArtifacts, frontendDeployTarget);
         var deployBackendAction = DeployWebBackend(backendArtifacts, backendDeployTarget);
@@ -64,7 +66,46 @@ public class CicdPipeline
                 }
             ],
             ArtifactBucket = artifactsBucket,
+            Role = pipelineRole,
         });
+    }
+
+    private (Role pipelineRole, Role buildServiceRole) GetIamRoles()
+    {
+        var buildServiceRole = _serviceEnvironment.CreateName("backend-service-role");
+        var buildRole = new Role(_scope, buildServiceRole, new RoleProps
+        {
+            RoleName = buildServiceRole,
+            ManagedPolicies = [ ManagedPolicy.FromAwsManagedPolicyName("AmazonEC2ContainerRegistryPowerUser") ],
+            AssumedBy = new AnyPrincipal(),
+        });
+
+        var pipelineRoleName = _serviceEnvironment.CreateName("pipeline-role");
+        var pipelineRole = new Role(_scope, pipelineRoleName, new RoleProps
+        {
+            RoleName = pipelineRoleName,
+            AssumedBy = new ServicePrincipal("codepipeline.amazonaws.com"),
+            InlinePolicies = new Dictionary<string, PolicyDocument>
+            {
+                {
+                    "PassCodeBuildRolePolicy",
+                    new PolicyDocument(new PolicyDocumentProps
+                    {
+                        Statements =
+                        [
+                            new PolicyStatement(new PolicyStatementProps
+                            {
+                                Actions = [ "iam:PassRole" ],
+                                Resources = [ buildRole.RoleArn ],
+                                Effect = Effect.ALLOW,
+                            }),
+                        ]
+                    })
+                },
+            },
+        });
+
+        return (pipelineRole, buildRole);
     }
 
     private GitHubSourceAction GetSourceCode(out Artifact_ sourceCode)
@@ -111,17 +152,9 @@ public class CicdPipeline
         return buildAction;
     }
 
-    private CodeBuildAction BuildWebBackend(Artifact_ sourceCode, out Artifact_ buildArtifacts)
+    private CodeBuildAction BuildWebBackend(Artifact_ sourceCode, Role codebuildServiceRole, out Artifact_ buildArtifacts)
     {
         buildArtifacts = new Artifact_("buildWebBackendArtifacts");
-
-        var roleName = _serviceEnvironment.CreateName("backend-service-role");
-        var ecsRole = new Role(_scope, roleName, new RoleProps
-        {
-            RoleName = roleName,
-            ManagedPolicies = [ ManagedPolicy.FromAwsManagedPolicyName("AmazonEC2ContainerRegistryPowerUser") ],
-            AssumedBy = new AnyPrincipal(),
-        });
 
         var buildAction = new CodeBuildAction(new CodeBuildActionProps
         {
@@ -150,7 +183,7 @@ public class CicdPipeline
                     BuildImage = LinuxBuildImage.STANDARD_7_0,
                 },
             }),
-            Role = ecsRole,
+            Role = codebuildServiceRole,
         });
 
         return buildAction;
