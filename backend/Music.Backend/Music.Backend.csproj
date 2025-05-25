@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.Core" Version="4.0.0.6" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.1" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.0.7" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.0.4" />
     <PackageReference Include="FastEndpoints" Version="5.30.0.15-beta" />
     <PackageReference Include="FastEndpoints.Swagger" Version="5.30.0.15-beta" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />

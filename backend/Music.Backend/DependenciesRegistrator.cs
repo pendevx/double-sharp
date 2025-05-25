@@ -1,9 +1,13 @@
+using Amazon.S3;
+using Amazon.SecurityToken;
 using Music.Backend.Global.Impl;
 using Music.CommandHandlers;
 using Music.Global.Contracts;
 using Music.QueryHandlers;
 using Music.Repositories;
 using Music.Repositories.Contracts;
+using Music.Services;
+using Music.Services.DataAccess.AWS;
 
 namespace Music.Backend;
 
@@ -52,6 +56,24 @@ public static class DependencyInjectionConfiguration
 
         builder.Services.AddScoped<IAccountRepository, AccountRepository>();
         builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+
+        builder.Services.AddAWSService<IAmazonS3>();
+        builder.Services.AddAWSService<IAmazonSecurityTokenService>();
+        builder.Services.AddSingleton<AwsEnvironment>();
+
+        const string bucketKey = "FilesBucketName";
+        var bucketName = builder.Configuration.GetValue<string>(bucketKey) ??
+            throw new InvalidOperationException($"The bucket name must be specified in appsettings.json under the key {bucketKey}");
+
+        builder.Services.AddScoped<SongsRepository>(sp =>
+        {
+            var s3Client = sp.GetRequiredService<IAmazonS3>();
+            var awsEnvironment = sp.GetRequiredService<AwsEnvironment>();
+            var logger = sp.GetRequiredService<ILogger<SongsRepository>>();
+            var keyPrefix = builder.Environment.IsProduction() ? "" : $"{awsEnvironment.UserId}/";
+
+            return new SongsRepository(s3Client, keyPrefix, bucketName, logger);
+        });
 
         builder.Services.AddScoped<IAuthContext, WebAuthContext>();
         builder.Services.AddHttpContextAccessor();

@@ -16,12 +16,12 @@ public class Program
         const string corsAllowProd = "allow-prod";
         builder.Services.AddCors(options =>
         {
-            Action<CorsPolicyBuilder> policy = p =>
+            options.AddPolicy(corsAllowProd, policy =>
             {
-                p.WithOrigins("https://music.pendevx.com");
-            };
-
-            options.AddPolicy(corsAllowProd, policy);
+                policy.WithOrigins("https://music.pendevx.com");
+                policy.WithMethods("OPTIONS", "HEAD", "GET", "POST", "PUT", "PATCH", "DELETE");
+                policy.WithHeaders("*");
+            });
         });
 
         builder.Services.AddControllers();
