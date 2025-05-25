@@ -70,8 +70,9 @@ public static class DependencyInjectionConfiguration
             var s3Client = sp.GetRequiredService<IAmazonS3>();
             var awsEnvironment = sp.GetRequiredService<AwsEnvironment>();
             var logger = sp.GetRequiredService<ILogger<SongsRepository>>();
+            var keyPrefix = builder.Environment.IsProduction() ? "" : $"{awsEnvironment.UserId}/";
 
-            return new SongsRepository(s3Client, awsEnvironment, bucketName, logger);
+            return new SongsRepository(s3Client, keyPrefix, bucketName, logger);
         });
 
         builder.Services.AddScoped<IAuthContext, WebAuthContext>();

@@ -12,14 +12,14 @@ public sealed class SongsRepository
     private const string AudioMp3FileName = "audio.mp3";
 
     private readonly IAmazonS3 _s3Client;
-    private readonly AwsEnvironment _awsEnvironment;
+    private readonly string _keyPrefix;
     private readonly string _bucketName;
     private readonly ILogger<SongsRepository> _logger;
 
-    public SongsRepository(IAmazonS3 s3Client, AwsEnvironment awsEnvironment, string bucketName, ILogger<SongsRepository> logger)
+    public SongsRepository(IAmazonS3 s3Client, string keyPrefix, string bucketName, ILogger<SongsRepository> logger)
     {
         _s3Client = s3Client;
-        _awsEnvironment = awsEnvironment;
+        _keyPrefix = keyPrefix;
         _bucketName = bucketName;
         _logger = logger;
     }
@@ -29,7 +29,7 @@ public sealed class SongsRepository
         var uploadRequest = new TransferUtilityUploadRequest
         {
             BucketName = _bucketName,
-            Key = $"{_awsEnvironment.UserId}{song.Id}/{AudioMp3FileName}",
+            Key = $"{_keyPrefix}{song.Id}/{AudioMp3FileName}",
             InputStream = contents,
             ContentType = song.MimeType,
         };
@@ -37,7 +37,7 @@ public sealed class SongsRepository
 
     public async Task<Stream> Download(int id)
     {
-        var key = $"{_awsEnvironment.UserId}/{id}/{AudioMp3FileName}";
+        var key = $"{_keyPrefix}{id}/{AudioMp3FileName}";
 
         var request = new GetObjectRequest
         {
