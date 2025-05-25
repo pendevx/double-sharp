@@ -11,8 +11,9 @@ phases:
 
     build:
         commands:
-            - docker build -t ${REPOSITORY_URI}:latest .
-            - docker tag ${REPOSITORY_URI}:latest $IMAGE_URI
+            - docker build -t doublesharp-backend .
+            - docker tag doublesharp-backend ${REPOSITORY_URI}:latest
+            - docker tag doublesharp-backend $IMAGE_URI
 
     post_build:
         commands:
