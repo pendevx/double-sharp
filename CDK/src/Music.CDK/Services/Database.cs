@@ -24,7 +24,7 @@ public class Database
         var dbCredentials = Credentials.FromGeneratedSecret("superuser", new CredentialsBaseOptions
         {
             SecretName = "doublesharp-database",
-            ExcludeCharacters = "\"@",
+            ExcludeCharacters = "\"@/\\;",
         });
 
         var dbName = serviceEnvironment.CreateName("db").Replace("-", "");
@@ -53,13 +53,7 @@ public class Database
         var connStrSecretName = serviceEnvironment.CreateName("connection-string");
         var connectionStringSecret = new Secret(scope, connStrSecretName, new SecretProps
         {
-            SecretStringValue = SecretValue.UnsafePlainText($"""
-                 server={Domains.DomainsList[ServicesWithDomains.Database]};
-                 port={port};
-                 database={dbName};
-                 user id={dbCredentials.Username};
-                 password={database.Secret?.SecretValueFromJson("password").UnsafeUnwrap()};
-                 """)
+            SecretStringValue = SecretValue.UnsafePlainText($"server={Domains.DomainsList[ServicesWithDomains.Database]};port={port};database={dbName};user id={dbCredentials.Username};password={database.Secret?.SecretValueFromJson("password").UnsafeUnwrap()};")
         });
 
         return connectionStringSecret;

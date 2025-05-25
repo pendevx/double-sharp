@@ -9,6 +9,7 @@ using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.S3;
 using Amazon.CDK.AWS.SecretsManager;
 using Constructs;
+using Environment = System.Environment;
 using Secret = Amazon.CDK.AWS.SecretsManager.Secret;
 using StageProps = Amazon.CDK.AWS.CodePipeline.StageProps;
 
@@ -20,12 +21,18 @@ public class CicdPipeline
     private readonly ServiceEnvironment _serviceEnvironment;
     private readonly Repository _repository;
 
+    public const string GithubOauthFlagName = "GITHUB_OAUTH_ENABLED";
+
     public CicdPipeline(Construct scope, ServiceEnvironment serviceEnvironment, Repository repository)
     {
         _scope = scope;
         _serviceEnvironment = serviceEnvironment;
         _repository = repository;
     }
+
+    public bool IsOauthTokenEnabled() =>
+        (Environment.GetEnvironmentVariable(GithubOauthFlagName) ?? _scope.Node.TryGetContext(GithubOauthFlagName))
+        as string == "true";
 
     public void Create(Bucket frontendDeployTarget, BaseService backendDeployTarget)
     {
@@ -34,16 +41,21 @@ public class CicdPipeline
         {
             BucketName = artifactsBucketName,
             RemovalPolicy = RemovalPolicy.DESTROY,
+            AutoDeleteObjects = true,
         });
 
         var (pipelineRole, buildServiceRole) = GetIamRoles();
 
         var sourceAction = GetSourceCode(out var sourceCode);
+
+        if (sourceAction is null) // The GithubOauthToken secret needs to be populated
+            return;
+
         var buildUIAction = BuildWebUI(sourceCode, out var uiArtifacts);
         var buildBackendAction = BuildWebBackend(sourceCode, buildServiceRole, out var backendArtifacts);
 
         var deployUIAction = DeployWebUI(uiArtifacts, frontendDeployTarget);
-        var deployBackendAction = DeployWebBackend(backendArtifacts, backendDeployTarget);
+        var deployBackendAction = backendDeployTarget is not null ? DeployWebBackend(backendArtifacts, backendDeployTarget) : null;
 
         var pipelineName = _serviceEnvironment.CreateName("cicd");
         var pipeline = new Pipeline(_scope, pipelineName, new PipelineProps
@@ -120,6 +132,20 @@ public class CicdPipeline
             RemovalPolicy = RemovalPolicy.DESTROY,
         });
 
+        if (!IsOauthTokenEnabled())
+        {
+            _ = new CfnOutput(_scope, _serviceEnvironment.CreateName("populate-github-oauth-warning"), new CfnOutputProps
+            {
+                Description = "Instructions to set the GitHub OAuth token",
+                Value = $"Run this to set the GitHub token:\n" +
+                        $"aws secretsmanager put-secret-value " +
+                        $"--secret-id {secretName} " +
+                        $"--secret-string \"<github-oauth-token>\"",
+            });
+
+            return null;
+        }
+
         var sourceAction = new GitHubSourceAction(new GitHubSourceActionProps
         {
             Owner = "pendevx",
@@ -182,6 +208,7 @@ public class CicdPipeline
                     ComputeType = ComputeType.SMALL,
                     BuildImage = LinuxBuildImage.STANDARD_7_0,
                 },
+                Role = codebuildServiceRole,
             }),
             Role = codebuildServiceRole,
         });

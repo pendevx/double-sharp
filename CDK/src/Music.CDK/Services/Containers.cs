@@ -5,6 +5,7 @@ using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.ECS.Patterns;
 using Amazon.CDK.AWS.ElasticLoadBalancing;
 using Amazon.CDK.AWS.ElasticLoadBalancingV2;
+using Amazon.CDK.AWS.Route53.Targets;
 using Constructs;
 using ApplicationLoadBalancerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.ApplicationLoadBalancerProps;
 using Cluster = Amazon.CDK.AWS.ECS.Cluster;
@@ -16,8 +17,9 @@ namespace Music.CDK.Services;
 
 public class Containers
 {
-    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, string baseName, Vpc vpc, Secret dbConnectionString)
+    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, ServiceEnvironment serviceEnvironment, Vpc vpc, Secret dbConnectionString)
     {
+        var baseName = serviceEnvironment.CreateName("backend");
         var clusterName = baseName + nameof(Cluster);
         var repositoryName = baseName + nameof(Repository).ToLower();
         var containerDefinitionName = baseName + nameof(ContainerDefinition);
@@ -65,7 +67,7 @@ public class Containers
             Logging = LogDriver.AwsLogs(new AwsLogDriverProps { StreamPrefix = "doublesharp-backend", }),
         });
 
-        containerDefinition.AddSecret("ConnectionString", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(dbConnectionString));
+        containerDefinition.AddSecret("DOUBLESHARP_DB_CONNECTION_STRING", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(dbConnectionString));
 
         var backendSg = new SecurityGroup(scope, backendSgName, new SecurityGroupProps
         {
@@ -94,6 +96,9 @@ public class Containers
         });
 
         service.TargetGroup.ConfigureHealthCheck(new HealthCheck { Path = "/healthcheck.html" });
+
+        Domains.CreateAliasForService(scope, serviceEnvironment, ServicesWithDomains.WebBackend,
+            serviceEnvironment.CreateName("backend"), new LoadBalancerTarget(service?.LoadBalancer));
 
         return (repo, service);
     }

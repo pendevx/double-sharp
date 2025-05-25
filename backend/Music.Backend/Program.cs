@@ -1,3 +1,4 @@
+using System.Collections;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Music.Backend.Middleware;
@@ -18,10 +19,10 @@ public class Program
         builder.Services.AddLogging(logging => { logging.AddSeq(); });
         builder.Services.AddDbContext<MusicContext>(opt =>
         {
-            const string connectionStringKey = "doublesharp-db-connection-string";
+            const string connectionStringKey = "DOUBLESHARP_DB_CONNECTION_STRING";
             var connectionString = builder.Configuration.GetConnectionString("music-thing") ??
-                                   Environment.GetEnvironmentVariable(connectionStringKey, EnvironmentVariableTarget.Machine) ??
-                                   throw new Exception($"Please specify the connection string in appsettings.json or in an environment variable called {nameof(connectionStringKey)}.");
+                                   Environment.GetEnvironmentVariable(connectionStringKey) ??
+                                   throw new Exception($"Please specify the connection string in appsettings.json or in an environment variable called {connectionStringKey}.");
             opt.UseNpgsql(connectionString);
         });
 
