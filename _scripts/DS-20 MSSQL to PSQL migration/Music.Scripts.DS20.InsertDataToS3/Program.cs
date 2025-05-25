@@ -46,7 +46,7 @@ foreach (var song in mssql.Songs)
     var uploadRequest = new TransferUtilityUploadRequest
     {
         BucketName = bucketName,
-        Key = $"{prefix}{song.Guid}/audio.mp3",
+        Key = $"{prefix}{song.Id}/audio.mp3",
         InputStream = new MemoryStream(song.Contents),
         ContentType = song.MimeType,
     };
