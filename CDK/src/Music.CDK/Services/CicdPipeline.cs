@@ -232,7 +232,7 @@ public class CicdPipeline
         return new EcsDeployAction(new EcsDeployActionProps
         {
             ActionName = "Deploy-WebBackend",
-            Input = backendArtifacts,
+            ImageFile = new ArtifactPath_(backendArtifacts, "backend/imagedefinitions.json"),
             Service = deployLocation,
         });
     }
