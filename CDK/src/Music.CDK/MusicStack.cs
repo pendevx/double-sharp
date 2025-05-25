@@ -76,6 +76,8 @@ public class MusicStack : Stack
                 IgnorePublicAcls = false,
                 RestrictPublicBuckets = false,
             }),
+            AutoDeleteObjects = true,
+            RemovalPolicy = RemovalPolicy.DESTROY,
         });
 
         frontend.AddToResourcePolicy(
@@ -85,16 +87,15 @@ public class MusicStack : Stack
                 Effect = Effect.ALLOW,
                 Resources = [ $"{frontend.BucketArn}/*" ],
                 Actions = [ "s3:GetObject" ],
-                Principals = [ new AnyPrincipal() ]
+                Principals = [ new AnyPrincipal() ],
             }));
 
-        var (repository, service) = Containers.Create(this, serviceEnvironment.CreateName("backend"), vpc);
-        Database.Create(this, serviceEnvironment, vpc);
         var distribution = Cloudfront.Create(this, serviceEnvironment, frontend);
-        new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service.Service);
-
         Domains.CreateAliasForRoot(this, serviceEnvironment, distribution);
-        Domains.CreateAliasForService(this, serviceEnvironment, ServicesWithDomains.WebBackend,
-            serviceEnvironment.CreateName("backend"), new LoadBalancerTarget(service.LoadBalancer));
+
+        var connectionStringSecret = Database.Create(this, serviceEnvironment, vpc);
+        var (repository, service) = Containers.Create(this, serviceEnvironment, vpc, connectionStringSecret);
+
+        new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service.Service);
     }
 }

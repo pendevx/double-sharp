@@ -1,32 +1,26 @@
 version: 0.2
 
 phases:
-    install:
-        commands:
-            - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0 --runtime dotnet --install-dir /usr/share/dotnet
-            - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0 --runtime aspnetcore --install-dir /usr/share/dotnet
-            - ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
-
     pre_build:
         commands:
             - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
             - IMAGE_TAG=${COMMIT_HASH:=latest}
-            - aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin ${REPOSITORY_NAME}
+            - IMAGE_URI=${REPOSITORY_URI}:$IMAGE_TAG
+            - aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin ${REPOSITORY_URI}
+            - cd backend
 
     build:
         commands:
-            - docker build -t ${REPOSITORY_NAME}:latest .
-            - docker tag ${REPOSITORY_NAME}:latest ${REPOSITORY_NAME}:$IMAGE_TAG
+            - docker build -t doublesharp-backend .
+            - docker tag doublesharp-backend ${REPOSITORY_URI}:latest
+            - docker tag doublesharp-backend $IMAGE_URI
 
     post_build:
         commands:
-            - docker push ${REPOSITORY_NAME}:latest
-            - docker push ${REPOSITORY_NAME}:$IMAGE_TAG
+            - docker push ${REPOSITORY_URI}:latest
+            - docker push $IMAGE_URI
+            - printf "[{\"name\":\"${CONTAINER_NAME}\",\"imageUri\":\"$IMAGE_URI\"}]" > imagedefinitions.json
 
 artifacts:
     files:
-        - "bin/Release/net9.0/publish/**/*"
-        - "appspec.yml"
-        - "deploy_scripts/**/*"
-    base-directory: "backend/Music.Backend"
-    name: "backend"
+        - backend/imagedefinitions.json
