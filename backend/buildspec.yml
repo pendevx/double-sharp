@@ -5,23 +5,21 @@ phases:
         commands:
             - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
             - IMAGE_TAG=${COMMIT_HASH:=latest}
+            - IMAGE_URI=${REPOSITORY_URI}:$IMAGE_TAG
             - aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin ${REPOSITORY_URI}
             - cd backend
 
     build:
         commands:
             - docker build -t ${REPOSITORY_URI}:latest .
-            - docker tag ${REPOSITORY_URI}:latest ${REPOSITORY_URI}:$IMAGE_TAG
+            - docker tag ${REPOSITORY_URI}:latest $IMAGE_URI
 
     post_build:
         commands:
             - docker push ${REPOSITORY_URI}:latest
-            - docker push ${REPOSITORY_URI}:$IMAGE_TAG
+            - docker push $IMAGE_URI
+            - printf '[{"name":"doublesharp-backend","imageUri":"$IMAGE_URI"}]' > imagedefinitions.json
 
 artifacts:
     files:
-        - "bin/Release/net9.0/publish/**/*"
-        - "appspec.yml"
-        - "deploy_scripts/**/*"
-    base-directory: "backend/Music.Backend"
-    name: "backend"
+        - imagedefinitions.json
