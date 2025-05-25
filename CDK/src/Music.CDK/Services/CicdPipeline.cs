@@ -52,14 +52,18 @@ public class CicdPipeline
             return;
 
         var buildUIAction = BuildWebUI(sourceCode, out var uiArtifacts);
-        var buildBackendAction = BuildWebBackend(sourceCode, buildServiceRole, out var backendArtifacts);
+        var buildBackendAction = BuildWebBackend(sourceCode, buildServiceRole,
+            backendDeployTarget.TaskDefinition.DefaultContainer?.ContainerName, out var backendArtifacts);
 
         var deployUIAction = DeployWebUI(uiArtifacts, frontendDeployTarget);
-        var deployBackendAction = backendDeployTarget is not null ? DeployWebBackend(backendArtifacts, backendDeployTarget) : null;
+        var deployBackendAction = backendDeployTarget is not null
+            ? DeployWebBackend(backendArtifacts, backendDeployTarget)
+            : null;
 
         var pipelineName = _serviceEnvironment.CreateName("cicd");
         var pipeline = new Pipeline(_scope, pipelineName, new PipelineProps
         {
+            PipelineName = pipelineName,
             Stages = [
                 new StageProps
                 {
@@ -178,7 +182,7 @@ public class CicdPipeline
         return buildAction;
     }
 
-    private CodeBuildAction BuildWebBackend(Artifact_ sourceCode, Role codebuildServiceRole, out Artifact_ buildArtifacts)
+    private CodeBuildAction BuildWebBackend(Artifact_ sourceCode, Role codebuildServiceRole, string containerName, out Artifact_ buildArtifacts)
     {
         buildArtifacts = new Artifact_("buildWebBackendArtifacts");
 
@@ -201,6 +205,14 @@ public class CicdPipeline
                             {
                                 Type = BuildEnvironmentVariableType.PLAINTEXT,
                                 Value = _repository.RepositoryUri,
+                            }
+                        },
+                        {
+                            "CONTAINER_NAME",
+                            new BuildEnvironmentVariable
+                            {
+                                Type = BuildEnvironmentVariableType.PLAINTEXT,
+                                Value = containerName,
                             }
                         },
                     },

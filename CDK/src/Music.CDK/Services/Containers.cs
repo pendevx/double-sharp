@@ -22,7 +22,7 @@ public class Containers
         var baseName = serviceEnvironment.CreateName("backend");
         var clusterName = baseName + nameof(Cluster);
         var repositoryName = baseName + nameof(Repository).ToLower();
-        var containerDefinitionName = baseName + nameof(ContainerDefinition);
+        var containerName = $"{baseName}-container";
         var taskDefinitionName = baseName + nameof(TaskDefinition);
         var serviceName = baseName + nameof(FargateService);
         var backendSgName = baseName + nameof(SecurityGroup);
@@ -50,9 +50,9 @@ public class Containers
             MemoryLimitMiB = 512,
         });
 
-        var containerDefinition = new ContainerDefinition(scope, containerDefinitionName, new ContainerDefinitionProps
+        var containerDefinition = new ContainerDefinition(scope, containerName, new ContainerDefinitionProps
         {
-            ContainerName = containerDefinitionName,
+            ContainerName = containerName,
             Cpu = 256,
             MemoryLimitMiB = 512,
             Image = ContainerImage.FromEcrRepository(repo),
