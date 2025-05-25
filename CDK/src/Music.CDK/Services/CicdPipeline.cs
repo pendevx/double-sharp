@@ -9,6 +9,7 @@ using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.S3;
 using Amazon.CDK.AWS.SecretsManager;
 using Constructs;
+using Environment = System.Environment;
 using Secret = Amazon.CDK.AWS.SecretsManager.Secret;
 using StageProps = Amazon.CDK.AWS.CodePipeline.StageProps;
 
@@ -20,12 +21,18 @@ public class CicdPipeline
     private readonly ServiceEnvironment _serviceEnvironment;
     private readonly Repository _repository;
 
+    public const string GithubOauthFlagName = "GITHUB_OAUTH_ENABLED";
+
     public CicdPipeline(Construct scope, ServiceEnvironment serviceEnvironment, Repository repository)
     {
         _scope = scope;
         _serviceEnvironment = serviceEnvironment;
         _repository = repository;
     }
+
+    public bool IsOauthTokenEnabled() =>
+        (Environment.GetEnvironmentVariable(GithubOauthFlagName) ?? _scope.Node.TryGetContext(GithubOauthFlagName))
+        as string == "true";
 
     public void Create(Bucket frontendDeployTarget, BaseService backendDeployTarget)
     {
@@ -34,18 +41,29 @@ public class CicdPipeline
         {
             BucketName = artifactsBucketName,
             RemovalPolicy = RemovalPolicy.DESTROY,
+            AutoDeleteObjects = true,
         });
 
+        var (pipelineRole, buildServiceRole) = GetIamRoles();
+
         var sourceAction = GetSourceCode(out var sourceCode);
+
+        if (sourceAction is null) // The GithubOauthToken secret needs to be populated
+            return;
+
         var buildUIAction = BuildWebUI(sourceCode, out var uiArtifacts);
-        var buildBackendAction = BuildWebBackend(sourceCode, out var backendArtifacts);
+        var buildBackendAction = BuildWebBackend(sourceCode, buildServiceRole,
+            backendDeployTarget.TaskDefinition.DefaultContainer?.ContainerName, out var backendArtifacts);
 
         var deployUIAction = DeployWebUI(uiArtifacts, frontendDeployTarget);
-        var deployBackendAction = DeployWebBackend(backendArtifacts, backendDeployTarget);
+        var deployBackendAction = backendDeployTarget is not null
+            ? DeployWebBackend(backendArtifacts, backendDeployTarget)
+            : null;
 
         var pipelineName = _serviceEnvironment.CreateName("cicd");
         var pipeline = new Pipeline(_scope, pipelineName, new PipelineProps
         {
+            PipelineName = pipelineName,
             Stages = [
                 new StageProps
                 {
@@ -64,7 +82,46 @@ public class CicdPipeline
                 }
             ],
             ArtifactBucket = artifactsBucket,
+            Role = pipelineRole,
         });
+    }
+
+    private (Role pipelineRole, Role buildServiceRole) GetIamRoles()
+    {
+        var buildServiceRole = _serviceEnvironment.CreateName("backend-service-role");
+        var buildRole = new Role(_scope, buildServiceRole, new RoleProps
+        {
+            RoleName = buildServiceRole,
+            ManagedPolicies = [ ManagedPolicy.FromAwsManagedPolicyName("AmazonEC2ContainerRegistryPowerUser") ],
+            AssumedBy = new AnyPrincipal(),
+        });
+
+        var pipelineRoleName = _serviceEnvironment.CreateName("pipeline-role");
+        var pipelineRole = new Role(_scope, pipelineRoleName, new RoleProps
+        {
+            RoleName = pipelineRoleName,
+            AssumedBy = new ServicePrincipal("codepipeline.amazonaws.com"),
+            InlinePolicies = new Dictionary<string, PolicyDocument>
+            {
+                {
+                    "PassCodeBuildRolePolicy",
+                    new PolicyDocument(new PolicyDocumentProps
+                    {
+                        Statements =
+                        [
+                            new PolicyStatement(new PolicyStatementProps
+                            {
+                                Actions = [ "iam:PassRole" ],
+                                Resources = [ buildRole.RoleArn ],
+                                Effect = Effect.ALLOW,
+                            }),
+                        ]
+                    })
+                },
+            },
+        });
+
+        return (pipelineRole, buildRole);
     }
 
     private GitHubSourceAction GetSourceCode(out Artifact_ sourceCode)
@@ -78,6 +135,20 @@ public class CicdPipeline
             SecretName = secretName,
             RemovalPolicy = RemovalPolicy.DESTROY,
         });
+
+        if (!IsOauthTokenEnabled())
+        {
+            _ = new CfnOutput(_scope, _serviceEnvironment.CreateName("populate-github-oauth-warning"), new CfnOutputProps
+            {
+                Description = "Instructions to set the GitHub OAuth token",
+                Value = $"Run this to set the GitHub token:\n" +
+                        $"aws secretsmanager put-secret-value " +
+                        $"--secret-id {secretName} " +
+                        $"--secret-string \"<github-oauth-token>\"",
+            });
+
+            return null;
+        }
 
         var sourceAction = new GitHubSourceAction(new GitHubSourceActionProps
         {
@@ -111,17 +182,9 @@ public class CicdPipeline
         return buildAction;
     }
 
-    private CodeBuildAction BuildWebBackend(Artifact_ sourceCode, out Artifact_ buildArtifacts)
+    private CodeBuildAction BuildWebBackend(Artifact_ sourceCode, Role codebuildServiceRole, string containerName, out Artifact_ buildArtifacts)
     {
         buildArtifacts = new Artifact_("buildWebBackendArtifacts");
-
-        var roleName = _serviceEnvironment.CreateName("backend-service-role");
-        var ecsRole = new Role(_scope, roleName, new RoleProps
-        {
-            RoleName = roleName,
-            ManagedPolicies = [ ManagedPolicy.FromAwsManagedPolicyName("AmazonEC2ContainerRegistryPowerUser") ],
-            AssumedBy = new AnyPrincipal(),
-        });
 
         var buildAction = new CodeBuildAction(new CodeBuildActionProps
         {
@@ -144,13 +207,22 @@ public class CicdPipeline
                                 Value = _repository.RepositoryUri,
                             }
                         },
+                        {
+                            "CONTAINER_NAME",
+                            new BuildEnvironmentVariable
+                            {
+                                Type = BuildEnvironmentVariableType.PLAINTEXT,
+                                Value = containerName,
+                            }
+                        },
                     },
                     Privileged = true,
                     ComputeType = ComputeType.SMALL,
                     BuildImage = LinuxBuildImage.STANDARD_7_0,
                 },
+                Role = codebuildServiceRole,
             }),
-            Role = ecsRole,
+            Role = codebuildServiceRole,
         });
 
         return buildAction;
@@ -172,7 +244,7 @@ public class CicdPipeline
         return new EcsDeployAction(new EcsDeployActionProps
         {
             ActionName = "Deploy-WebBackend",
-            Input = backendArtifacts,
+            ImageFile = new ArtifactPath_(backendArtifacts, "backend/imagedefinitions.json"),
             Service = deployLocation,
         });
     }

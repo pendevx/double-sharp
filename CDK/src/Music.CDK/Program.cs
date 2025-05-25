@@ -1,4 +1,5 @@
 ﻿using Amazon.CDK;
+using Environment = Amazon.CDK.Environment;
 
 namespace Music.CDK;
 

@@ -5,21 +5,24 @@ using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.ECS.Patterns;
 using Amazon.CDK.AWS.ElasticLoadBalancing;
 using Amazon.CDK.AWS.ElasticLoadBalancingV2;
+using Amazon.CDK.AWS.Route53.Targets;
 using Constructs;
 using ApplicationLoadBalancerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.ApplicationLoadBalancerProps;
 using Cluster = Amazon.CDK.AWS.ECS.Cluster;
 using ClusterProps = Amazon.CDK.AWS.ECS.ClusterProps;
 using HealthCheck = Amazon.CDK.AWS.ElasticLoadBalancingV2.HealthCheck;
+using Secret = Amazon.CDK.AWS.SecretsManager.Secret;
 
 namespace Music.CDK.Services;
 
 public class Containers
 {
-    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, string baseName, Vpc vpc)
+    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, ServiceEnvironment serviceEnvironment, Vpc vpc, Secret dbConnectionString)
     {
+        var baseName = serviceEnvironment.CreateName("backend");
         var clusterName = baseName + nameof(Cluster);
         var repositoryName = baseName + nameof(Repository).ToLower();
-        var containerDefinitionName = baseName + nameof(ContainerDefinition);
+        var containerName = $"{baseName}-container";
         var taskDefinitionName = baseName + nameof(TaskDefinition);
         var serviceName = baseName + nameof(FargateService);
         var backendSgName = baseName + nameof(SecurityGroup);
@@ -47,9 +50,9 @@ public class Containers
             MemoryLimitMiB = 512,
         });
 
-        var containerDefinition = new ContainerDefinition(scope, containerDefinitionName, new ContainerDefinitionProps
+        var containerDefinition = new ContainerDefinition(scope, containerName, new ContainerDefinitionProps
         {
-            ContainerName = containerDefinitionName,
+            ContainerName = containerName,
             Cpu = 256,
             MemoryLimitMiB = 512,
             Image = ContainerImage.FromEcrRepository(repo),
@@ -61,11 +64,10 @@ public class Containers
                 }
             ],
             TaskDefinition = taskDefinition,
-            Logging = LogDriver.AwsLogs(new AwsLogDriverProps
-            {
-                StreamPrefix = "doublesharp-backend",
-            }),
+            Logging = LogDriver.AwsLogs(new AwsLogDriverProps { StreamPrefix = "doublesharp-backend", }),
         });
+
+        containerDefinition.AddSecret("DOUBLESHARP_DB_CONNECTION_STRING", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(dbConnectionString));
 
         var backendSg = new SecurityGroup(scope, backendSgName, new SecurityGroupProps
         {
@@ -94,6 +96,9 @@ public class Containers
         });
 
         service.TargetGroup.ConfigureHealthCheck(new HealthCheck { Path = "/healthcheck.html" });
+
+        Domains.CreateAliasForService(scope, serviceEnvironment, ServicesWithDomains.WebBackend,
+            serviceEnvironment.CreateName("backend"), new LoadBalancerTarget(service?.LoadBalancer));
 
         return (repo, service);
     }
