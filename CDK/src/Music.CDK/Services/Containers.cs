@@ -77,6 +77,8 @@ public class Containers
         });
         backendSg.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(8080)); // Allow port 8080
 
+        var backendCertificate = Domains.GenerateUniqueCertificate(scope, serviceEnvironment, serviceName, ServicesWithDomains.WebBackend);
+
         var service = new ApplicationLoadBalancedFargateService(scope, serviceName, new ApplicationLoadBalancedFargateServiceProps
         {
             ServiceName = serviceName,
@@ -93,6 +95,7 @@ public class Containers
                 LoadBalancerName = loadBalancerName,
                 InternetFacing = true,
             }),
+            Certificate = backendCertificate,
         });
 
         service.TargetGroup.ConfigureHealthCheck(new HealthCheck { Path = "/healthcheck.html" });

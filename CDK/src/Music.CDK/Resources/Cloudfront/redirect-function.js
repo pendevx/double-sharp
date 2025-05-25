@@ -6,7 +6,7 @@ async function handler(event) {
             statusCode: 308,
             statusDescription: "Permanent Redirect",
             headers: {
-                location: { value: `http://api.music.pendevx.com${request.uri.replace(/^\/api/, "")}` },
+                location: { value: `https://api.music.pendevx.com${request.uri.replace(/^\/api/, "")}` },
             },
         };
     }
