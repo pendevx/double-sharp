@@ -19,7 +19,7 @@ phases:
         commands:
             - docker push ${REPOSITORY_URI}:latest
             - docker push $IMAGE_URI
-            - printf "[{\"name\":\"doublesharp-backend\",\"imageUri\":\"$IMAGE_URI\"}]" > imagedefinitions.json
+            - printf "[{\"name\":\"doublesharp-backendContainerDefinition\",\"imageUri\":\"$IMAGE_URI\"}]" > imagedefinitions.json
 
 artifacts:
     files:
