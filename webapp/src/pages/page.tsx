@@ -2,11 +2,10 @@ import React from "react";
 import { Lyrics, MusicList } from "../components";
 import getViewportResolution, { ViewportResolution } from "../utils/viewportResolution";
 
-export function Component() {
+export default function IndexPage() {
     const [showSonglist, setShowSonglist] = React.useState<boolean>(true);
     const [bodyHeight, setBodyHeight] = React.useState<number>(0);
     const bodyRef = React.useRef<HTMLDivElement | null>(null);
-    console.log("hi");
 
     React.useEffect(() => {
         const resizeHandler = () => {

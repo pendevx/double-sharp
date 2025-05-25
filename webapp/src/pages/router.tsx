@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router";
 import RootLayout from "../App";
 
@@ -7,10 +7,13 @@ export const routeMap = {
     admin: "@pages/admin/page.tsx",
 };
 
+const Index = lazy(() => import("@pages/page.tsx"));
+const Admin = lazy(() => import("@pages/admin/page.tsx"));
+
 const routes = createRoutesFromElements(
     <Route element={<RootLayout />}>
-        <Route index lazy={() => import("@pages/page.tsx")} />
-        <Route path="admin" lazy={() => import("@pages/admin/page.tsx")} />
+        <Route index element={<Index />} />
+        <Route path="admin" element={<Admin />} />
     </Route>
 );
 
