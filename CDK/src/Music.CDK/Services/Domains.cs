@@ -36,7 +36,7 @@ public static class Domains
     }
 
     private static ICertificate _certificate;
-    public static ICertificate GenerateCertificate(Construct scope, ServiceEnvironment serviceEnvironment)
+    public static ICertificate GenerateSharedCertificate(Construct scope, ServiceEnvironment serviceEnvironment)
     {
         if (_certificate is not null)
             return _certificate;
@@ -53,6 +53,21 @@ public static class Domains
         });
 
         return _certificate;
+    }
+
+    public static ICertificate GenerateUniqueCertificate(Construct scope, ServiceEnvironment serviceEnvironment, string serviceName, ServicesWithDomains service, string region = "ap-southeast-2")
+    {
+        var certificateName = serviceEnvironment.CreateName($"{serviceName}-ssl-cert");
+
+        var certificate = new DnsValidatedCertificate(scope, certificateName, new DnsValidatedCertificateProps
+        {
+            HostedZone = GetHostedZone(scope, serviceEnvironment),
+            DomainName = DomainsList[service],
+            Validation = CertificateValidation.FromDns(_hostedZone),
+            Region = region,
+        });
+
+        return certificate;
     }
 
     public static CnameRecord CreateCnameForService(Construct scope, ServiceEnvironment serviceEnvironment,

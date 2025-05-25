@@ -24,7 +24,7 @@ public class Cloudfront
         });
 
         var distributionName = serviceEnvironment.CreateName("cf-distribution");
-        var certificate = Domains.GenerateCertificate(scope, serviceEnvironment);
+        var certificate = Domains.GenerateSharedCertificate(scope, serviceEnvironment);
         var distribution = new Distribution(scope, distributionName, new DistributionProps
         {
             DefaultBehavior = new BehaviorOptions
@@ -38,12 +38,22 @@ public class Cloudfront
                     }
                 ],
                 Origin = new S3StaticWebsiteOrigin(bucket),
-                ViewerProtocolPolicy = ViewerProtocolPolicy.ALLOW_ALL,
+                ViewerProtocolPolicy = ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 AllowedMethods = AllowedMethods.ALLOW_ALL,
                 CachePolicy = CachePolicy.CACHING_DISABLED,
             },
             DomainNames = [ Domains.RootDomain ],
             Certificate = certificate,
+            DefaultRootObject = "index.html",
+            ErrorResponses =
+            [
+                new ErrorResponse
+                {
+                    ResponsePagePath = "/index.html",
+                    ResponseHttpStatus = 200,
+                    HttpStatus = 404,
+                }
+            ]
         });
 
         return distribution;

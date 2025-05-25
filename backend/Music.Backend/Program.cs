@@ -1,5 +1,6 @@
 using FastEndpoints;
 using FastEndpoints.Swagger;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Music.Backend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Music.Models.Data.DbContexts;
@@ -11,6 +12,17 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        const string corsAllowProd = "allow-prod";
+        builder.Services.AddCors(options =>
+        {
+            Action<CorsPolicyBuilder> policy = p =>
+            {
+                p.WithOrigins("https://music.pendevx.com");
+            };
+
+            options.AddPolicy(corsAllowProd, policy);
+        });
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
@@ -38,6 +50,7 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseCors(corsAllowProd);
         app.UseGlobalExceptionHandler();
         app.UseLogger();
         app.UseAuthorization();
