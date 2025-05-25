@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECR;
@@ -5,6 +6,7 @@ using Amazon.CDK.AWS.ECS;
 using Amazon.CDK.AWS.ECS.Patterns;
 using Amazon.CDK.AWS.ElasticLoadBalancing;
 using Amazon.CDK.AWS.ElasticLoadBalancingV2;
+using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Route53.Targets;
 using Constructs;
 using ApplicationLoadBalancerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.ApplicationLoadBalancerProps;
@@ -41,6 +43,15 @@ public class Containers
             EmptyOnDelete = true,
         });
 
+        var taskRoleName = $"{taskDefinitionName}-taskrole";
+        var taskRole = new Role(scope, taskRoleName, new RoleProps
+        {
+            RoleName = taskRoleName,
+            Description = "Allow the ECS task to perform read/write operations on the S3 bucket.",
+            ManagedPolicies = [ ManagedPolicy.FromAwsManagedPolicyName("AmazonS3FullAccess") ],
+            AssumedBy = new ServicePrincipal("ecs-tasks.amazonaws.com"),
+        });
+
         var taskDefinition = new FargateTaskDefinition(scope, taskDefinitionName, new FargateTaskDefinitionProps
         {
             Cpu = 256,
@@ -48,6 +59,7 @@ public class Containers
             RuntimePlatform = new RuntimePlatform { OperatingSystemFamily = OperatingSystemFamily.LINUX, },
             EphemeralStorageGiB = 21,
             MemoryLimitMiB = 512,
+            TaskRole = taskRole,
         });
 
         var containerDefinition = new ContainerDefinition(scope, containerName, new ContainerDefinitionProps
