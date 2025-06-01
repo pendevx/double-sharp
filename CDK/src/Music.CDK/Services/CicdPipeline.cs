@@ -56,9 +56,7 @@ public class CicdPipeline
             backendDeployTarget.TaskDefinition.DefaultContainer?.ContainerName, out var backendArtifacts);
 
         var deployUIAction = DeployWebUI(uiArtifacts, frontendDeployTarget);
-        var deployBackendAction = backendDeployTarget is not null
-            ? DeployWebBackend(backendArtifacts, backendDeployTarget)
-            : null;
+        var deployBackendAction = DeployWebBackend(backendArtifacts, backendDeployTarget);
 
         var pipelineName = _serviceEnvironment.CreateName("cicd");
         var pipeline = new Pipeline(_scope, pipelineName, new PipelineProps

@@ -3,45 +3,46 @@ using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using Amazon.S3.Util;
 using Microsoft.Extensions.Logging;
+using Music.Global.Contracts;
 using Music.Models.Data;
 
 namespace Music.Services.DataAccess.AWS;
 
 public sealed class SongsRepository
 {
-    private const string AudioMp3FileName = "audio.mp3";
-
     private readonly IAmazonS3 _s3Client;
-    private readonly string _keyPrefix;
-    private readonly string _bucketName;
+    private readonly GetBucketName _getBucketName;
+    private readonly GetObjectKey _generateObjectKey;
     private readonly ILogger<SongsRepository> _logger;
 
-    public SongsRepository(IAmazonS3 s3Client, string keyPrefix, string bucketName, ILogger<SongsRepository> logger)
+    public SongsRepository(IAmazonS3 s3Client, GetObjectKey generateObjectKey, GetBucketName getBucketName, ILogger<SongsRepository> logger)
     {
         _s3Client = s3Client;
-        _keyPrefix = keyPrefix;
-        _bucketName = bucketName;
+        _generateObjectKey = generateObjectKey;
+        _getBucketName = getBucketName;
         _logger = logger;
     }
 
-    public void Upload(Song song, Stream contents)
+    public Task Upload(Song song, Stream contents)
     {
         var uploadRequest = new TransferUtilityUploadRequest
         {
-            BucketName = _bucketName,
-            Key = $"{_keyPrefix}{song.Id}/{AudioMp3FileName}",
+            BucketName = _getBucketName(),
+            Key = _generateObjectKey(song.Id),
             InputStream = contents,
             ContentType = song.MimeType,
         };
+
+        return new TransferUtility(_s3Client).UploadAsync(uploadRequest);
     }
 
     public async Task<Stream> Download(int id)
     {
-        var key = $"{_keyPrefix}{id}/{AudioMp3FileName}";
+        var key = _generateObjectKey(id);
 
         var request = new GetObjectRequest
         {
-            BucketName = _bucketName,
+            BucketName = _getBucketName(),
             Key = key,
         };
 
