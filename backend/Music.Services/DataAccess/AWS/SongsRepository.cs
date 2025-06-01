@@ -23,7 +23,7 @@ public sealed class SongsRepository
         _logger = logger;
     }
 
-    public Task Upload(Song song, Stream contents)
+    public Task UploadAsync(Song song, Stream contents)
     {
         var uploadRequest = new TransferUtilityUploadRequest
         {
@@ -36,7 +36,7 @@ public sealed class SongsRepository
         return new TransferUtility(_s3Client).UploadAsync(uploadRequest);
     }
 
-    public async Task<Stream> Download(int id)
+    public async Task<Stream> DownloadAsync(int id)
     {
         var key = _generateObjectKey(id);
 
