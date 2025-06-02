@@ -29,7 +29,7 @@ public class GetSongEndpoint : Endpoint<GetSongRequest, Stream>
             return;
         }
 
-        var stream = await _songsRepository.Download(song.Id);
+        var stream = await _songsRepository.DownloadAsync(song.Id);
 
         await SendStreamAsync(stream, song.Name, contentType: song.MimeType, enableRangeProcessing: true,
             cancellation: ct);
