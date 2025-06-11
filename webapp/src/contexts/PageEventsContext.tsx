@@ -1,24 +1,39 @@
 import React from "react";
 
-export type PageEventsContextType = {
+type PageEvents = {
     onKeyDown: (e: React.KeyboardEvent) => void;
     onKeyUp: (e: React.KeyboardEvent) => void;
 };
 
-type PageEventsContextTypeWithListeners = {
-    [K in keyof PageEventsContextType]: PageEventsContextType[K][];
+type PageEventsWithListeners = {
+    [K in keyof PageEvents]: PageEvents[K][];
 };
 
-export const PageEventsContext = React.createContext<any>({});
+export type PageEventsContextType = {
+    addListener: (event: keyof PageEvents, listener: (e: React.KeyboardEvent) => void) => void;
+    removeListener: (event: keyof PageEvents, listener: (e: React.KeyboardEvent) => void) => void;
+};
+
+export const PageEventsContext = React.createContext<PageEventsContextType>({} as PageEventsContextType);
 
 export default function PageEventsProvider({ children }: { children: React.ReactNode }) {
-    const [listeners, setListeners] = React.useState<{ [K in keyof PageEventsContextType]: PageEventsContextTypeWithListeners[K] }>({} as PageEventsContextTypeWithListeners);
+    const [listeners, setListeners] = React.useState<PageEventsWithListeners>({} as PageEventsWithListeners);
 
-    const addListener = <T extends keyof PageEventsContextType>(event: T, listener: PageEventsContextType[T]) => setListeners(prev => ({ ...prev, ...listener }));
-    const removeListener = <T extends keyof PageEventsContextType>(event: T, listener: PageEventsContextType[T]) =>
-        setListeners(prev => ({ ...prev, [event]: prev[event].filter(l => l !== listener) }));
+    const addListener = React.useCallback((event: keyof PageEvents, listener: (e: React.KeyboardEvent) => void) => {
+        setListeners(prev => ({
+            ...prev,
+            [event]: [...(prev[event] || []), listener],
+        }));
+    }, []);
 
-    const invokeListeners = (event: keyof PageEventsContextType, e: React.KeyboardEvent) => listeners[event]?.forEach((listener: (e: React.KeyboardEvent) => void) => listener(e));
+    const removeListener = React.useCallback((event: keyof PageEvents, listener: (e: React.KeyboardEvent) => void) => {
+        setListeners(prev => ({
+            ...prev,
+            [event]: (prev[event] || []).filter(l => l !== listener),
+        }));
+    }, []);
+
+    const invokeListeners = (event: keyof PageEvents, e: React.KeyboardEvent) => listeners[event]?.forEach((listener: (e: React.KeyboardEvent) => void) => listener(e));
 
     return (
         <PageEventsContext.Provider value={{ addListener, removeListener }}>

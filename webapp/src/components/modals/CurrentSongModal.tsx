@@ -8,10 +8,10 @@ import { AudioTimeContext } from "../../contexts/AudioTimeContext";
 
 type CurrentSongModalProps = {
     closeModal: () => void;
-    toggleSongList: () => void;
+    showSongModal: () => void;
 };
 
-export default function CurrentSongModal({ closeModal, toggleSongList }: CurrentSongModalProps) {
+export default function CurrentSongModal({ closeModal, showSongModal }: CurrentSongModalProps) {
     const musicContext = React.useContext(MusicContext);
     const audioTimeContext = React.useContext(AudioTimeContext);
 
@@ -52,7 +52,7 @@ export default function CurrentSongModal({ closeModal, toggleSongList }: Current
 
             <div className="grid grid-cols-3 grid-rows-2 gap-x-10 gap-y-16 p-2 laptop:gap-y-0">
                 <IconContainer>
-                    <SongList className="p-1" onClick={toggleSongList} />
+                    <SongList className="p-1" onClick={showSongModal} />
                 </IconContainer>
 
                 <IconContainer onClick={closeModal}>
