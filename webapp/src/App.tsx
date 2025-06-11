@@ -15,10 +15,14 @@ enum Modal {
 
 export default function App() {
     const [activeModal, dispatchModal] = React.useReducer(modalReducer, Modal.None);
+    const [keyDownSignal, setKeyDownSignal] = React.useState<string>();
     const audioRef = React.useRef<HTMLAudioElement>(null);
     const musicContext = React.useContext(MusicContext);
 
     function onKeyDown(e: React.KeyboardEvent) {
+        setKeyDownSignal(e.key.toLowerCase());
+        setTimeout(() => setKeyDownSignal(undefined));
+
         switch (e.key.toLowerCase()) {
             case " ": {
                 e.preventDefault();
@@ -57,11 +61,13 @@ export default function App() {
 
     return (
         <div onKeyDown={onKeyDown} tabIndex={0} className="font-sans">
+            {" "}
+            {/* todo: create a GlobalEventsContext which will listen for global events. Wrap around App.tsx (place in index.tsx) */}
             <h1 className="hidden">pendevx music</h1>
             <div className="fixed inset-0 flex">
                 <div className="flex h-full w-full flex-col justify-between">
                     <div className="mt-4 h-full overflow-hidden px-4">
-                        <Outlet />
+                        <Outlet context={{ keyDownSignal }} />
                     </div>
 
                     <div>
@@ -70,10 +76,15 @@ export default function App() {
                     </div>
                 </div>
             </div>
-
             <BlurredModal show={activeModal != Modal.None}>
                 <ModalContainer isActive={activeModal === Modal.Fullscreen} hideFullscreen={hideFullscreen}>
-                    <CurrentSongModal closeModal={hideFullscreen} />
+                    <CurrentSongModal
+                        closeModal={hideFullscreen}
+                        toggleSongList={() => {
+                            dispatchModal({ type: Modal.Fullscreen });
+                            setKeyDownSignal("d");
+                        }}
+                    />
                 </ModalContainer>
 
                 <ModalContainer isActive={activeModal === Modal.Settings} hideFullscreen={hideFullscreen}>
@@ -84,7 +95,6 @@ export default function App() {
                     <RequestSongModal />
                 </ModalContainer>
             </BlurredModal>
-
             <div className="fixed right-6 top-6 w-12 p-1 laptop:w-14">
                 <div className="flex flex-col gap-2">
                     {/* In the near future:

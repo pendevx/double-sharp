@@ -58,7 +58,7 @@ public static class DependencyInjectionConfiguration
             {
                 options.AddPolicy(CorsConfiguration.ConfigurationName, policy =>
                 {
-                    policy.WithOrigins(corsConfig.Origin!);
+                    policy.WithOrigins(corsConfig.Origin);
                     policy.WithMethods(corsConfig.AllowedMethods);
                     policy.WithHeaders(corsConfig.AllowedHeaders);
                 });

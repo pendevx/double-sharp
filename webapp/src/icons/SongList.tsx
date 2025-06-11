@@ -1,15 +1,18 @@
 type SongListProps = {
     isOpen?: boolean;
+    className?: string;
+    onClick?: () => void;
 };
 
-export default function SongList({ isOpen }: SongListProps) {
+export default function SongList({ isOpen, className, onClick }: SongListProps) {
     return (
         <svg
             version="1.1"
             id="_x32_"
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
-            className={`h-full w-full transition-colors duration-1000 ${isOpen ? "fill-[#ffc421]" : "fill-white"}`}
+            className={`h-full w-full transition-colors duration-1000 ${isOpen ? "fill-[#ffc421]" : "fill-white"} ${className}`}
+            onClick={onClick}
             viewBox="0 0 512 512"
             xmlSpace="preserve">
             <g>
