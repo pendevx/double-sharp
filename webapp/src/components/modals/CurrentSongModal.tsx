@@ -2,15 +2,16 @@ import React from "react";
 import { MusicContext } from "../../contexts/MusicContext";
 import { MusicProgressBar } from "../";
 import { formatTime } from "../../utils/formats";
-import { MusicIconSvg, PlayBehaviourIcon, MusicPausedSvg, MusicPlaySvg, ChangeTrack, Cross } from "../../icons";
+import { MusicIconSvg, PlayBehaviourIcon, MusicPausedSvg, MusicPlaySvg, ChangeTrack, Cross, SongList } from "../../icons";
 import { nextPlayBehaviour } from "../../utils/playBehaviour";
 import { AudioTimeContext } from "../../contexts/AudioTimeContext";
 
 type CurrentSongModalProps = {
     closeModal: () => void;
+    showSongModal: () => void;
 };
 
-export default function CurrentSongModal({ closeModal }: CurrentSongModalProps) {
+export default function CurrentSongModal({ closeModal, showSongModal }: CurrentSongModalProps) {
     const musicContext = React.useContext(MusicContext);
     const audioTimeContext = React.useContext(AudioTimeContext);
 
@@ -50,7 +51,9 @@ export default function CurrentSongModal({ closeModal }: CurrentSongModalProps) 
             </div>
 
             <div className="grid grid-cols-3 grid-rows-2 gap-x-10 gap-y-16 p-2 laptop:gap-y-0">
-                <IconContainer></IconContainer>
+                <IconContainer>
+                    <SongList className="p-1" onClick={showSongModal} />
+                </IconContainer>
 
                 <IconContainer onClick={closeModal}>
                     <Cross className="p-1" fill="fill-[#cea127]" />
