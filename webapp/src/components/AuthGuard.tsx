@@ -1,46 +1,39 @@
 import React, { Suspense } from "react";
 import { useNavigate } from "react-router";
-
-export enum Role {
-    User,
-    Admin,
-}
+import { AuthContext, Role } from "../contexts/AuthContext";
 
 export default function AuthGuard({ children, requiredRole }: { children: React.ReactNode; requiredRole: Role }) {
     const RoleValidator = AuthGuardHelperGenerator(requiredRole);
 
     return (
-        <Suspense fallback={<p className="text-white">loading!!!!!!!</p>}>
+        <Suspense>
             <RoleValidator>{children}</RoleValidator>
         </Suspense>
     );
 }
 
-const roleEndpoints = {
-    [Role.User]: "checkUserIsUser",
-    [Role.Admin]: "/checkUserIsAdmin",
-}
+const AuthGuardHelperGenerator = (role: Role) => {
+    const authContext = React.useContext(AuthContext);
+    const hasRole = authContext.hasRole(role);
 
-const checkRole = async (role: Role): Promise<boolean> => {
-    const res = await fetch(`/api/accounts/${roleEndpoints[role]}`);
-    return res.json();
+    if (hasRole) {
+        return ({ children }: { children: React.ReactNode }) => <>{children}</>;
+    }
+
+    return React.lazy(async () => {
+        const hasRole = await authContext.checkRoleAsync(role);
+        return {
+            default: ({ children }: { children: React.ReactNode }) => {
+                const navigate = useNavigate();
+
+                React.useEffect(() => {
+                    if (hasRole === false) {
+                        navigate("/");
+                    }
+                }, []);
+
+                return <>{hasRole && children}</>;
+            },
+        };
+    });
 };
-
-const AuthGuardHelperGenerator = (role: Role) =>
-    React.lazy(() =>
-        checkRole(role).then(p => {
-            return {
-                default: ({ children }: { children: React.ReactNode }) => {
-                    const navigate = useNavigate();
-
-                    React.useEffect(() => {
-                        if (p === false) {
-                            navigate("/");
-                        }
-                    }, []);
-
-                    return <>{p && children}</>;
-                },
-            };
-        })
-    );

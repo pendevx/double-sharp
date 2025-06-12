@@ -2,10 +2,13 @@ import React from "react";
 import { BlurredModal, FullScreenOverlay, Lyrics, MusicList, SettingsButton, UploadSongButton } from "../components";
 import getViewportResolution, { ViewportResolution } from "../utils/viewportResolution";
 import { PageEventsContext } from "../contexts/PageEventsContext";
-import { useOutletContext } from "react-router";
+import { useNavigate, useOutletContext } from "react-router";
 import { Modal, OutletContextType } from "./Layout";
 import { CurrentSongModal, RequestSongModal, SettingsModal } from "../components/modals";
 import { MusicContext } from "../contexts/MusicContext";
+import AuthGuard from "../components/AuthGuard";
+import { AdminLock } from "../icons";
+import { Role } from "../contexts/AuthContext";
 
 export default function IndexPage() {
     const [showSonglist, setShowSonglist] = React.useState<boolean>(true);
@@ -14,6 +17,7 @@ export default function IndexPage() {
     const pageEventsContext = React.useContext(PageEventsContext);
     const musicContext = React.useContext(MusicContext);
     const { activeModal, dispatchModal } = useOutletContext<OutletContextType>();
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         const resizeHandler = () => {
@@ -116,6 +120,11 @@ export default function IndexPage() {
                     Can extract the left-right and hideable left-side layout into a reusable component to use in landing page, admin page, and settings pages. */}
                     <SettingsButton onClick={() => dispatchModal({ type: Modal.Settings })} />
                     <UploadSongButton onClick={() => dispatchModal({ type: Modal.RequestSong })} />
+                    <AuthGuard requiredRole={Role.Admin}>
+                        <div className="flex h-full w-full items-center justify-center bg-[#0f0f0f] transition-all duration-300 hover:bg-[#666]" onClick={() => navigate("/admin")}>
+                            <AdminLock />
+                        </div>
+                    </AuthGuard>
                 </div>
             </div>
         </>

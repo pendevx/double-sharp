@@ -10,3 +10,4 @@ export { default as PlayBehaviourIcon } from "./PlayBehaviourIcon";
 export { default as Settings } from "./Settings";
 export { default as Cross } from "./Cross";
 export { default as UploadSong } from "./UploadSong";
+export { default as AdminLock } from "./AdminLock";

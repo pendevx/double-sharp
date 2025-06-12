@@ -1,4 +1,4 @@
-﻿using Music.Models.Domain;
+﻿using Music.Models.Data;
 
 namespace Music.Global.Contracts;
 
