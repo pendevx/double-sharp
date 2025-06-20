@@ -9,7 +9,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Music.Global.Contracts\Music.Global.Contracts.csproj" />
       <ProjectReference Include="..\Music.Models.Data\Music.Models.Data.csproj" />
-      <ProjectReference Include="..\Music.Models.Domain\Music.Models.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>

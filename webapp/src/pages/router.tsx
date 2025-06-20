@@ -4,7 +4,9 @@ import RootLayout from "./Layout";
 import AuthProvider from "../contexts/AuthContext";
 
 const Index = lazy(() => import("@pages/page.tsx"));
-const Admin = lazy(() => import("@pages/admin/page.tsx"));
+const SongRequests = lazy(() => import("@pages/admin/song-requests/page.tsx"));
+
+const AdminLayout = lazy(() => import("@pages/admin/Layout.tsx"));
 
 const routes = createRoutesFromElements(
     <Route
@@ -14,7 +16,9 @@ const routes = createRoutesFromElements(
             </AuthProvider>
         }>
         <Route index element={<Index />} />
-        <Route path="admin" element={<Admin />} />
+        <Route path="admin" element={<AdminLayout />}>
+            <Route path="song-requests" element={<SongRequests />} />
+        </Route>
     </Route>
 );
 

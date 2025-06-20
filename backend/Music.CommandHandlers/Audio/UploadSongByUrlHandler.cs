@@ -2,7 +2,7 @@ using System.Security.Authentication;
 using Music.Commands.Audio;
 using Music.Global.Contracts;
 using Music.Models.Data.DbContexts;
-using Music.Models.Domain;
+using Music.Models.Data;
 
 namespace Music.CommandHandlers.Audio;
 
@@ -27,8 +27,8 @@ public class UploadSongByUrlHandler : IBaseCommandHandler<UploadSongByUrlCommand
         _dbContext.SongRequests.Add(new SongRequest
         {
             Name = command.Title,
-            UploaderAccountId = account.Id,
-            RequestStatusEnum = RequestStatus.Pending,
+            UploaderAccount = account,
+            RequestStatus = RequestStatus.Pending,
             Source = command.Source.ToString(),
             SourceUrl = GetSourceUrl(command.Url, command.Source),
         });

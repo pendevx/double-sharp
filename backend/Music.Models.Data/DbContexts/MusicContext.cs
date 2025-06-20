@@ -24,4 +24,31 @@ public class MusicContext : DbContext
     public virtual DbSet<Song> Songs { get; set; }
 
     public virtual DbSet<SongRequest> SongRequests { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<SongRequest>(b =>
+        {
+            b.Property(sr => sr.SourceUrl)
+                .HasMaxLength(2048)
+                .IsUnicode(false);
+
+            b.Property(sr => sr.Source)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            b.Property(sr => sr.Name)
+                .HasMaxLength(256)
+                .IsUnicode(false);
+
+            b.Property(sr => sr.MimeType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            b.Property(sr => sr.RequestStatus)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => Enum.Parse<RequestStatus>(v));
+        });
+    }
 }

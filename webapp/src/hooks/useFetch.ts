@@ -33,7 +33,7 @@ export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
             try {
                 const fetchOptions: any = {
                     ...options,
-                    headers: Object.assign({ "Content-Type": "application/json" }, options.headers),
+                    headers: Object.assign({ "Content-Type": ["GET", "DELETE", ""].includes(options.method ?? "") ? "x-www-form-urlencoded" : "application/json" }, options.headers),
                     signal: aborter.current?.signal,
                 };
 

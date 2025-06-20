@@ -75,7 +75,7 @@ export default function IndexPage() {
             window.removeEventListener("resize", resizeHandler);
             pageEventsContext.removeListener("onKeyDown", onPageKeyDown);
         };
-    }, [showSonglist]);
+    }, [showSonglist, musicContext]);
 
     const resolution = getViewportResolution();
 

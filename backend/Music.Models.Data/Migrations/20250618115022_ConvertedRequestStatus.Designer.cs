@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Music.Models.Data.DbContexts;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Music.Models.Data.Migrations
 {
     [DbContext(typeof(MusicContext))]
-    partial class MusicContextModelSnapshot : ModelSnapshot
+    [Migration("20250618115022_ConvertedRequestStatus")]
+    partial class ConvertedRequestStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace Music.Models.Data.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Accounts", (string)null);
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("Music.Models.Data.AccountRole", b =>
@@ -75,7 +78,7 @@ namespace Music.Models.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AccountRoles", (string)null);
+                    b.ToTable("AccountRoles");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Permission", b =>
@@ -96,7 +99,7 @@ namespace Music.Models.Data.Migrations
                     b.HasIndex("PermissionName")
                         .IsUnique();
 
-                    b.ToTable("Permissions", (string)null);
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Role", b =>
@@ -117,7 +120,7 @@ namespace Music.Models.Data.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Music.Models.Data.RolePermission", b =>
@@ -140,7 +143,7 @@ namespace Music.Models.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RolePermissions", (string)null);
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Session", b =>
@@ -167,7 +170,7 @@ namespace Music.Models.Data.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
-                    b.ToTable("Sessions", (string)null);
+                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Song", b =>
@@ -200,7 +203,7 @@ namespace Music.Models.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Songs", (string)null);
+                    b.ToTable("Songs");
                 });
 
             modelBuilder.Entity("Music.Models.Data.SongRequest", b =>
@@ -245,7 +248,7 @@ namespace Music.Models.Data.Migrations
 
                     b.HasIndex("UploaderAccountId");
 
-                    b.ToTable("SongRequests", (string)null);
+                    b.ToTable("SongRequests");
                 });
 
             modelBuilder.Entity("Music.Models.Data.AccountRole", b =>

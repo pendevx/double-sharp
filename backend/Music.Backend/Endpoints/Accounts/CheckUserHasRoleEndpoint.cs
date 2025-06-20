@@ -2,8 +2,8 @@ using System.Net;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authorization;
 using Music.Global.Contracts;
+using Music.Models.Data;
 using Music.Models.Data.DbContexts;
-using Music.Models.Domain;
 
 namespace Music.Backend.Endpoints.Accounts;
 
