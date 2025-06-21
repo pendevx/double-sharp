@@ -46,9 +46,7 @@ public class MusicContext : DbContext
                 .IsUnicode(false);
 
             b.Property(sr => sr.RequestStatus)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => Enum.Parse<RequestStatus>(v));
+                .HasConversion<string>();
         });
     }
 }
