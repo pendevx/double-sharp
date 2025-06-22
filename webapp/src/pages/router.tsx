@@ -5,6 +5,7 @@ import AuthProvider from "../contexts/AuthContext";
 
 const Index = lazy(() => import("@pages/page.tsx"));
 const SongRequests = lazy(() => import("@pages/admin/song-requests/page.tsx"));
+const UploadSongs = lazy(() => import("@pages/admin/upload-song/page.tsx"));
 
 const AdminLayout = lazy(() => import("@pages/admin/Layout.tsx"));
 
@@ -18,6 +19,7 @@ const routes = createRoutesFromElements(
         <Route index element={<Index />} />
         <Route path="admin" element={<AdminLayout />}>
             <Route path="song-requests" element={<SongRequests />} />
+            <Route path="upload-song" element={<UploadSongs />} />
         </Route>
     </Route>
 );
@@ -25,7 +27,7 @@ const routes = createRoutesFromElements(
 const router = createBrowserRouter(routes);
 
 export default (
-    <Suspense fallback={<p className="text-white">page loading...</p>}>
+    // <Suspense fallback={<p className="text-white">page loading...</p>}>
         <RouterProvider router={router} />
-    </Suspense>
+    // </Suspense>
 );
