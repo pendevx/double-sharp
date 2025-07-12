@@ -61,6 +61,7 @@ public static class DependencyInjectionConfiguration
                     policy.WithOrigins(corsConfig.Origin);
                     policy.WithMethods(corsConfig.AllowedMethods);
                     policy.WithHeaders(corsConfig.AllowedHeaders);
+                    policy.AllowCredentials();
                 });
             }
         });

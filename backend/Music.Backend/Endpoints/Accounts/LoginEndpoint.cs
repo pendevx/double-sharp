@@ -1,5 +1,3 @@
-using FastEndpoints;
-using Microsoft.AspNetCore.Authorization;
 using Music.Backend.HttpContextExtensions;
 using Music.Backend.Models.DTO.Http;
 using Music.CommandHandlers.Accounts;
