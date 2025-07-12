@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Music.Commands.Accounts;
 using Music.Models.Data;
-using Music.Models.Data.DbContexts;
+using Music.EntityFramework;
 using Account = Music.Models.Data.Account;
 using AccountRole = Music.Models.Data.AccountRole;
 

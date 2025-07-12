@@ -1,14 +1,11 @@
 using System.Net;
-using FastEndpoints;
-using Microsoft.AspNetCore.Authorization;
 using Music.Global.Contracts;
 using Music.Models.Data;
-using Music.Models.Data.DbContexts;
+using Music.EntityFramework;
 
 namespace Music.Backend.Endpoints.Accounts;
 
 [HttpGet("/accounts/checkUserHasRole/{role}")]
-[AllowAnonymous]
 public class CheckUserHasRoleEndpoint : Ep.NoReq.Res<bool>
 {
     private readonly MusicContext _dbContext;

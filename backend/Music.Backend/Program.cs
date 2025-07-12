@@ -1,8 +1,12 @@
-using FastEndpoints;
+global using FastEndpoints;
+global using Music.Backend.EndpointFilters;
+
 using FastEndpoints.Swagger;
 using Music.Backend.Middleware;
 using Music.Backend.Startup;
 using Music.Backend.Startup.ConfigModels;
+
+await YoutubeDLSharp.Utils.DownloadYtDlp();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +43,12 @@ app.UseGlobalExceptionHandler();
 app.UseLogger();
 app.UseAuthorization();
 app.MapControllers();
-app.UseFastEndpoints()
+app.UseFastEndpoints(config => config.Endpoints.Configurator = ep =>
+    {
+        ep.AllowAnonymous();
+
+        if (ep.EndpointType.GetCustomAttributes(typeof(RequiresAuthenticatedAttribute), false).Any())
+            ep.Options(o => o.AddEndpointFilter<RequiresAuthenticatedFilter>());
+    })
     .UseSwaggerGen();
 app.Run();

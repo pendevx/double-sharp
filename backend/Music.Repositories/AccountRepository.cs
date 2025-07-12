@@ -1,5 +1,5 @@
 using Music.Models.Data;
-using Music.Models.Data.DbContexts;
+using Music.EntityFramework;
 using Music.Repositories.Contracts;
 
 namespace Music.Repositories;

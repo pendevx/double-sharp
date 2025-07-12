@@ -1,9 +1,8 @@
-using System.Security.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Music.Backend.HttpContextExtensions;
+using Music.EntityFramework;
 using Music.Global.Contracts;
 using Music.Models.Data;
-using Music.Models.Data.DbContexts;
 
 namespace Music.Backend.Global.Impl;
 
@@ -23,9 +22,9 @@ public class WebAuthContext : IAuthContext
         var authCookie = _httpContextAccessor.HttpContext?.Request.GetAuthenticationCookie();
 
         if (authCookie is null)
-            throw new AuthenticationException("no identity");
+            return null;
 
-        var account = _dbContext.Sessions.AsNoTracking()
+        var account = _dbContext.Sessions
             .Include(s => s.Account)
             .FirstOrDefault(s => s.Token == authCookie)
             ?.Account;

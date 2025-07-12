@@ -7,7 +7,7 @@ using Music.Backend.Global.Impl;
 using Music.Backend.Startup.ConfigModels;
 using Music.CommandHandlers;
 using Music.Global.Contracts;
-using Music.Models.Data.DbContexts;
+using Music.EntityFramework;
 using Music.QueryHandlers;
 using Music.Repositories;
 using Music.Repositories.Contracts;
@@ -85,9 +85,11 @@ public static class DependencyInjectionConfiguration
         builder.Services.AddScoped<ISessionRepository, SessionRepository>();
         builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
-        builder.Services.AddDelegate<GetObjectKey>(AwsFunctions.GetObjectKey, ServiceLifetime.Scoped);
+        builder.Services.AddDelegate<GetSongPath>(AwsFunctions.GetSongPath, ServiceLifetime.Scoped);
+        builder.Services.AddDelegate<CreateSongRequestPath>(AwsFunctions.CreateSongRequestPath, ServiceLifetime.Scoped);
         builder.Services.AddDelegate<GetBucketName>(AwsFunctions.GetBucketName, ServiceLifetime.Singleton);
         builder.Services.AddDelegate<GetEnvironment>(AppEnvironment.GetEnvironment, ServiceLifetime.Singleton);
+        builder.Services.AddDelegate<RequiresPermission>(Requirements.RequiresPermission, ServiceLifetime.Scoped);
     }
 
     public static void ConfigureAws(this IServiceCollection services)

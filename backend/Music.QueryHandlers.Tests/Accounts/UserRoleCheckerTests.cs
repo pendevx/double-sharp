@@ -1,5 +1,5 @@
 ﻿using Music.Global.Contracts;
-using Music.Models.Data.DbContexts;
+using Music.EntityFramework;
 using Music.Models.Data;
 using Music.Tests.Base;
 

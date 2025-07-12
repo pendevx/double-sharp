@@ -3,6 +3,9 @@ using Music.QueryHandlers.Accounts;
 
 namespace Music.Backend.EndpointFilters;
 
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+public class RequiresAuthenticatedAttribute : Attribute;
+
 public class RequiresAuthenticatedFilter : IEndpointFilter
 {
     private readonly ValidateTokenIsActiveHandler _validateTokenIsActive;

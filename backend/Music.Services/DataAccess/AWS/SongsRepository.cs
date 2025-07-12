@@ -1,53 +1,53 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.S3.Transfer;
 using Amazon.S3.Util;
 using Microsoft.Extensions.Logging;
 using Music.Global.Contracts;
-using Music.Models.Data;
 
 namespace Music.Services.DataAccess.AWS;
 
-public sealed class SongsRepository
+public sealed class SongsRepository : S3Repository
 {
-    private readonly IAmazonS3 _s3Client;
-    private readonly GetBucketName _getBucketName;
-    private readonly GetObjectKey _generateObjectKey;
+    private readonly GetSongPath _generateSongPath;
     private readonly ILogger<SongsRepository> _logger;
 
-    public SongsRepository(IAmazonS3 s3Client, GetObjectKey generateObjectKey, GetBucketName getBucketName, ILogger<SongsRepository> logger)
+    public SongsRepository(IAmazonS3 s3Client, GetSongPath generateSongPath, GetBucketName getBucketName,
+        ILogger<SongsRepository> logger)
+        : base(s3Client, getBucketName)
     {
-        _s3Client = s3Client;
-        _generateObjectKey = generateObjectKey;
-        _getBucketName = getBucketName;
+        _generateSongPath = generateSongPath;
         _logger = logger;
     }
 
-    public Task UploadAsync(Song song, Stream contents)
-    {
-        var uploadRequest = new TransferUtilityUploadRequest
-        {
-            BucketName = _getBucketName(),
-            Key = _generateObjectKey(song.Id),
-            InputStream = contents,
-            ContentType = song.MimeType,
-        };
+    public Task UploadAsync(int id, Stream contents, string contentType) =>
+        UploadObjectAsync(_generateSongPath(id), contents, contentType);
 
-        return new TransferUtility(_s3Client).UploadAsync(uploadRequest);
+    public async Task<(bool exists, string key)> ExistsAsync(int id)
+    {
+        var key = _generateSongPath(id);
+        try
+        {
+            await CheckObjectExistsAsync(key);
+            return (true, key);
+        }
+        catch (AmazonS3Exception)
+        {
+            return (false, "");
+        }
     }
 
     public async Task<Stream> DownloadAsync(int id)
     {
-        var key = _generateObjectKey(id);
+        var key = _generateSongPath(id);
 
         var request = new GetObjectRequest
         {
-            BucketName = _getBucketName(),
+            BucketName = BucketName,
             Key = key,
         };
 
         _logger.LogInformation($"Requested for object '{key}'");
-        var response = await _s3Client.GetObjectAsync(request);
+        var response = await S3Client.GetObjectAsync(request);
 
         return AmazonS3Util.MakeStreamSeekable(response.ResponseStream);
     }

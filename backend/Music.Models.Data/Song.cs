@@ -1,23 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+﻿namespace Music.Models.Data;
 
-namespace Music.Models.Data
+public class Song : BaseEntity
 {
-    public class Song : BaseEntity
-    {
-        [StringLength(256)]
-        public string Name { get; set; } = null!;
+    private Song(string name, string mimeType) =>
+        (Name, MimeType) = (name, mimeType);
 
-        [Column(TypeName = "oid")]
-        public uint ContentsOid { get; set; }
+    public string Name { get; init; }
+    public string MimeType { get; init; }
 
-        [StringLength(50)]
-        [Unicode(false)]
-        public string MimeType { get; set; } = null!;
-
-        public uint Length { get; set; }
-
-        public Guid Guid { get; set; }
-    }
+    public static Song Create(string name, string mimeType) =>
+        new(name, mimeType);
 }

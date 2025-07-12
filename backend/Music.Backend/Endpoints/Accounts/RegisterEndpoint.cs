@@ -11,7 +11,6 @@ namespace Music.Backend.Endpoints.Accounts;
 public record UserRegistrationInfo(string DisplayName, string Username, string Password);
 
 [HttpPost("/accounts/register")]
-[AllowAnonymous]
 public class RegisterEndpoint : Endpoint<UserRegistrationInfo, UserInformation>
 {
     private readonly RegisterAccountHandler _registerAccountHandler;

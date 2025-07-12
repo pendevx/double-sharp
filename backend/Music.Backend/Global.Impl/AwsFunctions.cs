@@ -12,14 +12,17 @@ public static class AwsFunctions
         config.GetValue<string>(BucketKeyFromConfig) ??
         throw new InvalidOperationException();
 
-    private static string GetPrefix(AwsEnvironment awsEnvironment, string environmentName) =>
+    private static string GetPrefix(AwsEnvironment awsEnvironment, string environmentName, string prefix) =>
         environmentName switch
         {
-            "Production" => "",
-            "Development" => $"{awsEnvironment.UserId}/",
+            "Production" => $"{prefix}/",
+            "Development" => $"{awsEnvironment.UserId}/{prefix}/",
             _ => throw new InvalidOperationException()
         };
 
-    public static GetObjectKey GetObjectKey(AwsEnvironment awsEnvironment, GetEnvironment getEnvironment) => songId =>
-        $"{GetPrefix(awsEnvironment, getEnvironment())}{songId}/{AudioMp3FileName}";
+    public static GetSongPath GetSongPath(AwsEnvironment env, GetEnvironment getEnv) => songId =>
+        $"{GetPrefix(env, getEnv(), "Songs")}{songId}/{AudioMp3FileName}";
+
+    public static CreateSongRequestPath CreateSongRequestPath(AwsEnvironment env, GetEnvironment getEnv) => songRequestId =>
+        $"{GetPrefix(env, getEnv(), "SongRequests")}{songRequestId}/{AudioMp3FileName}";
 }
