@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Music.Global.Contracts;
+using Music.Models.Data;
 using Music.Models.Data.SongRequests;
 using Music.Services.DataAccess.AWS;
 using YoutubeDLSharp;
@@ -27,23 +28,29 @@ public class SongRequestService
     public Task ApproveSongRequestAsync(SongRequest request, int newSongId) =>
         request.Url switch
         {
-            SongRequestWebUrl webUrl => DownloadSongFromUrlAsync(webUrl, newSongId),
+            SongRequestWebUrl => DownloadSongFromUrlAsync(request.RawUrl, newSongId),
             S3Key s3Key => CopySongRequestFileToSongsAsync(s3Key, newSongId),
             _ => throw new UnreachableException(nameof(request.Url))
         };
 
-    private async Task DownloadSongFromUrlAsync(SongRequestWebUrl url, int newSongId)
+    private async Task DownloadSongFromUrlAsync(string url, int newSongId)
     {
-        var ytdl = new YoutubeDL();
-        var path = await ytdl.RunVideoDownload(url);
+        var ytdl = new YoutubeDL{ OutputFileTemplate = "%(id)s.%(ext)s" };
+        var path = await ytdl.RunAudioDownload(url);
 
         if (!path.Success)
             throw new Exception(string.Join("\n", path.ErrorOutput));
 
-        await using (var contents = File.OpenRead(path.Data))
-            await _songsRepository.UploadAsync(newSongId, contents, "audio/mpeg");
-
-        File.Delete(path.Data);
+        try
+        {
+            var mimeType = MimeType.Create(path.Data);
+            await using var contents = File.OpenRead(path.Data);
+            await _songsRepository.UploadAsync(newSongId, contents, mimeType);
+        }
+        finally
+        {
+            File.Delete(path.Data);
+        }
     }
 
     private Task<CopyObjectResponse> CopySongRequestFileToSongsAsync(S3Key key, int newSongId)

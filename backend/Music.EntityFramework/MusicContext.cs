@@ -27,10 +27,6 @@ public sealed class MusicContext : DbContext
 
             songBuilder.Property(s => s.Name)
                 .HasMaxLength(256);
-
-            songBuilder.Property(s => s.MimeType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
         });
 
         modelBuilder.Entity<SongRequest>(songRequestBuilder =>
@@ -53,6 +49,7 @@ public sealed class MusicContext : DbContext
                 .HasColumnName("Url");
 
             songRequestBuilder.Ignore(sr => sr.Url);
+            songRequestBuilder.Ignore(sr => sr.RawUrl);
         });
     }
 

@@ -9,26 +9,18 @@ namespace Music.Backend.Endpoints.SongRequests;
 [RequiresAuthenticated]
 public class UploadFileEndpoint : Ep.NoReq.Res<Guid>
 {
-    private readonly RequiresPermission _requiresPermission;
     private readonly SongRequestRepository _songRequestRepository;
 
-    public UploadFileEndpoint(IAuthContext authContext, MusicContext dbContext, RequiresPermission requiresPermission,
+    public UploadFileEndpoint(IAuthContext authContext, MusicContext dbContext,
         SongRequestRepository songRequestRepository)
     {
-        _requiresPermission = requiresPermission;
         _songRequestRepository = songRequestRepository;
     }
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        if (!_requiresPermission(RoleName.Admin))
-        {
-            await SendForbiddenAsync(ct);
-            return;
-        }
-
         await using var stream = HttpContext.Request.Body;
-        var contentType = HttpContext.Request.Headers.ContentType.ToString();
+        var contentType = MimeType.Create(HttpContext.Request.Headers.ContentType.ToString());
         var id = Guid.NewGuid();
 
         await _songRequestRepository.UploadAsync(id, contentType, stream);

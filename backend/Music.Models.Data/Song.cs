@@ -2,12 +2,10 @@
 
 public class Song : BaseEntity
 {
-    private Song(string name, string mimeType) =>
-        (Name, MimeType) = (name, mimeType);
+    private Song(string name) => Name = name;
 
     public string Name { get; init; }
-    public string MimeType { get; init; }
 
-    public static Song Create(string name, string mimeType) =>
-        new(name, mimeType);
+    public static Song Create(string name) =>
+        new(name);
 }

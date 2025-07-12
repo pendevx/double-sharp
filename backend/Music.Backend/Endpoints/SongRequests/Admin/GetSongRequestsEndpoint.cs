@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Music.EntityFramework;
+using Music.Global.Contracts;
+using Music.Models.Data;
 using Music.Models.Data.SongRequests;
 
 namespace Music.Backend.Endpoints.SongRequests.Admin;
@@ -11,14 +13,22 @@ public record GetSongRequestsResponse(int Id, string Name, string Source, string
 public class GetSongRequestsEndpoint : Endpoint<GetSongRequests>
 {
     private readonly MusicContext _dbContext;
+    private readonly RequiresPermission _requiresPermission;
 
-    public GetSongRequestsEndpoint(MusicContext dbContext)
+    public GetSongRequestsEndpoint(MusicContext dbContext, RequiresPermission requiresPermission)
     {
         _dbContext = dbContext;
+        _requiresPermission = requiresPermission;
     }
 
     public override async Task HandleAsync(GetSongRequests req, CancellationToken ct)
     {
+        if (!_requiresPermission(RoleName.Admin))
+        {
+            await SendForbiddenAsync(ct);
+            return;
+        }
+
         const int pageSize = 50;
 
         var response = _dbContext.SongRequests
@@ -30,7 +40,7 @@ public class GetSongRequestsEndpoint : Endpoint<GetSongRequests>
                 sr.Id,
                 sr.Name,
                 sr.Source.ToString(),
-                sr.Url,
+                sr.RawUrl,
                 sr.Uploader.DisplayName
             ))
             .ToList();

@@ -59,31 +59,6 @@ public class MusicStack : Stack
             ],
         });
 
-        var queueName = serviceEnvironment.CreateName("approved-song-requests");
-        var queue = new Queue(this, queueName, new QueueProps { QueueName = queueName });
-
-        var code = Utils.ReadCodeFromEmbeddedResource("SQS.DownloadSongRequests.Dockerfile");
-
-        var tempDir = Path.Combine(Path.GetTempPath(), "double-sharp-dockerfile-temp");
-        Directory.CreateDirectory(tempDir);
-
-        var dockerfilePath = Path.Combine(tempDir, "Dockerfile");
-        File.WriteAllText(dockerfilePath, code);
-
-        var songRequestsProcessorName = serviceEnvironment.CreateName("song-request-processor");
-        var songRequestsProcessor = new Function(this, songRequestsProcessorName, new FunctionProps
-        {
-            Runtime = Runtime.FROM_IMAGE,
-            Code = Code.FromDockerBuild(tempDir, new DockerBuildAssetOptions { File = "Dockerfile" }),
-            Handler = Handler.FROM_IMAGE,
-        });
-
-        songRequestsProcessor.AddEventSource(new SqsEventSource(queue, new SqsEventSourceProps
-        {
-            BatchSize = 1,
-            Enabled = true,
-        }));
-
         return vpc;
     }
 

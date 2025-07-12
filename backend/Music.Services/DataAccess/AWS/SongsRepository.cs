@@ -3,6 +3,7 @@ using Amazon.S3.Model;
 using Amazon.S3.Util;
 using Microsoft.Extensions.Logging;
 using Music.Global.Contracts;
+using Music.Models.Data;
 
 namespace Music.Services.DataAccess.AWS;
 
@@ -19,7 +20,7 @@ public sealed class SongsRepository : S3Repository
         _logger = logger;
     }
 
-    public Task UploadAsync(int id, Stream contents, string contentType) =>
+    public Task UploadAsync(int id, Stream contents, MimeType contentType) =>
         UploadObjectAsync(_generateSongPath(id), contents, contentType);
 
     public async Task<(bool exists, string key)> ExistsAsync(int id)
@@ -36,7 +37,7 @@ public sealed class SongsRepository : S3Repository
         }
     }
 
-    public async Task<Stream> DownloadAsync(int id)
+    public async Task<(Stream, MimeType)> DownloadAsync(int id)
     {
         var key = _generateSongPath(id);
 
@@ -47,8 +48,13 @@ public sealed class SongsRepository : S3Repository
         };
 
         _logger.LogInformation($"Requested for object '{key}'");
-        var response = await S3Client.GetObjectAsync(request);
+        var audioContents = await S3Client.GetObjectAsync(request);
+        var mimeType = await S3Client.GetObjectMetadataAsync(new GetObjectMetadataRequest
+        {
+            BucketName = BucketName,
+            Key = key,
+        });
 
-        return AmazonS3Util.MakeStreamSeekable(response.ResponseStream);
+        return (AmazonS3Util.MakeStreamSeekable(audioContents.ResponseStream), MimeType.Create(mimeType.Headers.ContentType));
     }
 }

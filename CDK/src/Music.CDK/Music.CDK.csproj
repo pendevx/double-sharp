@@ -19,10 +19,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\Cloudfront\redirect-function.js" />
-    <EmbeddedResource Include="Resources\SQS\DownloadSongRequests\download_song_request.py" />
-    <None Remove="Resources\SQS\download_song_request.py" />
-    <None Remove="Resources\SQS\DownloadSongRequests\Dockerfile" />
-    <EmbeddedResource Include="Resources\SQS\DownloadSongRequests\Dockerfile" />
   </ItemGroup>
 
 </Project>

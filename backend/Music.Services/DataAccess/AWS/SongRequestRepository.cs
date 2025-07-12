@@ -1,5 +1,6 @@
 using Amazon.S3;
 using Music.Global.Contracts;
+using Music.Models.Data;
 
 namespace Music.Services.DataAccess.AWS;
 
@@ -14,7 +15,7 @@ public class SongRequestRepository : S3Repository
         _createSongRequestPath = createSongRequestPath;
     }
 
-    public Task UploadAsync(Guid id, string contentType, Stream contents) =>
+    public Task UploadAsync(Guid id, MimeType contentType, Stream contents) =>
         UploadObjectAsync(_createSongRequestPath(id), contents, contentType);
 
     public async Task<(bool exists, string key)> ExistsAsync(Guid id)

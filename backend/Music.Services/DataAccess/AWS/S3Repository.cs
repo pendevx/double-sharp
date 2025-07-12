@@ -2,6 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using Music.Global.Contracts;
+using Music.Models.Data;
 
 namespace Music.Services.DataAccess.AWS;
 
@@ -16,7 +17,7 @@ public abstract class S3Repository
         BucketName = getBucketName();
     }
 
-    protected async Task UploadObjectAsync(string key, Stream contents, string contentType)
+    protected async Task UploadObjectAsync(string key, Stream contents, MimeType mimeType)
     {
         var songRequestExists = await CheckObjectExistsAsync(key);
 
@@ -28,7 +29,7 @@ public abstract class S3Repository
             BucketName = BucketName,
             Key = key,
             InputStream = contents,
-            ContentType = contentType,
+            ContentType = mimeType,
         };
 
         await new TransferUtility(S3Client).UploadAsync(uploadRequest);

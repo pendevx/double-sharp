@@ -1,4 +1,10 @@
 .idea/
 
-# yt-dlp
+# song requests utilities
 yt-dlp.exe
+ffmpeg.exe
+*.mp3
+*.opus
+*.aac
+*.m4a
+*.webm

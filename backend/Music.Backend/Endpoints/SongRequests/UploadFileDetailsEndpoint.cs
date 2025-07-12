@@ -28,9 +28,6 @@ public class UploadFileDetailsEndpoint : Ep.Req<UploadFileDetailsRequest>.NoRes
 
     public override async Task HandleAsync(UploadFileDetailsRequest req, CancellationToken ct)
     {
-        if (!_requiresPermission(RoleName.Admin))
-            await SendForbiddenAsync(ct);
-
         if (await _songRequestRepository.ExistsAsync(req.Id) is not { exists: true } check)
         {
             await SendNotFoundAsync(ct);

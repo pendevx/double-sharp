@@ -14,7 +14,7 @@ public class SongRequest : BaseEntity
     public Source Source { get; }
 
     private string _urlValue;
-
+    public string RawUrl => _urlValue;
     public SongRequestUrl Url
     {
         get => Source switch
@@ -24,7 +24,7 @@ public class SongRequest : BaseEntity
             Source.YouTubeMusic => new YouTubeMusicUrl(_urlValue),
             _ => throw new InvalidOperationException("Unknown source")
         };
-        set => _urlValue = value;
+        set => _urlValue = value.Url;
     }
 
     public static SongRequest CreateFileRequest(string name, Account uploader, S3Key key) =>
@@ -39,7 +39,7 @@ public class SongRequest : BaseEntity
     public Song Approve()
     {
         Status = RequestStatus.Approved;
-        return Song.Create(Name, "audio/mpeg");
+        return Song.Create(Name);
     }
 
     public void Reject() => Status = RequestStatus.Rejected;
