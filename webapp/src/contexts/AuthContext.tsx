@@ -1,8 +1,8 @@
 import React from "react";
 
 export enum Role {
-    User,
-    Admin,
+    User = "User",
+    Admin = "Admin",
 }
 
 export type AuthContextType = {
