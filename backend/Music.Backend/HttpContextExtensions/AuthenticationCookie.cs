@@ -23,7 +23,9 @@ public static class AuthenticationCookie
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                MaxAge = TimeSpan.FromDays(7)
+                MaxAge = TimeSpan.FromDays(7),
+                Domain = "pendevx.com",
+                Path = "/",
             });
         }
     }
