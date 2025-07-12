@@ -26,8 +26,4 @@ const routes = createRoutesFromElements(
 
 const router = createBrowserRouter(routes);
 
-export default (
-    // <Suspense fallback={<p className="text-white">page loading...</p>}>
-        <RouterProvider router={router} />
-    // </Suspense>
-);
+export default <RouterProvider router={router} />;
