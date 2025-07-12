@@ -8,11 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Music.EntityFramework\Music.EntityFramework.csproj" />
       <ProjectReference Include="..\Music.Repositories.Contracts\Music.Repositories.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0-rc.2.24474.1" />
     </ItemGroup>
 

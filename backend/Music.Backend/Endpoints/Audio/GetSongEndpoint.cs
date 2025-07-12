@@ -1,7 +1,5 @@
-using FastEndpoints;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Music.Models.Data.DbContexts;
+using Music.EntityFramework;
 using Music.Services.DataAccess.AWS;
 
 namespace Music.Backend.Endpoints.Audio;
@@ -9,7 +7,6 @@ namespace Music.Backend.Endpoints.Audio;
 public record GetSongRequest(int Id);
 
 [HttpGet("/music/download/{id}")]
-[AllowAnonymous]
 public class GetSongEndpoint : Endpoint<GetSongRequest, Stream>
 {
     private readonly MusicContext _dbContext;
@@ -29,9 +26,9 @@ public class GetSongEndpoint : Endpoint<GetSongRequest, Stream>
             return;
         }
 
-        var stream = await _songsRepository.DownloadAsync(song.Id);
+        var (stream, mimeType) = await _songsRepository.DownloadAsync(song.Id);
 
-        await SendStreamAsync(stream, song.Name, contentType: song.MimeType, enableRangeProcessing: true,
+        await SendStreamAsync(stream, song.Name, contentType: mimeType, enableRangeProcessing: true,
             cancellation: ct);
     }
 }

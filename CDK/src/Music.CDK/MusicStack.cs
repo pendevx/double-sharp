@@ -1,8 +1,11 @@
+using System.IO;
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.IAM;
-using Amazon.CDK.AWS.Route53.Targets;
+using Amazon.CDK.AWS.Lambda;
+using Amazon.CDK.AWS.Lambda.EventSources;
 using Amazon.CDK.AWS.S3;
+using Amazon.CDK.AWS.SQS;
 using Constructs;
 using Music.CDK.Services;
 

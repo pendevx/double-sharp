@@ -1,5 +1,3 @@
-using System.IO;
-using System.Reflection;
 using Amazon.CDK.AWS.CloudFront;
 using Amazon.CDK.AWS.CloudFront.Origins;
 using Amazon.CDK.AWS.S3;
@@ -13,7 +11,7 @@ public class Cloudfront
 {
     public static Distribution Create(Construct scope, ServiceEnvironment serviceEnvironment, Bucket bucket)
     {
-        var code = ReadCodeFromEmbeddedResource("Cloudfront.redirect-function.js");
+        var code = Utils.ReadCodeFromEmbeddedResource("Cloudfront.redirect-function.js");
 
         var functionName = serviceEnvironment.CreateName("redirect-function");
         var redirectFunction = new Function(scope, functionName, new FunctionProps
@@ -57,20 +55,5 @@ public class Cloudfront
         });
 
         return distribution;
-    }
-
-    private static string ReadCodeFromEmbeddedResource(string fileName)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        var assemblyName = assembly.GetName().Name;
-
-        using var stream = assembly.GetManifestResourceStream($"{assemblyName}.Resources.{fileName}");
-
-        if (stream is null)
-            throw new FileNotFoundException($"{nameof(fileName)}: Embedded resource '{fileName}' not found.");
-
-        using var streamReader = new StreamReader(stream);
-
-        return streamReader.ReadToEnd();
     }
 }

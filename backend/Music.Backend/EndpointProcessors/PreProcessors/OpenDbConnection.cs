@@ -1,6 +1,6 @@
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
-using Music.Models.Data.DbContexts;
+using Music.EntityFramework;
 
 namespace Music.Backend.EndpointProcessors.PreProcessors;
 

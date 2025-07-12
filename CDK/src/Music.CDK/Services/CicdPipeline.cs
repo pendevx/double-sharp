@@ -81,6 +81,8 @@ public class CicdPipeline
             ],
             ArtifactBucket = artifactsBucket,
             Role = pipelineRole,
+            Triggers = [],
+            PipelineType = PipelineType.V2,
         });
     }
 

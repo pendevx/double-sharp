@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Music.Models.Data.SongRequests;
 
 namespace Music.Models.Data;
 
@@ -18,11 +19,10 @@ public class Account : BaseEntity
     public string DisplayName { get; set; } = null!;
 
     [InverseProperty("Account")]
-    public virtual ICollection<AccountRole> AccountRoles { get; set; } = new List<AccountRole>();
+    public ICollection<AccountRole> AccountRoles { get; set; } = new List<AccountRole>();
 
     [InverseProperty("Account")]
-    public virtual ICollection<Session> Sessions { get; set; } = new List<Session>();
+    public ICollection<Session> Sessions { get; set; } = new List<Session>();
 
-    [InverseProperty("UploaderAccount")]
-    public virtual ICollection<SongRequest> SongRequests { get; set; } = new List<SongRequest>();
+    public ICollection<SongRequest> SongRequests { get; set; } = new List<SongRequest>();
 }

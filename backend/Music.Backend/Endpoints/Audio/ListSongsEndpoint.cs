@@ -1,13 +1,10 @@
-using FastEndpoints;
-using Microsoft.AspNetCore.Authorization;
-using Music.Models.Data.DbContexts;
+using Music.EntityFramework;
 
 namespace Music.Backend.Endpoints.Audio;
 
 public record struct SongInfo(int Id, string Name);
 
 [HttpGet("/music/list")]
-[AllowAnonymous]
 public class ListSongs : Ep.NoReq.Res<IEnumerable<SongInfo>>
 {
     private readonly MusicContext _dbContext;

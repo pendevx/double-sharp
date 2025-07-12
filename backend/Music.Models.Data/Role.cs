@@ -16,3 +16,9 @@ public class Role : BaseEntity
     [InverseProperty("Role")]
     public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
 }
+
+public enum RoleName
+{
+    User,
+    Admin,
+}

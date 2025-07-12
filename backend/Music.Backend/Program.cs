@@ -1,8 +1,13 @@
-using FastEndpoints;
+global using FastEndpoints;
+global using Music.Backend.EndpointFilters;
+using System.Text.Json.Serialization;
 using FastEndpoints.Swagger;
 using Music.Backend.Middleware;
 using Music.Backend.Startup;
 using Music.Backend.Startup.ConfigModels;
+
+await YoutubeDLSharp.Utils.DownloadYtDlp();
+await YoutubeDLSharp.Utils.DownloadFFmpeg();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +30,14 @@ builder.Services.ConfigureLogging();
 builder.Services.ConfigureCommandHandlers(types);
 builder.Services.ConfigureQueryHandlers(types);
 builder.Services.ConfigureServices(types);
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 var app = builder.Build();
 
@@ -39,6 +52,12 @@ app.UseGlobalExceptionHandler();
 app.UseLogger();
 app.UseAuthorization();
 app.MapControllers();
-app.UseFastEndpoints()
+app.UseFastEndpoints(config => config.Endpoints.Configurator = ep =>
+    {
+        ep.AllowAnonymous();
+
+        if (ep.EndpointType.GetCustomAttributes(typeof(RequiresAuthenticatedAttribute), false).Any())
+            ep.Options(o => o.AddEndpointFilter<RequiresAuthenticatedFilter>());
+    })
     .UseSwaggerGen();
 app.Run();

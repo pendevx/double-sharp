@@ -8,10 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Music.EntityFramework\Music.EntityFramework.csproj" />
       <ProjectReference Include="..\Music.Models.Data\Music.Models.Data.csproj" />
     </ItemGroup>
 
