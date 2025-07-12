@@ -12,6 +12,9 @@ public static class AuthenticationCookie
 
     public static void SetAuthenticationCookie(this HttpResponse ctx, Guid value)
     {
+        var config = ctx.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+        var cookieDomain = config.GetValue<string>("CookieDomain");
+
         if (value == Guid.Empty)
         {
             ctx.Cookies.Delete(CookieName);
@@ -24,6 +27,7 @@ public static class AuthenticationCookie
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
                 MaxAge = TimeSpan.FromDays(7),
+                Domain = cookieDomain,
             });
         }
     }
