@@ -42,6 +42,7 @@ export default function AccountsProvider({ children }: { children?: React.ReactN
     const login = (credentials: Credentials) => {
         refreshData(loginAccount(), {
             method: "POST",
+            credentials: "include",
             body: JSON.stringify({ ...credentials }),
         });
     };
