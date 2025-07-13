@@ -7,9 +7,6 @@ using Music.Backend.Middleware;
 using Music.Backend.Startup;
 using Music.Backend.Startup.ConfigModels;
 
-await YoutubeDLSharp.Utils.DownloadYtDlp();
-await YoutubeDLSharp.Utils.DownloadFFmpeg();
-
 var builder = WebApplication.CreateBuilder(args);
 
 Music.CommandHandlers.Load.Initialize();
@@ -46,6 +43,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    await YoutubeDLSharp.Utils.DownloadYtDlp();
+    await YoutubeDLSharp.Utils.DownloadFFmpeg();
 }
 
 app.UseCors(CorsConfiguration.ConfigurationName);

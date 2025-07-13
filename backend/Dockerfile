@@ -11,5 +11,15 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /backend
 COPY --from=build /backend/out .
 
+RUN apt-get update && apt-get install -y curl unzip
+
+# yt-dlp
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /backend/yt-dlp
+
+## ffprobe
+RUN curl -L https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffprobe-6.1-linux-64.zip -o /backend/ffprobe.zip \
+    && unzip /backend/ffprobe.zip -d /backend \
+    && rm /backend/ffprobe.zip
+
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "Music.Backend.dll"]
