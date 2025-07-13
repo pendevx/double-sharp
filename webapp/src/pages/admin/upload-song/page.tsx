@@ -1,11 +1,11 @@
+import useFetch from "../../../hooks/useFetch";
 import { FileUpload } from "../../../components/modals/SongRequestModals";
 
 export default function UploadSong() {
-    const approveSong = async (response: Response) => {
-        if (!response.ok) return;
+    const { refreshData } = useFetch();
 
-        const id = await response.json();
-        await fetch(`/api/song-requests/approve/${id}`, {
+    const approveSong = async (id: number) => {
+        await refreshData(`/api/song-requests/approve/${id}`, {
             method: "POST",
         });
     };

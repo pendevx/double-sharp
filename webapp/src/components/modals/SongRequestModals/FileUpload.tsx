@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import z from "zod/v4";
+import useFetch from "../../../hooks/useFetch";
 
 const formModel = z.object({
     title: z.string().min(1, "Title is required"),
@@ -15,47 +16,36 @@ type FormModel = z.infer<typeof formModel>;
 
 type UploaderProps = {
     toggleUploadSource?: () => void;
-    postSubmit?: (response: Response) => void;
+    postSubmit?: (response: number) => Promise<void>;
 };
 
 export default function FileUpload({ toggleUploadSource, postSubmit }: UploaderProps) {
     const [fileName, setFileName] = React.useState<string>("Choose a file");
     const [submitting, setSubmitting] = React.useState<boolean>(false);
+    const { refreshData } = useFetch<any>();
     const { register, handleSubmit, formState } = useForm<FormModel>({ resolver: standardSchemaResolver(formModel) });
 
     const onSubmit = async (data: FormModel) => {
         setSubmitting(true);
 
-        const uploadFileResponse = await fetch("/api/song-requests/request/file", {
+        const guid = (await refreshData("/api/song-requests/request/file", {
             method: "POST",
             body: data.file,
             headers: { "Content-Type": data.file?.type ?? "" },
-        });
-
-        if (!uploadFileResponse.ok) {
-            setSubmitting(false);
-            return;
-        }
-
-        const guid = await uploadFileResponse.json();
+        })) as string;
 
         const uploadData = {
             id: guid,
             title: data.title,
         };
 
-        const uploadDetailsResponse = await fetch("/api/song-requests/request/file-details", {
+        const id = (await refreshData("/api/song-requests/request/file-details", {
             method: "POST",
             headers: { "Content-Type": "application/json; charset=UTF-8" },
             body: JSON.stringify(uploadData),
-        });
+        })) as number;
 
-        if (!uploadDetailsResponse.ok) {
-            setSubmitting(false);
-            return;
-        }
-
-        postSubmit?.(uploadDetailsResponse);
+        await postSubmit?.(id);
         setSubmitting(false);
     };
 

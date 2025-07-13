@@ -2,6 +2,7 @@ global using FastEndpoints;
 global using Music.Backend.EndpointFilters;
 using System.Text.Json.Serialization;
 using FastEndpoints.Swagger;
+using Music.Backend.EndpointConfigurations;
 using Music.Backend.Middleware;
 using Music.Backend.Startup;
 using Music.Backend.Startup.ConfigModels;
@@ -58,6 +59,9 @@ app.UseFastEndpoints(config => config.Endpoints.Configurator = ep =>
 
         if (ep.EndpointType.GetCustomAttributes(typeof(RequiresAuthenticatedAttribute), false).Any())
             ep.Options(o => o.AddEndpointFilter<RequiresAuthenticatedFilter>());
+
+        if (ep.EndpointType.GetCustomAttributes(typeof(NoBodyAttribute), false).Any())
+            ep.Description(o => o.ClearDefaultAccepts());
     })
     .UseSwaggerGen();
 app.Run();

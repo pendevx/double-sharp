@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Music.Backend.EndpointConfigurations;
 using Music.EntityFramework;
 using Music.Global.Contracts;
 using Music.Models.Data;
@@ -7,6 +8,9 @@ namespace Music.Backend.Endpoints.SongRequests.Admin;
 
 public record RejectSongRequestRequest(int Id);
 
+[HttpPost("/song-requests/reject/{id}")]
+[NoBody]
+[RequiresAuthenticated]
 public class RejectSongRequestEndpoint : Ep.Req<RejectSongRequestRequest>.NoRes
 {
     private readonly MusicContext _dbContext;
@@ -16,13 +20,6 @@ public class RejectSongRequestEndpoint : Ep.Req<RejectSongRequestRequest>.NoRes
     {
         _dbContext = dbContext;
         _requiresPermission = requiresPermission;
-    }
-
-    public override void Configure()
-    {
-        Post("/song-requests/reject/{id}");
-        Description(x => x.Accepts<RejectSongRequestRequest>());
-        Options(o => o.AddEndpointFilter<RequiresAuthenticatedFilter>());
     }
 
     public override async Task HandleAsync(RejectSongRequestRequest req, CancellationToken ct)

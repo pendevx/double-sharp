@@ -31,11 +31,18 @@ export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
             setIsFetching(true);
 
             try {
-                const fetchOptions: any = {
+                const fetchOptions: RequestInit = {
                     ...options,
-                    headers: Object.assign(["GET", "DELETE"].includes(options.method ?? "") ? {} : { "Content-Type": "application/json" }, options.headers),
+                    method: options.method ?? "GET",
+                    credentials: "include",
                     signal: aborter.current?.signal,
                 };
+
+                if (!["GET", "DELETE"].includes(fetchOptions.method as string)) {
+                    fetchOptions.headers = Object.assign(fetchOptions.headers ?? {}, {
+                        "Content-Type": "application/json; charset=UTF-8",
+                    });
+                }
 
                 const response = await fetch(finalUrl, fetchOptions);
 
