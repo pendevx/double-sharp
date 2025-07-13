@@ -17,23 +17,19 @@ export default function SongRequests() {
     }, []);
 
     const approve = async (songRequest: SongRequest) => {
-        const response = await fetch(`/api/song-requests/approve/${songRequest.id}`, {
+        await refreshData(`/api/song-requests/approve/${songRequest.id}`, {
             method: "POST",
         });
 
-        if (response.ok) {
-            refreshData();
-        }
+        refreshData();
     };
 
     const reject = async (songRequest: SongRequest) => {
-        const response = await fetch(`/api/song-requests/reject/${songRequest.id}`, {
+        await refreshData(`/api/song-requests/reject/${songRequest.id}`, {
             method: "POST",
         });
 
-        if (response.ok) {
-            refreshData();
-        }
+        refreshData();
     };
 
     return (

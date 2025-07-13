@@ -39,9 +39,12 @@ export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
                 };
 
                 if (!["GET", "DELETE"].includes(fetchOptions.method as string)) {
-                    fetchOptions.headers = Object.assign(fetchOptions.headers ?? {}, {
-                        "Content-Type": "application/json; charset=UTF-8",
-                    });
+                    // @ts-ignore
+                    if (fetchOptions.headers?.["Content-Type"] === undefined && !!fetchOptions.body) {
+                        fetchOptions.headers = Object.assign(fetchOptions.headers ?? {}, {
+                            "Content-Type": "application/json; charset=UTF-8",
+                        });
+                    }
                 }
 
                 const response = await fetch(finalUrl, fetchOptions);

@@ -2,6 +2,7 @@ import React from "react";
 import z from "zod/v4";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useForm } from "react-hook-form";
+import useFetch from "../../../hooks/useFetch";
 
 const options = [
     {
@@ -31,13 +32,14 @@ type UploaderProps = {
 export default function UrlUpload({ toggleUploadSource }: UploaderProps) {
     const [currentSource, setCurrentSource] = React.useState<string>("Please select");
     const [submitting, setSubmitting] = React.useState<boolean>(false);
+    const { refreshData } = useFetch();
 
     const { register, handleSubmit, formState, getFieldState } = useForm<FormModel>({ resolver: standardSchemaResolver(formModel) });
 
     const submitSongRequest = async (data: FormModel) => {
         setSubmitting(true);
 
-        await fetch("/api/song-requests/request/url", {
+        await refreshData("/api/song-requests/request/url", {
             method: "POST",
             headers: { "Content-Type": "application/json; charset=UTF-8" },
             body: JSON.stringify({

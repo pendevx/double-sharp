@@ -1,4 +1,5 @@
 import React from "react";
+import useFetch from "../hooks/useFetch";
 
 export enum Role {
     User = "User",
@@ -15,12 +16,14 @@ export const AuthContext = React.createContext<AuthContextType>({} as AuthContex
 const roleMap = new Map<Role, boolean>();
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
+    const { refreshData } = useFetch();
+
     const checkRoleAsync: AuthContextType["checkRoleAsync"] = async role => {
         if (roleMap.has(role)) {
             return roleMap.get(role) as boolean;
         }
 
-        const hasRole = await fetch(`/api/accounts/checkUserHasRole/${role}`).then(res => res.json());
+        const hasRole = (await refreshData(`/api/accounts/checkUserHasRole/${role}`)) as boolean;
 
         roleMap.set(role, hasRole);
 
