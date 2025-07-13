@@ -11,7 +11,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /backend
 COPY --from=build /backend/out .
 
-RUN apt-get update && apt-get install -y curl unzip
+RUN apt-get update && apt-get install -y curl unzip python3
 
 # yt-dlp
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /backend/yt-dlp \
