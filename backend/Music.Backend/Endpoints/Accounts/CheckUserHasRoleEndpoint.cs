@@ -5,8 +5,11 @@ using Music.EntityFramework;
 
 namespace Music.Backend.Endpoints.Accounts;
 
+public record CheckUserHasRoleRequest(RoleName Role);
+
 [HttpGet("/accounts/checkUserHasRole/{role}")]
-public class CheckUserHasRoleEndpoint : Ep.NoReq.Res<bool>
+[RequiresAuthenticated]
+public class CheckUserHasRoleEndpoint : Ep.Req<CheckUserHasRoleRequest>.Res<bool>
 {
     private readonly MusicContext _dbContext;
     private readonly IAuthContext _authContext;
@@ -17,38 +20,16 @@ public class CheckUserHasRoleEndpoint : Ep.NoReq.Res<bool>
         _authContext = authContext;
     }
 
-    public override async Task HandleAsync(CancellationToken ct)
+    public override async Task HandleAsync(CheckUserHasRoleRequest req, CancellationToken ct)
     {
-        var role = (string?)HttpContext.Request.RouteValues["role"];
-
-        if (role is null || !Enum.TryParse<RoleName>(role, out var roleName))
-        {
-            await SendAsync(false, (int)HttpStatusCode.BadRequest, ct);
-            return;
-        }
-
-        var account = _authContext.GetAccount();
-
-        if (account is null)
-        {
-            await SendAsync(false, (int)HttpStatusCode.Forbidden, ct);
-            return;
-        }
-
-        var accountFound = _dbContext.Accounts.Any(acc => acc.Id == account.Id);
-
-        if (!accountFound)
-        {
-            await SendAsync(false, (int)HttpStatusCode.NotFound, ct);
-            return;
-        }
+        var account = _authContext.GetAccount()!;
 
         var accountHasRole = _dbContext.AccountRoles
-            .Any(ar => ar.AccountId == account.Id && ar.Role.Name == roleName.ToString());
+            .Any(ar => ar.AccountId == account.Id && ar.Role.Name == req.Role.ToString());
 
         await SendAsync(
             accountHasRole,
-            statusCode: (int)(accountHasRole ? HttpStatusCode.OK : HttpStatusCode.NotFound),
+            statusCode: (int)(accountHasRole ? HttpStatusCode.OK : HttpStatusCode.Forbidden),
             cancellation: ct);
     }
 }
