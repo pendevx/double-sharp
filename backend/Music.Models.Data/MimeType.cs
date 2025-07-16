@@ -13,6 +13,16 @@ public abstract record MimeType(string Value)
         "audio/mp4" => new M4A(),
         _ => throw new ArgumentException($"Unsupported MIME type: {value}")
     };
+
+    public static MimeType CreateFromFileName(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
+    {
+        ".ogg" or ".opus" => new Opus(),
+        ".aac" => new Aac(),
+        ".webm" => new WebM(),
+        ".mp3" => new Mp3(),
+        ".m4a" => new M4A(),
+        _ => throw new ArgumentException($"Unsupported file extension: {fileName}")
+    };
 }
 
 public sealed record Opus() : MimeType("audio/ogg");

@@ -1,0 +1,7 @@
+{
+    "name": "get-cookies",
+    "version": "0.0.1",
+    "dependencies": {
+        "selenium-webdriver": "^4.34.0"
+    }
+}

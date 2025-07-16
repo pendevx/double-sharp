@@ -22,5 +22,13 @@ RUN curl -L https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/
     && unzip /backend/ffprobe.zip -d /backend \
     && rm /backend/ffprobe.zip
 
+# Install Node.js dependencies for get-cookies script
+WORKDIR /backend/Music.Backend/_scripts/get-cookies
+COPY Music.Backend/_scripts/get-cookies/package*.json ./
+RUN npm install
+
+# Restore working directory for .NET app
+WORKDIR /backend
+
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "Music.Backend.dll"]

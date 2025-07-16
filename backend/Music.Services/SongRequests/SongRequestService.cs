@@ -6,6 +6,7 @@ using Music.Models.Data;
 using Music.Models.Data.SongRequests;
 using Music.Services.DataAccess.AWS;
 using YoutubeDLSharp;
+using YoutubeDLSharp.Options;
 
 namespace Music.Services.SongRequests;
 
@@ -36,14 +37,17 @@ public class SongRequestService
     private async Task DownloadSongFromUrlAsync(string url, int newSongId)
     {
         var ytdl = new YoutubeDL{ OutputFileTemplate = "%(id)s.%(ext)s" };
-        var path = await ytdl.RunAudioDownload(url);
+        var path = await ytdl.RunAudioDownload(url, overrideOptions: new OptionSet
+        {
+            Cookies = Path.Combine(Environment.CurrentDirectory, "out/cookies.txt"),
+        });
 
         if (!path.Success)
             throw new Exception(string.Join("\n", path.ErrorOutput));
 
         try
         {
-            var mimeType = MimeType.Create(path.Data);
+            var mimeType = MimeType.CreateFromFileName(path.Data);
             await using var contents = File.OpenRead(path.Data);
             await _songsRepository.UploadAsync(newSongId, contents, mimeType);
         }
