@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECR;
@@ -8,6 +8,7 @@ using Amazon.CDK.AWS.ElasticLoadBalancing;
 using Amazon.CDK.AWS.ElasticLoadBalancingV2;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Route53.Targets;
+using Amazon.CDK.AWS.SecretsManager;
 using Constructs;
 using ApplicationLoadBalancerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.ApplicationLoadBalancerProps;
 using Cluster = Amazon.CDK.AWS.ECS.Cluster;
@@ -19,7 +20,8 @@ namespace Music.CDK.Services;
 
 public class Containers
 {
-    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, ServiceEnvironment serviceEnvironment, Vpc vpc, Secret dbConnectionString)
+    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, ServiceEnvironment serviceEnvironment,
+        Vpc vpc, Secret dbConnectionString)
     {
         var baseName = serviceEnvironment.CreateName("backend");
         var clusterName = baseName + nameof(Cluster);
@@ -62,6 +64,18 @@ public class Containers
             TaskRole = taskRole,
         });
 
+        var backendSg = new SecurityGroup(scope, backendSgName, new SecurityGroupProps
+        {
+            Vpc = vpc,
+            AllowAllOutbound = true,
+            SecurityGroupName = backendSgName,
+        });
+        backendSg.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(8080)); // Allow port 8080
+
+        var backendCertificate = Domains.GenerateUniqueCertificate(scope, serviceEnvironment, serviceName, ServicesWithDomains.WebBackend);
+
+        var secrets = GetLoginSecrets(scope, serviceEnvironment);
+
         var containerDefinition = new ContainerDefinition(scope, containerName, new ContainerDefinitionProps
         {
             ContainerName = containerName,
@@ -81,15 +95,12 @@ public class Containers
 
         containerDefinition.AddSecret("DOUBLESHARP_DB_CONNECTION_STRING", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(dbConnectionString));
 
-        var backendSg = new SecurityGroup(scope, backendSgName, new SecurityGroupProps
+        if (secrets is not null)
         {
-            Vpc = vpc,
-            AllowAllOutbound = true,
-            SecurityGroupName = backendSgName,
-        });
-        backendSg.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(8080)); // Allow port 8080
-
-        var backendCertificate = Domains.GenerateUniqueCertificate(scope, serviceEnvironment, serviceName, ServicesWithDomains.WebBackend);
+            var (emailSecret, passwordSecret) = secrets.Value;
+            containerDefinition.AddSecret("DOUBLESHARP_EMAIL", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(emailSecret));
+            containerDefinition.AddSecret("DOUBLESHARP_PASSWORD", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(passwordSecret));
+        }
 
         var service = new ApplicationLoadBalancedFargateService(scope, serviceName, new ApplicationLoadBalancedFargateServiceProps
         {
@@ -110,11 +121,60 @@ public class Containers
             Certificate = backendCertificate,
         });
 
+        // Override the desired count to 0
+        var cfnService = service.Service.Node.DefaultChild as CfnService;
+        if (cfnService is not null && secrets is null)
+        {
+            cfnService.DesiredCount = 0;
+        }
+
         service.TargetGroup.ConfigureHealthCheck(new HealthCheck { Path = "/healthcheck.html" });
 
         Domains.CreateAliasForService(scope, serviceEnvironment, ServicesWithDomains.WebBackend,
             serviceEnvironment.CreateName("backend"), new LoadBalancerTarget(service?.LoadBalancer));
 
         return (repo, service);
+    }
+
+    private const string LoginsSetupFlagName = "LOGINS_SETUP";
+    public static bool IsLoginsSetup(Construct scope) =>
+        (System.Environment.GetEnvironmentVariable(LoginsSetupFlagName) ?? scope.Node.TryGetContext(LoginsSetupFlagName))
+        as string == "true";
+
+    private static (ISecret, ISecret)? GetLoginSecrets(Construct scope, ServiceEnvironment serviceEnvironment)
+    {
+        var emailSecretName = serviceEnvironment.CreateName("login-email");
+        var passwordSecretName = serviceEnvironment.CreateName("login-password");
+
+        var emailSecret = new Secret(scope, emailSecretName, new SecretProps
+        {
+            SecretName = emailSecretName,
+        });
+
+        var passwordSecret = new Secret(scope, passwordSecretName, new SecretProps
+        {
+            SecretName = passwordSecretName,
+        });
+
+        if (IsLoginsSetup(scope)) return (emailSecret, passwordSecret);
+
+        _ = new CfnOutput(scope, serviceEnvironment.CreateName("logins-setup-warning-email"), new CfnOutputProps
+        {
+            Description = "Instructions to set up the login secrets",
+            Value = $"""
+                     Run this to set the login secrets: aws secretsmanager put-secret-value --secret-id {emailSecretName} --secret-string "<email>"
+                     """
+        });
+
+        _ = new CfnOutput(scope, serviceEnvironment.CreateName("logins-setup-warning-password"), new CfnOutputProps
+        {
+            Description = "Instructions to set up the login secrets",
+            Value = $"""
+                     Run this to set the login secrets: aws secretsmanager put-secret-value --secret-id {passwordSecretName} --secret-string "<password>"
+                     """
+        });
+
+        return null;
+
     }
 }

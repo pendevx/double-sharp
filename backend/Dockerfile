@@ -11,7 +11,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /backend
 COPY --from=build /backend/out .
 
-RUN apt-get update && apt-get install -y curl unzip python3
+RUN apt-get update && apt-get install -y curl unzip python3 nodejs npm
 
 # yt-dlp
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /backend/yt-dlp \
@@ -23,8 +23,7 @@ RUN curl -L https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/
     && rm /backend/ffprobe.zip
 
 # Install Node.js dependencies for get-cookies script
-WORKDIR /backend/Music.Backend/_scripts/get-cookies
-COPY Music.Backend/_scripts/get-cookies/package*.json ./
+WORKDIR /backend/_scripts/get-cookies
 RUN npm install
 
 # Restore working directory for .NET app
