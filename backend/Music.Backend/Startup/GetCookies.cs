@@ -21,6 +21,26 @@ public static class GetCookies
 
         using var process = new Process { StartInfo = startInfo };
         process.Start();
+
+        // Read the standard output and error streams
+        var output = process.StandardOutput.ReadToEnd();
+        var error = process.StandardError.ReadToEnd();
+
         process.WaitForExit();
+
+        // Log the output and error
+        Console.WriteLine("Process Output:");
+        Console.WriteLine(output);
+
+        if (!string.IsNullOrWhiteSpace(error))
+        {
+            Console.WriteLine("Process Error:");
+            Console.WriteLine(error);
+        }
+
+        if (process.ExitCode != 0)
+        {
+            Console.WriteLine($"Process exited with code {process.ExitCode}");
+        }
     }
 }

@@ -119,6 +119,7 @@ public class Containers
                 InternetFacing = true,
             }),
             Certificate = backendCertificate,
+            EnableExecuteCommand = true,
         });
 
         // Override the desired count to 0
