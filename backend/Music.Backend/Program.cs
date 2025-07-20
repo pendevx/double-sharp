@@ -47,9 +47,9 @@ if (app.Environment.IsDevelopment())
     await YoutubeDLSharp.Utils.DownloadFFmpeg();
 }
 
+GetCookies.Run();
 if (app.Environment.IsProduction())
 {
-    GetCookies.Run();
 }
 
 app.UseCors(CorsConfiguration.ConfigurationName);

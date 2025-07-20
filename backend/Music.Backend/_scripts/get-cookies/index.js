@@ -1,9 +1,14 @@
 const { Builder } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const fs = require("node:fs");
+const os = require("os");
 
 (async function openYouTube() {
     const options = new chrome.Options();
+    if (os.platform() !== "win32") {
+        options.setChromeBinaryPath("/usr/bin/chromium-browser"); // or '/usr/bin/chromium'
+    }
+
     options.addArguments("--disable-gpu", "--headless=new");
     options.addArguments(
         "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.7151.69 Safari/537.36"
@@ -40,14 +45,29 @@ const fs = require("node:fs");
             );
         // Wait for the next button to appear and be enabled, then click it
         const nextButtonSelector = "div#identifierNext";
-        await driver.wait(async () => {
-            const el = await driver.findElement(By.css(nextButtonSelector));
-            return await el.isEnabled();
-        }, 10000);
-
         const nextButton = await driver.findElement(By.css(nextButtonSelector));
-        await driver.executeScript("console.log(arguments[0]);", nextButton);
-        await nextButton.click();
+        await driver.wait(until.elementIsVisible(nextButton), 10000);
+        await driver.wait(until.elementIsEnabled(nextButton), 10000);
+        // Extra: scroll into view and pause briefly
+        await driver.executeScript(
+            "arguments[0].scrollIntoView(true);",
+            nextButton
+        );
+        await driver.sleep(500);
+        try {
+            await nextButton.click();
+        } catch (e) {
+            await driver
+                .takeScreenshot()
+                .then((data) =>
+                    fs.writeFileSync(
+                        "debug_next_button_error.png",
+                        data,
+                        "base64"
+                    )
+                );
+            throw e;
+        }
         // Wait for the password input element to appear and input password
         const passwordInputSelector = 'input[name="Passwd"]';
         await driver.wait(

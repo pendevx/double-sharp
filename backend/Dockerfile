@@ -26,6 +26,9 @@ RUN curl -L https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/
 WORKDIR /backend/_scripts/get-cookies
 RUN npm install
 
+# Install Chromium for Selenium
+RUN apt-get update && apt-get install -y chromium-driver chromium-browser
+
 RUN chmod -R a+w /backend
 
 # Restore working directory for .NET app
