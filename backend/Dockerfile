@@ -26,6 +26,8 @@ RUN curl -L https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/
 WORKDIR /backend/_scripts/get-cookies
 RUN npm install
 
+RUN chmod -R a+w /backend
+
 # Restore working directory for .NET app
 WORKDIR /backend
 
