@@ -14,7 +14,7 @@ public abstract record MimeType(string Value)
         _ => throw new ArgumentException($"Unsupported MIME type: {value}")
     };
 
-    public static MimeType CreateFromFileName(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
+    public static MimeType InferFromFileName(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
     {
         ".ogg" or ".opus" => new Opus(),
         ".aac" => new Aac(),
