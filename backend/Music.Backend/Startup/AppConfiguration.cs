@@ -117,6 +117,10 @@ public static class DependencyInjectionConfiguration
 
     public static void ConfigureLogging(this IServiceCollection services)
     {
-        services.AddLogging(logging => { logging.AddSeq(); });
+        services.AddLogging(logging =>
+        {
+            logging.AddSeq();
+            logging.AddConsole();
+        });
     }
 }

@@ -62,7 +62,7 @@ public class SongRequestService
 
         // might change the ignore config
         var arguments = $"""
-                        --external-downloader "m3u8:native" --external-downloader-args "ffmpeg:-nostats -loglevel 0" -o "%(id)s.%(ext)s" --force-overwrites --no-part --cookies "cookies.txt" -i --ignore-config -x --ffmpeg-location "ffmpeg.exe" --print "after_move:outfile: %(filepath)s" -f "bestaudio/best" --no-playlist -- "{url}"
+                        -v --external-downloader "m3u8:native" --external-downloader-args "ffmpeg:-nostats -loglevel 0" -o "%(id)s.%(ext)s" --force-overwrites --no-part --cookies "cookies.txt" -i --ignore-config -x --ffmpeg-location "ffmpeg.exe" --print "after_move:outfile: %(filepath)s" -f "bestaudio/best" --no-playlist -- "{url}"
                         """;
 
         var ytDlp = new ProcessStartInfo
@@ -89,11 +89,12 @@ public class SongRequestService
         _logger.LogInformation("yt-dlp output: {Output}", output);
 
         var fileName = new Regex("^outfile: (.*)").Match(output).Groups[1].Value;
-        var contents = File.OpenRead(fileName);
-
         var mimeType = MimeType.InferFromFileName(fileName);
 
-        await _songsRepository.UploadAsync(newSongId, contents, mimeType);
+        await using (var contents = File.OpenRead(fileName))
+            await _songsRepository.UploadAsync(newSongId, contents, mimeType);
+
+        File.Delete(fileName);
     }
 
     private Task<CopyObjectResponse> CopySongRequestFileToSongsAsync(S3Key key, int newSongId)
