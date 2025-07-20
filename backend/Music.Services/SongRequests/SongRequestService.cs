@@ -39,7 +39,7 @@ public class SongRequestService
         var ytdl = new YoutubeDL{ OutputFileTemplate = "%(id)s.%(ext)s" };
         var path = await ytdl.RunAudioDownload(url, overrideOptions: new OptionSet
         {
-            Cookies = Path.Combine(Environment.CurrentDirectory, "out/cookies.txt"),
+            Cookies = Path.Combine(Environment.CurrentDirectory, "cookies.txt"),
         });
 
         if (!path.Success)

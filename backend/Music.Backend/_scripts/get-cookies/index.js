@@ -3,11 +3,6 @@ const chrome = require("selenium-webdriver/chrome");
 const fs = require("node:fs");
 
 (async function openYouTube() {
-    // Ensure out/ directory exists
-    if (!fs.existsSync("out")) {
-        fs.mkdirSync("out");
-    }
-
     const options = new chrome.Options();
     options.addArguments("--disable-gpu", "--headless=new");
     options.addArguments(
@@ -41,7 +36,7 @@ const fs = require("node:fs");
         await driver
             .takeScreenshot()
             .then((data) =>
-                fs.writeFileSync("out/debug_after_email.png", data, "base64")
+                fs.writeFileSync("debug_after_email.png", data, "base64")
             );
         // Wait for the next button to appear and be enabled, then click it
         const nextButtonSelector = "div#identifierNext";
@@ -83,8 +78,8 @@ const fs = require("node:fs");
         const cookies = await driver.manage().getCookies();
         const cookiesTxt = toCookiesTxt(cookies);
         // Write cookies.txt to the out directory
-        fs.writeFileSync("out/cookies.txt", cookiesTxt, "utf8");
-        console.log("cookies.txt file written successfully in out/ directory.");
+        fs.writeFileSync("cookies.txt", cookiesTxt, "utf8");
+        console.log("cookies.txt file written successfully.");
     } finally {
         // Do not quit the driver, so the browser window stays open
         await driver.quit();
