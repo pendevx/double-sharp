@@ -2,12 +2,19 @@ const { Builder } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const fs = require("node:fs");
 const os = require("os");
+const path = require("path");
 
 (async function openYouTube() {
     const options = new chrome.Options();
     if (os.platform() !== "win32") {
-        options.setChromeBinaryPath("/usr/bin/chromium"); // or '/usr/bin/chromium'
+        options.setChromeBinaryPath("/usr/bin/chromium");
     }
+
+    // Create a unique temp directory for user data
+    const userDataDir = fs.mkdtempSync(
+        path.join(os.tmpdir(), "chrome-user-data-")
+    );
+    options.addArguments(`--user-data-dir=${userDataDir}`);
 
     options.addArguments("--disable-gpu", "--headless=new");
     options.addArguments(
