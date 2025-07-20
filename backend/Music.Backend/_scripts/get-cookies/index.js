@@ -6,7 +6,7 @@ const os = require("os");
 (async function openYouTube() {
     const options = new chrome.Options();
     if (os.platform() !== "win32") {
-        options.setChromeBinaryPath("/usr/bin/chromium-browser"); // or '/usr/bin/chromium'
+        options.setChromeBinaryPath("/usr/bin/chromium"); // or '/usr/bin/chromium'
     }
 
     options.addArguments("--disable-gpu", "--headless=new");

@@ -27,7 +27,7 @@ WORKDIR /backend/_scripts/get-cookies
 RUN npm install
 
 # Install Chromium for Selenium
-RUN apt-get update && apt-get install -y chromium-driver chromium-browser
+RUN apt-get update && apt-get install -y chromium
 
 RUN chmod -R a+w /backend
 
