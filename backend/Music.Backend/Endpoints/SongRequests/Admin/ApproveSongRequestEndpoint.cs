@@ -1,4 +1,3 @@
-using System.Net.Sockets;
 using Microsoft.EntityFrameworkCore;
 using Music.Backend.EndpointConfigurations;
 using Music.EntityFramework;

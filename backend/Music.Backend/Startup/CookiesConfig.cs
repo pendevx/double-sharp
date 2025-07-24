@@ -10,10 +10,8 @@ public static class CookiesConfig
     public static async Task SetupYouTubeCookies(this WebApplication app)
     {
         var ssmClient = app.Services.GetRequiredService<IAmazonSimpleSystemsManagement>();
-        // var logger = app.Services.GetRequiredService<ILogger>();
+        var logger = app.Services.GetRequiredService<ILogger<WebApplication>>();
         var parameterName = app.Services.GetRequiredService<IConfiguration>().GetValue<string>("CookiesParameterName");
-
-        // logger.LogInformation("Gonna get cookies!");
 
         try
         {
@@ -28,14 +26,12 @@ public static class CookiesConfig
             await cookiesFile.WriteAsync(cookieText);
             await cookiesFile.FlushAsync();
 
-            // logger.LogInformation("Cookies successfully written locally.");
-            Console.WriteLine("Cookies successfully written locally.");
+            logger.LogInformation("Cookies successfully written locally.");
             IsEnabled = true;
         }
         catch (Exception e)
         {
-            // logger.LogError("{Error}", e);
-            Console.WriteLine(e);
+            logger.LogError("{Error}", e);
         }
     }
 }
