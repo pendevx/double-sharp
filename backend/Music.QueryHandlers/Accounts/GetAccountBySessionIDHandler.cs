@@ -1,19 +1,21 @@
+using Microsoft.EntityFrameworkCore;
+using Music.EntityFramework;
 using Music.Models.Data;
-using Music.Repositories.Contracts;
 
 namespace Music.QueryHandlers.Accounts;
 
 public class GetAccountBySessionIDHandler : IBaseQueryHandler<Guid, Account?>
 {
-    private readonly ISessionRepository _sessionRepository;
+    private readonly MusicContext _dbContext;
 
-    public GetAccountBySessionIDHandler(ISessionRepository sessionRepository)
+    public GetAccountBySessionIDHandler(MusicContext dbContext)
     {
-        _sessionRepository = sessionRepository;
+        _dbContext = dbContext;
     }
 
-    public Account? Execute(Guid token)
-    {
-        return _sessionRepository.GetAccountFromSession(token);
-    }
+    public Account? Execute(Guid token) =>
+        _dbContext.Sessions.Where(s => s.Token == token && s.ExpiresOn > DateTime.UtcNow)
+            .Include(s => s.Account)
+            .FirstOrDefault()?
+            .Account;
 }

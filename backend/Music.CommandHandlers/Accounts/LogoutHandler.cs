@@ -1,21 +1,25 @@
+using Music.EntityFramework;
 using Music.Repositories.Contracts;
 
 namespace Music.CommandHandlers.Accounts;
 
 public class LogoutHandler : IBaseCommandHandler<Guid>
 {
-    private readonly ISessionRepository _sessionRepository;
+    private readonly MusicContext _dbContext;
 
-    public LogoutHandler(ISessionRepository sessionRepository)
+    public LogoutHandler(MusicContext dbContext)
     {
-        _sessionRepository = sessionRepository;
+        _dbContext = dbContext;
     }
 
     public void Execute(Guid token)
     {
-        var session = _sessionRepository.GetSessionByToken(token);
+        var session = _dbContext.Sessions.FirstOrDefault(s => s.Token == token);
 
         if (session is not null)
-            _sessionRepository.Delete(session);
+        {
+            _dbContext.Sessions.Remove(session);
+            _dbContext.SaveChanges();
+        }
     }
 }

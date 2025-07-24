@@ -1,26 +1,26 @@
 using Music.Commands.Accounts;
-using Music.Repositories.Contracts;
+using Music.EntityFramework;
 
 namespace Music.CommandHandlers.Accounts;
 
 public class ExtendSessionHandler : IBaseCommandHandler<ExtendSessionCommand, bool>
 {
-    private readonly ISessionRepository _sessionRepository;
+    private readonly MusicContext _dbContext;
 
-    public ExtendSessionHandler(ISessionRepository sessionRepository)
+    public ExtendSessionHandler(MusicContext dbContext)
     {
-        _sessionRepository = sessionRepository;
+        _dbContext = dbContext;
     }
 
     public bool Execute(ExtendSessionCommand command)
     {
-        var session = _sessionRepository.GetSessionByToken(command.Token);
+        var session = _dbContext.Sessions.FirstOrDefault(s => s.Token == command.Token);
 
         if (session is null)
             return false;
 
         session.ExpiresOn = DateTime.UtcNow.AddSeconds(command.ExtensionSeconds);
-        _sessionRepository.MusicContext.SaveChanges();
+        _dbContext.SaveChanges();
 
         return true;
     }

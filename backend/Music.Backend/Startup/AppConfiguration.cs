@@ -81,9 +81,6 @@ public static class DependencyInjectionConfiguration
 
         builder.Services.AddScoped<SongsRepository>();
 
-        // Abstractions over DbContext to be deprecated
-        builder.Services.AddScoped<ISessionRepository, SessionRepository>();
-
         builder.Services.AddDelegate<GetSongPath>(AwsFunctions.GetSongPath, ServiceLifetime.Scoped);
         builder.Services.AddDelegate<CreateSongRequestPath>(AwsFunctions.CreateSongRequestPath, ServiceLifetime.Scoped);
         builder.Services.AddDelegate<GetBucketName>(AwsFunctions.GetBucketName, ServiceLifetime.Singleton);

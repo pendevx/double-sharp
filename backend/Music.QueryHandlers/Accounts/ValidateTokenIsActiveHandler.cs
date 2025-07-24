@@ -1,18 +1,18 @@
-using Music.Repositories.Contracts;
+using Music.EntityFramework;
 
 namespace Music.QueryHandlers.Accounts;
 
 public class ValidateTokenIsActiveHandler : IBaseQueryHandler<Guid, bool>
 {
-    private readonly ISessionRepository _sessionRepository;
+    private readonly MusicContext _dbContext;
 
-    public ValidateTokenIsActiveHandler(ISessionRepository sessionRepository)
+    public ValidateTokenIsActiveHandler(MusicContext dbContext)
     {
-        _sessionRepository = sessionRepository;
+        _dbContext = dbContext;
     }
 
     public bool Execute(Guid token)
     {
-        return _sessionRepository.GetSessionByToken(token)?.ExpiresOn > DateTime.UtcNow;
+        return _dbContext.Sessions.FirstOrDefault(s => s.Token == token)?.ExpiresOn > DateTime.UtcNow;
     }
 }
