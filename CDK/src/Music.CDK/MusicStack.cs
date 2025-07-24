@@ -30,6 +30,8 @@ public class MusicStack : Stack
             BucketName = bucketName,
         });
 
+        var cookiesParameter = SsmParameters.CookiesTxt(this, serviceEnvironment);
+
         var vpcName = serviceEnvironment.CreateName("vpc");
         var privateSubnetName = serviceEnvironment.CreateName("subnet-private");
         var publicSubnetName = serviceEnvironment.CreateName("subnet-public");

@@ -5,7 +5,6 @@ using FastEndpoints.Swagger;
 using Music.Backend.EndpointConfigurations;
 using Music.Backend.Middleware;
 using Music.Backend.Startup;
-using Music.Backend.Startup.ConfigModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,10 +46,7 @@ if (app.Environment.IsDevelopment())
     await YoutubeDLSharp.Utils.DownloadFFmpeg();
 }
 
-GetCookies.Run();
-if (app.Environment.IsProduction())
-{
-}
+await app.SetupYouTubeCookies();
 
 app.UseCors(CorsConfiguration.ConfigurationName);
 app.UseGlobalExceptionHandler();

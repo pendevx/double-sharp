@@ -158,6 +158,7 @@ public class CicdPipeline
             OauthToken = oauthSecret.SecretValue,
             Output = sourceCode,
             ActionName = "Copy-Repository",
+            Trigger = GitHubTrigger.NONE,
         });
 
         return sourceAction;

@@ -13,6 +13,7 @@
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.1" />
     <PackageReference Include="AWSSDK.S3" Version="4.0.0.7" />
     <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.0.4" />
+    <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="4.0.0" />
     <PackageReference Include="FastEndpoints" Version="5.30.0.15-beta" />
     <PackageReference Include="FastEndpoints.Swagger" Version="5.30.0.15-beta" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
@@ -37,16 +38,6 @@
   <ItemGroup>
     <Content Include="..\.dockerignore">
       <Link>.dockerignore</Link>
-    </Content>
-    <None Remove="_scripts\get-cookies\index.js" />
-    <Content Include="_scripts\get-cookies\index.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Update="_scripts\get-cookies\package.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Update="_scripts\get-cookies\package-lock.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

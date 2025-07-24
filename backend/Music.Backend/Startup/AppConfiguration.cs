@@ -1,10 +1,9 @@
 using Amazon.S3;
 using Amazon.SecurityToken;
-using FastEndpoints;
+using Amazon.SimpleSystemsManagement;
 using FastEndpoints.Swagger;
 using Microsoft.EntityFrameworkCore;
 using Music.Backend.Global.Impl;
-using Music.Backend.Startup.ConfigModels;
 using Music.CommandHandlers;
 using Music.Global.Contracts;
 using Music.EntityFramework;
@@ -98,6 +97,7 @@ public static class DependencyInjectionConfiguration
         services
             .AddAWSService<IAmazonS3>()
             .AddAWSService<IAmazonSecurityTokenService>()
+            .AddAWSService<IAmazonSimpleSystemsManagement>()
             .AddSingleton<AwsEnvironment>();
     }
 

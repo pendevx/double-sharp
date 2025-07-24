@@ -486,3 +486,6 @@ $RECYCLE.BIN/
 # Build outputs
 out/
 obj/
+
+get-cookies/cookies.txt
+get-cookies/debug_after_email.png
