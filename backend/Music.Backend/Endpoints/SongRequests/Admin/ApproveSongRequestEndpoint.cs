@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using Microsoft.EntityFrameworkCore;
 using Music.Backend.EndpointConfigurations;
 using Music.EntityFramework;
@@ -18,7 +19,8 @@ public class ApproveSongRequestEndpoint : Ep.Req<ApproveSongRequestRequest>.NoRe
     private readonly SongRequestService _songRequestService;
     private readonly RequiresPermission _requiresPermission;
 
-    public ApproveSongRequestEndpoint(MusicContext dbContext, SongRequestService songRequestService, RequiresPermission requiresPermission)
+    public ApproveSongRequestEndpoint(MusicContext dbContext, SongRequestService songRequestService,
+        RequiresPermission requiresPermission)
     {
         _dbContext = dbContext;
         _songRequestService = songRequestService;
@@ -36,12 +38,14 @@ public class ApproveSongRequestEndpoint : Ep.Req<ApproveSongRequestRequest>.NoRe
             return;
         }
 
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
         var newSong = songRequest.Approve();
 
         await _dbContext.Songs.AddAsync(newSong, ct);
         await _dbContext.SaveChangesAsync(ct);
 
         await _songRequestService.ApproveSongRequestAsync(songRequest, newSong.Id);
+        await transaction.CommitAsync(ct);
 
         await SendOkAsync(null, ct);
     }

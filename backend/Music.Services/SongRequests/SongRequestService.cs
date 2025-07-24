@@ -40,62 +40,65 @@ public class SongRequestService
 
     private async Task DownloadSongFromUrlAsync(string url, int newSongId)
     {
-        // var ytdl = new YoutubeDL{ OutputFileTemplate = "%(id)s.%(ext)s" };
-        // var path = await ytdl.RunAudioDownload(url, overrideOptions: new OptionSet
-        // {
-        //     Cookies = Path.Combine(Environment.CurrentDirectory, "cookies.txt"),
-        // });
-        //
-        // if (!path.Success)
-        //     throw new Exception(string.Join("\n", path.ErrorOutput));
-        //
-        // try
-        // {
-        //     var mimeType = MimeType.CreateFromFileName(path.Data);
-        //     await using var contents = File.OpenRead(path.Data);
-        //     await _songsRepository.UploadAsync(newSongId, contents, mimeType);
-        // }
-        // finally
-        // {
-        //     File.Delete(path.Data);
-        // }
-
-        // might change the ignore config
-        var arguments = $"""
-                        --external-downloader "m3u8:native" --external-downloader-args "ffmpeg:-nostats -loglevel 0" -o "%(id)s.%(ext)s" --force-overwrites --no-part --cookies "cookies.txt" -i --ignore-config -x --ffmpeg-location "ffmpeg" --print "after_move:outfile: %(filepath)s" -f "bestaudio/best" --no-playlist -- "{url}"
-                        """;
-
-        var ytDlp = new ProcessStartInfo
+        var ytdl = new YoutubeDL { OutputFileTemplate = "%(id)s.%(ext)s" };
+        var path = await ytdl.RunAudioDownload(url, overrideOptions: new OptionSet
         {
-            FileName = "yt-dlp",
-            Arguments = arguments,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
+            Cookies = Path.Combine(Environment.CurrentDirectory, "cookies.txt"),
+        });
 
-        using var process = new Process { StartInfo = ytDlp };
-        process.Start();
+        if (!path.Success)
+            throw new Exception(string.Join("\n", path.ErrorOutput));
 
-        var output = await process.StandardOutput.ReadToEndAsync();
-        var error = await process.StandardError.ReadToEndAsync();
-
-        await process.WaitForExitAsync();
-
-        if (!string.IsNullOrWhiteSpace(error))
-            _logger.LogError("yt-dlp error: {Error}", error);
-
-        _logger.LogInformation("yt-dlp output: {Output}", output);
-
-        var fileName = new Regex("^outfile: (.*)").Match(output).Groups[1].Value;
-        var mimeType = MimeType.InferFromFileName(fileName);
-
-        await using (var contents = File.OpenRead(fileName))
+        try
+        {
+            var mimeType = MimeType.InferFromFileName(path.Data);
+            await using var contents = File.OpenRead(path.Data);
             await _songsRepository.UploadAsync(newSongId, contents, mimeType);
-
-        File.Delete(fileName);
+        }
+        finally
+        {
+            File.Delete(path.Data);
+        }
     }
+
+//     private async Task DownloadSongFromUrlAsync(string url, int newSongId)
+//     {
+//         // might change the ignore config
+//         var arguments = $"""
+//                         --external-downloader "m3u8:native" --external-downloader-args "ffmpeg:-nostats -loglevel 0" -o "%(id)s.%(ext)s" --force-overwrites --no-part --cookies "cookies.txt" -i --ignore-config -x --ffmpeg-location "ffmpeg" --print "after_move:outfile: %(filepath)s" -f "bestaudio/best" --no-playlist -- "{url}"
+//                         """;
+//
+//         var ytDlp = new ProcessStartInfo
+//         {
+//             FileName = "yt-dlp",
+//             Arguments = arguments,
+//             RedirectStandardOutput = true,
+//             RedirectStandardError = true,
+//             UseShellExecute = false,
+//             CreateNoWindow = true,
+//         };
+//
+//         using var process = new Process { StartInfo = ytDlp };
+//         process.Start();
+//
+//         var output = await process.StandardOutput.ReadToEndAsync();
+//         var error = await process.StandardError.ReadToEndAsync();
+//
+//         await process.WaitForExitAsync();
+//
+//         if (!string.IsNullOrWhiteSpace(error))
+//             _logger.LogError("yt-dlp error: {Error}", error);
+//
+//         _logger.LogInformation("yt-dlp output: {Output}", output);
+//
+//         var fileName = new Regex("^outfile: (.*)").Match(output).Groups[1].Value;
+//         var mimeType = MimeType.InferFromFileName(fileName);
+//
+//         await using (var contents = File.OpenRead(fileName))
+//             await _songsRepository.UploadAsync(newSongId, contents, mimeType);
+//
+//         File.Delete(fileName);
+//     }
 
     private Task<CopyObjectResponse> CopySongRequestFileToSongsAsync(S3Key key, int newSongId)
     {
