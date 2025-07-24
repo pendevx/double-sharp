@@ -62,7 +62,7 @@ public class SongRequestService
 
         // might change the ignore config
         var arguments = $"""
-                        --external-downloader "m3u8:native" --external-downloader-args "ffmpeg:-nostats -loglevel 0" -o "%(id)s.%(ext)s" --force-overwrites --no-part --cookies "cookies.txt" -i --ignore-config -x --ffmpeg-location "ffmpeg.exe" --print "after_move:outfile: %(filepath)s" -f "bestaudio/best" --no-playlist -- "{url}"
+                        --ffmpeg-location ffmpeg --external-downloader "m3u8:native" --external-downloader-args "ffmpeg:-nostats -loglevel 0" -o "%(id)s.%(ext)s" --force-overwrites --no-part --cookies "cookies.txt" -i --ignore-config -x --ffmpeg-location "ffmpeg.exe" --print "after_move:outfile: %(filepath)s" -f "bestaudio/best" --no-playlist -- "{url}"
                         """;
 
         var ytDlp = new ProcessStartInfo
