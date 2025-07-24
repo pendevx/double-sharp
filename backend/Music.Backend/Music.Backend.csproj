@@ -32,7 +32,6 @@
     <ProjectReference Include="..\Music.EntityFramework\Music.EntityFramework.csproj" />
     <ProjectReference Include="..\Music.Global.Contracts\Music.Global.Contracts.csproj" />
     <ProjectReference Include="..\Music.QueryHandlers\Music.QueryHandlers.csproj" />
-    <ProjectReference Include="..\Music.Repositories\Music.Repositories.csproj" />
   </ItemGroup>
 
   <ItemGroup>

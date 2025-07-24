@@ -8,8 +8,6 @@ using Music.CommandHandlers;
 using Music.Global.Contracts;
 using Music.EntityFramework;
 using Music.QueryHandlers;
-using Music.Repositories;
-using Music.Repositories.Contracts;
 using Music.Services;
 using Music.Services.DataAccess.AWS;
 

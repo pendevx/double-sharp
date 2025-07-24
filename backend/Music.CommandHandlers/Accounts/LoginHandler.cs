@@ -4,7 +4,6 @@ using System.Text;
 using Music.Commands.Accounts;
 using Music.EntityFramework;
 using Music.Models.Data;
-using Music.Repositories.Contracts;
 
 namespace Music.CommandHandlers.Accounts;
 
