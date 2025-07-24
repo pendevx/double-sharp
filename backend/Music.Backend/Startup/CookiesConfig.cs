@@ -13,6 +13,8 @@ public static class CookiesConfig
         var logger = app.Services.GetRequiredService<ILogger>();
         var parameterName = app.Services.GetRequiredService<IConfiguration>().GetValue<string>("CookiesParameterName");
 
+        logger.LogInformation("Gonna get cookies!");
+
         try
         {
             var cookieText = (await ssmClient.GetParameterAsync(new GetParameterRequest { Name = parameterName }))
@@ -27,6 +29,7 @@ public static class CookiesConfig
             await cookiesFile.FlushAsync();
 
             logger.LogInformation("Cookies successfully written locally.");
+            Console.WriteLine("Cookies successfully written locally.");
             IsEnabled = true;
         }
         catch (Exception e)
