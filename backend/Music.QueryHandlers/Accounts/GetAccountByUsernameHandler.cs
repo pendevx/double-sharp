@@ -1,19 +1,16 @@
+using Music.EntityFramework;
 using Music.Models.Data;
-using Music.Repositories.Contracts;
 
 namespace Music.QueryHandlers.Accounts;
 
 public class GetAccountByUsernameHandler : IBaseQueryHandler<string, Account?>
 {
-    private readonly IAccountRepository _accountRepository;
+    private readonly MusicContext _dbContext;
 
-    public GetAccountByUsernameHandler(IAccountRepository accountRepository)
+    public GetAccountByUsernameHandler(MusicContext dbContext)
     {
-        _accountRepository = accountRepository;
+        _dbContext = dbContext;
     }
 
-    public Account? Execute(string username)
-    {
-        return _accountRepository.GetByUsername(username);
-    }
+    public Account? Execute(string username) => _dbContext.Accounts.FirstOrDefault(acc => acc.Username == username);
 }

@@ -2,6 +2,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using Music.Commands.Accounts;
+using Music.EntityFramework;
 using Music.Models.Data;
 using Music.Repositories.Contracts;
 
@@ -11,13 +12,11 @@ public class LoginHandler : IBaseCommandHandler<LoginCommand, Guid>
 {
     private const string GenericAuthenticationFailure = "The username or password did not match.";
 
-    private readonly IAccountRepository _accountRepository;
-    private readonly ISessionRepository _sessionRepository;
+    private readonly MusicContext _dbContext;
 
-    public LoginHandler(IAccountRepository accountRepository, ISessionRepository sessionRepository)
+    public LoginHandler(MusicContext dbContext)
     {
-        _accountRepository = accountRepository;
-        _sessionRepository = sessionRepository;
+        _dbContext = dbContext;
     }
 
     private static byte[] GenerateSaltedHash(byte[] raw, byte[] salt)
@@ -36,7 +35,7 @@ public class LoginHandler : IBaseCommandHandler<LoginCommand, Guid>
 
     public Guid Execute(LoginCommand command)
     {
-        var existingUser = _accountRepository.GetByUsername(command.Username);
+        var existingUser = _dbContext.Accounts.FirstOrDefault(acc => acc.Username == command.Username);
 
         if (existingUser is null)
             throw new AuthenticationException(GenericAuthenticationFailure);
@@ -48,12 +47,15 @@ public class LoginHandler : IBaseCommandHandler<LoginCommand, Guid>
 
         var token = Guid.NewGuid();
 
-        _sessionRepository.Create(new Session
+        var session = new Session
         {
             Account = existingUser,
             ExpiresOn = DateTime.UtcNow.AddDays(7), // Expire the token in one week
             Token = token
-        });
+        };
+
+        _dbContext.Sessions.Add(session);
+        _dbContext.SaveChanges();
 
         return token;
     }
