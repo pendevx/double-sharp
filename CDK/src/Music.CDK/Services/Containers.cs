@@ -1,4 +1,3 @@
-using System;
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECR;
@@ -53,6 +52,13 @@ public class Containers
             ManagedPolicies = [ ManagedPolicy.FromAwsManagedPolicyName("AmazonS3FullAccess") ],
             AssumedBy = new ServicePrincipal("ecs-tasks.amazonaws.com"),
         });
+
+        taskRole.AddToPolicy(new PolicyStatement(new PolicyStatementProps
+        {
+            Actions = [ "ssm:GetParameter" ],
+            Resources = [ $"arn:aws:ssm:{Aws.REGION}:{Aws.ACCOUNT_ID}:parameter/*" ],
+            Effect = Effect.ALLOW,
+        }));
 
         var taskDefinition = new FargateTaskDefinition(scope, taskDefinitionName, new FargateTaskDefinitionProps
         {

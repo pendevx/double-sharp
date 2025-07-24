@@ -17,10 +17,10 @@ RUN apt-get update && apt-get install -y curl unzip python3
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /backend/yt-dlp \
     && chmod +x /backend/yt-dlp
 
-## ffprobe
-RUN curl -L https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffprobe-6.1-linux-64.zip -o /backend/ffprobe.zip \
-    && unzip /backend/ffprobe.zip -d /backend \
-    && rm /backend/ffprobe.zip
+# ffmpeg
+RUN curl -L https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-linux-64.zip -o /backend/ffmpeg.zip \
+    && unzip /backend/ffmpeg.zip -d /backend \
+    && rm /backend/ffmpeg.zip
 
 # Restore working directory for .NET app
 WORKDIR /backend
