@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Music.EntityFramework;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Music.EntityFramework.Migrations
 {
     [DbContext(typeof(MusicContext))]
-    partial class MusicContextModelSnapshot : ModelSnapshot
+    [Migration("20250731133344_RemoveRolePermissionsModel")]
+    partial class RemoveRolePermissionsModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,19 +198,19 @@ namespace Music.EntityFramework.Migrations
                     b.ToTable("SongRequests");
                 });
 
-            modelBuilder.Entity("PermissionRole", b =>
+            modelBuilder.Entity("RolePermissions", b =>
                 {
-                    b.Property<int>("PermissionsId")
+                    b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("RolesId")
+                    b.Property<int>("PermissionId")
                         .HasColumnType("integer");
 
-                    b.HasKey("PermissionsId", "RolesId");
+                    b.HasKey("RoleId", "PermissionId");
 
-                    b.HasIndex("RolesId");
+                    b.HasIndex("PermissionId");
 
-                    b.ToTable("PermissionRole");
+                    b.ToTable("RolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("AccountRole", b =>
@@ -247,17 +250,17 @@ namespace Music.EntityFramework.Migrations
                     b.Navigation("Uploader");
                 });
 
-            modelBuilder.Entity("PermissionRole", b =>
+            modelBuilder.Entity("RolePermissions", b =>
                 {
                     b.HasOne("Music.Models.Data.Permission", null)
                         .WithMany()
-                        .HasForeignKey("PermissionsId")
+                        .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Music.Models.Data.Role", null)
                         .WithMany()
-                        .HasForeignKey("RolesId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

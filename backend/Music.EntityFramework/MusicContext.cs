@@ -14,7 +14,7 @@ public sealed class MusicContext : DbContext
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<Role> Roles { get; set; }
-    public DbSet<RolePermission> RolePermissions { get; set; }
+    // public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<Session> Sessions { get; set; }
     public DbSet<Song> Songs { get; set; }
     public DbSet<SongRequest> SongRequests { get; set; }
@@ -55,16 +55,8 @@ public sealed class MusicContext : DbContext
             songRequestBuilder.Ignore(sr => sr.RawUrl);
         });
 
-        modelBuilder.Entity<Role>(role =>
-        {
-            role.HasKey(r => r.Id);
-
-            role.Property(r => r.Name)
-                .HasMaxLength(50);
-
-            role.HasIndex(r => r.Name)
-                .IsUnique();
-        });
+        modelBuilder.ApplyConfiguration(new RoleConfiguration());
+        modelBuilder.ApplyConfiguration(new PermissionConfiguration());
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
