@@ -20,16 +20,3 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
             .WithMany(p => p.Roles);
     }
 }
-
-
-// account.HasMany(a => a.Roles)
-//     .WithMany(r => r.Accounts)
-//     .UsingEntity<Dictionary<string, object>>(
-//         "AccountRole",
-//         j => j.HasOne<Role>().WithMany().HasForeignKey("RoleId"),
-//         j => j.HasOne<Account>().WithMany().HasForeignKey("AccountId"),
-//         j =>
-//         {
-//             j.HasKey("AccountId", "RoleId"); // Composite key
-//             j.ToTable("AccountRoles"); // Match the existing table name
-//         });

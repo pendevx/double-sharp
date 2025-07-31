@@ -34,7 +34,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("RolesId");
 
-                    b.ToTable("AccountRole");
+                    b.ToTable("AccountRole", (string)null);
                 });
 
             modelBuilder.Entity("Music.Models.Data.Account", b =>
@@ -67,7 +67,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("Music.Models.Data.Permission", b =>
@@ -88,7 +88,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("PermissionName")
                         .IsUnique();
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permissions", (string)null);
                 });
 
             modelBuilder.Entity("Music.Models.Data.Role", b =>
@@ -109,7 +109,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Music.Models.Data.Session", b =>
@@ -136,7 +136,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Sessions", (string)null);
                 });
 
             modelBuilder.Entity("Music.Models.Data.Song", b =>
@@ -154,7 +154,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Songs");
+                    b.ToTable("Songs", (string)null);
                 });
 
             modelBuilder.Entity("Music.Models.Data.SongRequests.SongRequest", b =>
@@ -192,7 +192,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("UploaderId");
 
-                    b.ToTable("SongRequests");
+                    b.ToTable("SongRequests", (string)null);
                 });
 
             modelBuilder.Entity("PermissionRole", b =>
@@ -207,7 +207,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("RolesId");
 
-                    b.ToTable("PermissionRole");
+                    b.ToTable("PermissionRole", (string)null);
                 });
 
             modelBuilder.Entity("AccountRole", b =>

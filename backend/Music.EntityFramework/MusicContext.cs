@@ -14,7 +14,6 @@ public sealed class MusicContext : DbContext
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<Role> Roles { get; set; }
-    // public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<Session> Sessions { get; set; }
     public DbSet<Song> Songs { get; set; }
     public DbSet<SongRequest> SongRequests { get; set; }
@@ -22,41 +21,10 @@ public sealed class MusicContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new AccountConfiguration());
-
-        modelBuilder.Entity<Song>(songBuilder =>
-        {
-            songBuilder.HasKey(s => s.Id);
-
-            songBuilder.Property(s => s.Name)
-                .HasMaxLength(256);
-        });
-
-        modelBuilder.Entity<SongRequest>(songRequestBuilder =>
-        {
-            songRequestBuilder.HasKey(sr => sr.Id);
-            songRequestBuilder.HasOne(sr => sr.Uploader).WithMany(sr => sr.SongRequests)
-                .IsRequired();
-
-            songRequestBuilder.Property(sr => sr.Name)
-                .HasMaxLength(256)
-                .IsUnicode(false);
-
-            songRequestBuilder.Property(sr => sr.Status)
-                .HasConversion<string>();
-
-            songRequestBuilder.Property(info => info.Source)
-                .HasConversion<string>()
-                .HasColumnName("Source");
-
-            songRequestBuilder.Property<string>("_urlValue")
-                .HasColumnName("Url");
-
-            songRequestBuilder.Ignore(sr => sr.Url);
-            songRequestBuilder.Ignore(sr => sr.RawUrl);
-        });
-
-        modelBuilder.ApplyConfiguration(new RoleConfiguration());
         modelBuilder.ApplyConfiguration(new PermissionConfiguration());
+        modelBuilder.ApplyConfiguration(new RoleConfiguration());
+        modelBuilder.ApplyConfiguration(new SongConfiguration());
+        modelBuilder.ApplyConfiguration(new SongRequestConfiguration());
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
