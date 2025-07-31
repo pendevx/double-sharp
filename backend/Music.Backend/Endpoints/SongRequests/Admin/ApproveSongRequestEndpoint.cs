@@ -16,19 +16,21 @@ public class ApproveSongRequestEndpoint : Ep.Req<ApproveSongRequestRequest>.NoRe
 {
     private readonly MusicContext _dbContext;
     private readonly SongRequestService _songRequestService;
-    private readonly RequiresPermission _requiresPermission;
+    private readonly IAuthContext _authContext;
 
     public ApproveSongRequestEndpoint(MusicContext dbContext, SongRequestService songRequestService,
-        RequiresPermission requiresPermission)
+        IAuthContext authContext)
     {
         _dbContext = dbContext;
         _songRequestService = songRequestService;
-        _requiresPermission = requiresPermission;
+        _authContext = authContext;
     }
 
     public override async Task HandleAsync(ApproveSongRequestRequest req, CancellationToken ct)
     {
-        if (!_requiresPermission(RoleName.Admin))
+        var account = _authContext.GetAccount();
+
+        if (account is null || account.HasAllRoles(RoleName.Admin))
             throw new UnauthorizedAccessException();
 
         if (await _dbContext.SongRequests.FirstOrDefaultAsync(sr => sr.Id == req.Id, ct) is not { } songRequest)

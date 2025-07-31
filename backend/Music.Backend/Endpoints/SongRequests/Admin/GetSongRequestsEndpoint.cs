@@ -13,21 +13,20 @@ public record GetSongRequestsResponse(int Id, string Name, string Source, string
 public class GetSongRequestsEndpoint : Endpoint<GetSongRequests>
 {
     private readonly MusicContext _dbContext;
-    private readonly RequiresPermission _requiresPermission;
+    private readonly IAuthContext _authContext;
 
-    public GetSongRequestsEndpoint(MusicContext dbContext, RequiresPermission requiresPermission)
+    public GetSongRequestsEndpoint(MusicContext dbContext, IAuthContext authContext)
     {
         _dbContext = dbContext;
-        _requiresPermission = requiresPermission;
+        _authContext = authContext;
     }
 
     public override async Task HandleAsync(GetSongRequests req, CancellationToken ct)
     {
-        if (!_requiresPermission(RoleName.Admin))
-        {
-            await SendForbiddenAsync(ct);
-            return;
-        }
+        var account = _authContext.GetAccount();
+
+        if (account is null || !account.HasAllRoles(RoleName.Admin))
+            throw new UnauthorizedAccessException();
 
         const int pageSize = 50;
 

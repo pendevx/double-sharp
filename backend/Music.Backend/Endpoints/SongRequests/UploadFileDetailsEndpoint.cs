@@ -14,15 +14,13 @@ public class UploadFileDetailsEndpoint : Ep.Req<UploadFileDetailsRequest>.NoRes
 {
     private readonly IAuthContext _authContext;
     private readonly MusicContext _dbContext;
-    private readonly RequiresPermission _requiresPermission;
     private readonly SongRequestRepository _songRequestRepository;
 
     public UploadFileDetailsEndpoint(IAuthContext authContext, MusicContext dbContext,
-        RequiresPermission requiresPermission, SongRequestRepository songRequestRepository)
+        SongRequestRepository songRequestRepository)
     {
         _authContext = authContext;
         _dbContext = dbContext;
-        _requiresPermission = requiresPermission;
         _songRequestRepository = songRequestRepository;
     }
 

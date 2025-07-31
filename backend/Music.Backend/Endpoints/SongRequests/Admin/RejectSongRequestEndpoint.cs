@@ -14,17 +14,19 @@ public record RejectSongRequestRequest(int Id);
 public class RejectSongRequestEndpoint : Ep.Req<RejectSongRequestRequest>.NoRes
 {
     private readonly MusicContext _dbContext;
-    private readonly RequiresPermission _requiresPermission;
+    private readonly IAuthContext _authContext;
 
-    public RejectSongRequestEndpoint(MusicContext dbContext, RequiresPermission requiresPermission)
+    public RejectSongRequestEndpoint(MusicContext dbContext, IAuthContext authContext)
     {
         _dbContext = dbContext;
-        _requiresPermission = requiresPermission;
+        _authContext = authContext;
     }
 
     public override async Task HandleAsync(RejectSongRequestRequest req, CancellationToken ct)
     {
-        if (!_requiresPermission(RoleName.Admin))
+        var account = _authContext.GetAccount();
+
+        if (account is null || account.HasAllRoles(RoleName.Admin))
             throw new UnauthorizedAccessException();
 
         if (await _dbContext.SongRequests.FirstOrDefaultAsync(sr => sr.Id == req.Id, ct) is not { } songRequest)

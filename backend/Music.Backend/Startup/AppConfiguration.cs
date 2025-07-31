@@ -87,7 +87,6 @@ public static class DependencyInjectionConfiguration
         builder.Services.AddDelegate<CreateSongRequestPath>(AwsFunctions.CreateSongRequestPath, ServiceLifetime.Scoped);
         builder.Services.AddDelegate<GetBucketName>(AwsFunctions.GetBucketName, ServiceLifetime.Singleton);
         builder.Services.AddDelegate<GetEnvironment>(AppEnvironment.GetEnvironment, ServiceLifetime.Singleton);
-        builder.Services.AddDelegate<RequiresPermission>(Requirements.RequiresPermission, ServiceLifetime.Scoped);
     }
 
     public static void ConfigureAws(this IServiceCollection services)
