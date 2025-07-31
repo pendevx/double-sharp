@@ -91,7 +91,7 @@ export default function FileUpload({ toggleUploadSource, postSubmit }: UploaderP
                 <button
                     type="submit"
                     className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white bg-[#004317] p-2 text-center text-white disabled:cursor-not-allowed disabled:bg-[#355c42] [&:hover:not(:disabled)]:bg-[#117b38]"
-                    disabled={!formState.isValid}>
+                    disabled={!formState.isValid || submitting}>
                     {submitting ? "Submitting..." : "Submit Song Request"}
                 </button>
             </div>

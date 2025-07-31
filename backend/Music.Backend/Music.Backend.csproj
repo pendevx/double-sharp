@@ -35,9 +35,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\.dockerignore">
-      <Link>.dockerignore</Link>
-    </Content>
+    <_ContentIncludedByDefault Remove="publish\appsettings.Development.json" />
+    <_ContentIncludedByDefault Remove="publish\appsettings.json" />
+    <_ContentIncludedByDefault Remove="publish\Music.Backend.deps.json" />
+    <_ContentIncludedByDefault Remove="publish\Music.Backend.runtimeconfig.json" />
+    <_ContentIncludedByDefault Remove="publish\Music.Backend.staticwebassets.endpoints.json" />
   </ItemGroup>
 
 </Project>

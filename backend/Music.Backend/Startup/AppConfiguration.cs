@@ -75,7 +75,11 @@ public static class DependencyInjectionConfiguration
                                    $"Specify the connection string in the configuration (key '{connectionStringAppSettingsKey}') " +
                                    $"or in an environment variable (name '{connectionStringEnvVarKey}').");
 
-        builder.Services.AddDbContext<MusicContext>(opt => { opt.UseNpgsql(connectionString); });
+        builder.Services.AddDbContext<MusicContext>(opt =>
+        {
+            opt.UseNpgsql(connectionString);
+            opt.EnableSensitiveDataLogging();
+        });
 
         builder.Services.AddScoped<SongsRepository>();
 

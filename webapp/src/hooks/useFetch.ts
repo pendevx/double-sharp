@@ -48,11 +48,6 @@ export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
                 }
 
                 const response = await fetch(finalUrl, fetchOptions);
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch data: ${response.statusText}`);
-                }
-
                 const json: T = await response.json();
                 setData(json);
                 return json;

@@ -21,6 +21,29 @@ public sealed class MusicContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Account>(account =>
+        {
+            account.HasKey(a => a.Id);
+
+            account.HasIndex(a => a.Username)
+                .IsUnique();
+
+            account.Property(a => a.Username)
+                .HasMaxLength(256);
+
+            account.Property(a => a.DisplayName)
+                .HasMaxLength(30);
+
+            account.HasMany(a => a.AccountRoles)
+                .WithOne(r => r.Account);
+
+            account.HasMany(a => a.Sessions)
+                .WithOne(s => s.Account);
+
+            account.HasMany(a => a.SongRequests)
+                .WithOne(sr => sr.Uploader);
+        });
+
         modelBuilder.Entity<Song>(songBuilder =>
         {
             songBuilder.HasKey(s => s.Id);
@@ -32,7 +55,8 @@ public sealed class MusicContext : DbContext
         modelBuilder.Entity<SongRequest>(songRequestBuilder =>
         {
             songRequestBuilder.HasKey(sr => sr.Id);
-            songRequestBuilder.HasOne(sr => sr.Uploader).WithMany(sr => sr.SongRequests);
+            songRequestBuilder.HasOne(sr => sr.Uploader).WithMany(sr => sr.SongRequests)
+                .IsRequired();
 
             songRequestBuilder.Property(sr => sr.Name)
                 .HasMaxLength(256)
