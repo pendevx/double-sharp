@@ -23,6 +23,7 @@ public sealed class MusicContext : DbContext
         modelBuilder.ApplyConfiguration(new AccountConfiguration());
         modelBuilder.ApplyConfiguration(new PermissionConfiguration());
         modelBuilder.ApplyConfiguration(new RoleConfiguration());
+        modelBuilder.ApplyConfiguration(new SessionConfiguration());
         modelBuilder.ApplyConfiguration(new SongConfiguration());
         modelBuilder.ApplyConfiguration(new SongRequestConfiguration());
     }
