@@ -30,7 +30,7 @@ public class ApproveSongRequestEndpoint : Ep.Req<ApproveSongRequestRequest>.NoRe
     {
         var account = _authContext.GetAccount();
 
-        if (account is null || account.HasAllRoles(RoleName.Admin))
+        if (account is null || !account.HasAllRoles(RoleName.Admin))
             throw new UnauthorizedAccessException();
 
         if (await _dbContext.SongRequests.FirstOrDefaultAsync(sr => sr.Id == req.Id, ct) is not { } songRequest)
