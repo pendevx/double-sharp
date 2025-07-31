@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Music.EntityFramework.ModelConfigurations;
 using Music.Models.Data;
 using Music.Models.Data.SongRequests;
 
@@ -11,7 +12,6 @@ public sealed class MusicContext : DbContext
     public MusicContext() { }
 
     public DbSet<Account> Accounts { get; set; }
-    public DbSet<AccountRole> AccountRoles { get; set; }
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<RolePermission> RolePermissions { get; set; }
@@ -21,28 +21,7 @@ public sealed class MusicContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Account>(account =>
-        {
-            account.HasKey(a => a.Id);
-
-            account.HasIndex(a => a.Username)
-                .IsUnique();
-
-            account.Property(a => a.Username)
-                .HasMaxLength(256);
-
-            account.Property(a => a.DisplayName)
-                .HasMaxLength(30);
-
-            account.HasMany(a => a.AccountRoles)
-                .WithOne(r => r.Account);
-
-            account.HasMany(a => a.Sessions)
-                .WithOne(s => s.Account);
-
-            account.HasMany(a => a.SongRequests)
-                .WithOne(sr => sr.Uploader);
-        });
+        modelBuilder.ApplyConfiguration(new AccountConfiguration());
 
         modelBuilder.Entity<Song>(songBuilder =>
         {
@@ -74,6 +53,17 @@ public sealed class MusicContext : DbContext
 
             songRequestBuilder.Ignore(sr => sr.Url);
             songRequestBuilder.Ignore(sr => sr.RawUrl);
+        });
+
+        modelBuilder.Entity<Role>(role =>
+        {
+            role.HasKey(r => r.Id);
+
+            role.Property(r => r.Name)
+                .HasMaxLength(50);
+
+            role.HasIndex(r => r.Name)
+                .IsUnique();
         });
     }
 

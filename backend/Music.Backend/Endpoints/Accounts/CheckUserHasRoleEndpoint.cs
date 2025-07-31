@@ -30,9 +30,8 @@ public class CheckUserHasRoleEndpoint : Ep.Req<CheckUserHasRoleRequest>.Res<bool
             return;
         }
 
-        var accountHasRole = _dbContext.AccountRoles
-            .Include(a => a.Role)
-            .Any(ar => ar.AccountId == account.Id && ar.Role.Name == req.Role.ToString());
+        var accountHasRole = _dbContext.Accounts
+            .Any(a => a.Id == account.Id && a.Roles.Select(r => r.Name).Contains(req.Role.ToString()));
 
         await SendAsync(
             accountHasRole,

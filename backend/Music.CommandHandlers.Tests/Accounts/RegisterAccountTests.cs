@@ -20,8 +20,8 @@ public class RegisterAccountTests : BaseTest
 
         var registeredAccountId = DbContext.Accounts.First(acc => acc.Username == username).Id;
 
-        var hasUserRole = DbContext.AccountRoles
-            .Any(ar => ar.AccountId == registeredAccountId && ar.Role.Name == nameof(RoleName.User));
+        var hasUserRole = DbContext.Accounts
+            .Any(a => a.Id == registeredAccountId && a.Roles.Select(r => r.Name).Contains(nameof(RoleName.User)));
 
         Assert.True(hasUserRole);
     }

@@ -9,7 +9,7 @@ public class Account : BaseEntity
     public byte[] SaltedPassword { get; set; } = null!;
     public string DisplayName { get; set; } = null!;
 
-    public ICollection<AccountRole> AccountRoles { get; set; } = new List<AccountRole>();
+    public ICollection<Role> Roles { get; set; } = new List<Role>();
     public ICollection<Session> Sessions { get; set; } = new List<Session>();
     public ICollection<SongRequest> SongRequests { get; set; } = new List<SongRequest>();
 }

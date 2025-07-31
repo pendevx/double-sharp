@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Music.EntityFramework;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Music.EntityFramework.Migrations
 {
     [DbContext(typeof(MusicContext))]
-    partial class MusicContextModelSnapshot : ModelSnapshot
+    [Migration("20250731095954_RemoveAccountRoles")]
+    partial class RemoveAccountRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,17 +27,17 @@ namespace Music.EntityFramework.Migrations
 
             modelBuilder.Entity("AccountRole", b =>
                 {
-                    b.Property<int>("AccountsId")
+                    b.Property<int>("AccountId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("RolesId")
+                    b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
-                    b.HasKey("AccountsId", "RolesId");
+                    b.HasKey("AccountId", "RoleId");
 
-                    b.HasIndex("RolesId");
+                    b.HasIndex("RoleId");
 
-                    b.ToTable("AccountRole");
+                    b.ToTable("AccountRoles", (string)null);
                 });
 
             modelBuilder.Entity("Music.Models.Data.Account", b =>
@@ -222,13 +225,13 @@ namespace Music.EntityFramework.Migrations
                 {
                     b.HasOne("Music.Models.Data.Account", null)
                         .WithMany()
-                        .HasForeignKey("AccountsId")
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Music.Models.Data.Role", null)
                         .WithMany()
-                        .HasForeignKey("RolesId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

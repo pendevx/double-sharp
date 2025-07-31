@@ -16,11 +16,9 @@ public static class Requirements
 
             var httpContext = httpContextAccessor.HttpContext;
 
-            var userRoles = dbContext.AccountRoles
-                .AsNoTracking()
-                .Where(ar => ar.Account.Sessions.Any(s => s.Token == httpContext!.Request.GetAuthenticationCookie()))
-                .Select(ar => ar.Role.Name)
-                .ToList();
+            var userRoles = dbContext.Accounts.AsNoTracking()
+                .Where(a => a.Sessions.Any(s => s.Token == httpContext!.Request.GetAuthenticationCookie()))
+                .Select(a => a.Roles.SelectMany(r => r.Name));
 
             return roles.All(role => userRoles.Contains(role.ToString()));
         };

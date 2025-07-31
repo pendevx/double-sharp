@@ -4,7 +4,6 @@ using Music.Commands.Accounts;
 using Music.Models.Data;
 using Music.EntityFramework;
 using Account = Music.Models.Data.Account;
-using AccountRole = Music.Models.Data.AccountRole;
 
 namespace Music.CommandHandlers.Accounts;
 
@@ -33,24 +32,15 @@ public class RegisterAccountHandler : IBaseCommandHandler<RegisterAccountCommand
         var newGuid = Guid.NewGuid();
         var saltedPassword = GenerateSaltedHash(Encoding.UTF8.GetBytes(command.Password), newGuid.ToByteArray());
 
-        var createdAccount = _dbContext.Accounts.Add(new Account
+        var userRole = _dbContext.Roles.Single(r => r.Name == nameof(RoleName.User));
+
+        _dbContext.Accounts.Add(new Account
         {
             Guid = newGuid,
             Username = command.Username,
             SaltedPassword = saltedPassword,
-            DisplayName = command.DisplayName
-        });
-
-        _dbContext.SaveChanges();
-
-        var userRoleId = _dbContext.Roles.Where(r => r.Name == nameof(RoleName.User))
-            .Select(r => r.Id)
-            .Single();
-
-        _dbContext.AccountRoles.Add(new AccountRole
-        {
-            RoleId = userRoleId,
-            AccountId = createdAccount.Entity.Id
+            DisplayName = command.DisplayName,
+            Roles = [userRole]
         });
 
         _dbContext.SaveChanges();
