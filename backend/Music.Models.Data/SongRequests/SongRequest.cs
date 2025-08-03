@@ -2,6 +2,8 @@
 
 public class SongRequest : BaseEntity
 {
+    protected SongRequest() { }
+
     private SongRequest(string name, RequestStatus status, Source source, string urlValue) =>
         (Name, Status, Source, _urlValue) = (name, status, source, urlValue);
 
@@ -9,7 +11,7 @@ public class SongRequest : BaseEntity
         (Name, Uploader, Status, Source, Url) = (name, uploader, status, source, url);
 
     public string Name { get; }
-    public Account Uploader { get; }
+    public virtual Account Uploader { get; }
     public RequestStatus Status { get; private set; }
     public Source Source { get; }
 

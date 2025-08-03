@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Music.Backend.HttpContextExtensions;
 using Music.EntityFramework;
 using Music.Global.Contracts;
@@ -24,10 +23,8 @@ public class WebAuthContext : IAuthContext
         if (authCookie is null)
             return null;
 
-        var account = _dbContext.Sessions
-            .Include(s => s.Account)
-            .FirstOrDefault(s => s.Token == authCookie)
-            ?.Account;
+        var account = _dbContext.Accounts
+            .FirstOrDefault(a => a.Sessions.Select(s => s.Token).Any(s => s == authCookie));
 
         return account;
     }

@@ -78,7 +78,7 @@ public static class DependencyInjectionConfiguration
         builder.Services.AddDbContext<MusicContext>(opt =>
         {
             opt.UseNpgsql(connectionString);
-            opt.EnableSensitiveDataLogging();
+            opt.UseLazyLoadingProxies();
         });
 
         builder.Services.AddScoped<SongsRepository>();
