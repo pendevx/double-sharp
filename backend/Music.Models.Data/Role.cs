@@ -2,7 +2,9 @@
 
 public class Role : BaseEntity
 {
-    public string Name { get; set; } = null!;
+    public RoleName Name { get; set; }
+
+    public static implicit operator RoleName(Role role) => role.Name;
 
     public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
     public virtual ICollection<Permission> Permissions { get; set; } = new List<Permission>();

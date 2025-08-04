@@ -11,12 +11,10 @@ public record CheckUserHasRoleRequest(RoleName Role);
 [HttpGet("/accounts/checkUserHasRole/{role}")]
 public class CheckUserHasRoleEndpoint : Ep.Req<CheckUserHasRoleRequest>.Res<bool>
 {
-    private readonly MusicContext _dbContext;
     private readonly IAuthContext _authContext;
 
-    public CheckUserHasRoleEndpoint(MusicContext dbContext, IAuthContext authContext)
+    public CheckUserHasRoleEndpoint(IAuthContext authContext)
     {
-        _dbContext = dbContext;
         _authContext = authContext;
     }
 
@@ -30,8 +28,7 @@ public class CheckUserHasRoleEndpoint : Ep.Req<CheckUserHasRoleRequest>.Res<bool
             return;
         }
 
-        var accountHasRole = _dbContext.Accounts
-            .Any(a => a.Id == account.Id && a.Roles.Select(r => r.Name).Contains(req.Role.ToString()));
+        var accountHasRole = account.HasAllRoles(req.Role);
 
         await SendAsync(
             accountHasRole,

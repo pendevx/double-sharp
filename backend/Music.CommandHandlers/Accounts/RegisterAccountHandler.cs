@@ -32,7 +32,7 @@ public class RegisterAccountHandler : IBaseCommandHandler<RegisterAccountCommand
         var newGuid = Guid.NewGuid();
         var saltedPassword = GenerateSaltedHash(Encoding.UTF8.GetBytes(command.Password), newGuid.ToByteArray());
 
-        var userRole = _dbContext.Roles.Single(r => r.Name == nameof(RoleName.User));
+        var userRole = _dbContext.Roles.Single(r => r.Name == RoleName.User);
 
         _dbContext.Accounts.Add(new Account
         {

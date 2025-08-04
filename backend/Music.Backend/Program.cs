@@ -2,14 +2,16 @@ global using FastEndpoints;
 global using Music.Backend.EndpointFilters;
 using System.Text.Json.Serialization;
 using FastEndpoints.Swagger;
+using Microsoft.AspNetCore.Mvc;
 using Music.Backend.EndpointConfigurations;
 using Music.Backend.Middleware;
 using Music.Backend.Startup;
+using Music.CommandHandlers;
+using YoutubeDLSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Music.CommandHandlers.Load.Initialize();
-Music.QueryHandlers.Load.Initialize();
+Load.Initialize();
 Music.Services.Load.Initialize();
 
 var assemblies = AppDomain.CurrentDomain.GetAssemblies()
@@ -25,13 +27,12 @@ builder.Services.ConfigureWeb();
 builder.Services.ConfigureAws();
 builder.Services.ConfigureLogging();
 builder.Services.ConfigureCommandHandlers(types);
-builder.Services.ConfigureQueryHandlers(types);
 builder.Services.ConfigureServices(types);
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
-builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+builder.Services.Configure<JsonOptions>(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
@@ -42,8 +43,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    await YoutubeDLSharp.Utils.DownloadYtDlp();
-    await YoutubeDLSharp.Utils.DownloadFFmpeg();
+    await Utils.DownloadYtDlp();
+    await Utils.DownloadFFmpeg();
 }
 
 await app.SetupYouTubeCookies();

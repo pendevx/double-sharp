@@ -19,11 +19,7 @@ public abstract class BaseTest
 
     private void SetupDbContextWithConstants()
     {
-        var allRoles = Enum.GetNames<RoleName>()
-            .Select(rn => new Role { Name = rn.ToString() });
-        
-        DbContext.Roles.AddRange(allRoles);
-
+        DbContext.Roles.AddRange(EntityFramework.ModelConfigurations.RoleConfiguration.RolesTable);
         DbContext.SaveChanges();
     }
 }

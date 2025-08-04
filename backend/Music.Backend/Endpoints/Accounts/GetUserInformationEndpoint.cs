@@ -1,18 +1,17 @@
-using FastEndpoints;
-using Music.Backend.EndpointFilters;
 using Music.Backend.HttpContextExtensions;
 using Music.Backend.Models.DTO.Http;
-using Music.QueryHandlers.Accounts;
+using Music.EntityFramework;
 
 namespace Music.Backend.Endpoints.Accounts;
 
+[RequiresAuthenticated]
 public class GetUserInformationEndpoint : Ep.NoReq.Res<UserInformation>
 {
-    private readonly GetAccountBySessionIDHandler _getUserBySessionId;
+    private readonly MusicContext _dbContext;
 
-    public GetUserInformationEndpoint(GetAccountBySessionIDHandler getUserBySessionId)
+    public GetUserInformationEndpoint(MusicContext dbContext)
     {
-        _getUserBySessionId = getUserBySessionId;
+        _dbContext = dbContext;
     }
 
     public override void Configure()
@@ -25,8 +24,7 @@ public class GetUserInformationEndpoint : Ep.NoReq.Res<UserInformation>
     public override async Task HandleAsync(CancellationToken ct)
     {
         var token = HttpContext.Request.GetAuthenticationCookie();
-
-        var account = _getUserBySessionId.Execute(token)!;
+        var account = _dbContext.Accounts.FirstOrDefault(a => a.Sessions.Any(s => s.Token == token))!;
 
         await SendAsync(new UserInformation
         {

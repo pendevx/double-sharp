@@ -1,10 +1,8 @@
-using FastEndpoints;
-using Microsoft.AspNetCore.Authorization;
 using Music.Backend.HttpContextExtensions;
 using Music.Backend.Models.DTO.Http;
 using Music.CommandHandlers.Accounts;
 using Music.Commands.Accounts;
-using Music.QueryHandlers.Accounts;
+using Music.EntityFramework;
 
 namespace Music.Backend.Endpoints.Accounts;
 
@@ -15,16 +13,16 @@ public class RegisterEndpoint : Endpoint<UserRegistrationInfo, UserInformation>
 {
     private readonly RegisterAccountHandler _registerAccountHandler;
     private readonly LoginHandler _loginHandler;
-    private readonly GetAccountByUsernameHandler _getAccountByUsername;
+    private readonly MusicContext _dbContext;
 
     public RegisterEndpoint(
         RegisterAccountHandler registerAccountHandler,
         LoginHandler loginHandler,
-        GetAccountByUsernameHandler getAccountByUsername)
+        MusicContext dbContext)
     {
         _registerAccountHandler = registerAccountHandler;
         _loginHandler = loginHandler;
-        _getAccountByUsername = getAccountByUsername;
+        _dbContext = dbContext;
     }
 
     public override async Task HandleAsync(UserRegistrationInfo req, CancellationToken ct)
@@ -39,7 +37,7 @@ public class RegisterEndpoint : Endpoint<UserRegistrationInfo, UserInformation>
         }
 
         var token = _loginHandler.Execute(new LoginCommand(req.Username, req.Password));
-        var account = _getAccountByUsername.Execute(req.Username)!;
+        var account = _dbContext.Accounts.First(a => a.Username == req.Username);
 
         HttpContext.Response.SetAuthenticationCookie(token);
 

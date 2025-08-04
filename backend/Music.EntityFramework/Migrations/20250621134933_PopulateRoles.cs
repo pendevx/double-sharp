@@ -13,12 +13,12 @@ public partial class PopulateRoles : Migration
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.InsertData(
-            table: nameof(MusicContext.Roles),
-            columns: [nameof(Role.Id), nameof(Role.Name)],
+            table: "Roles",
+            columns: ["Id", "Name"],
             values: new object[,]
             {
-                { 1, nameof(RoleName.User) },
-                { 2, nameof(RoleName.Admin) },
+                { 1, "User" },
+                { 2, "Admin" },
             });
     }
 
@@ -26,8 +26,8 @@ public partial class PopulateRoles : Migration
     protected override void Down(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DeleteData(
-            table: nameof(MusicContext.Roles),
-            keyColumn: nameof(Role.Id),
+            table: "Roles",
+            keyColumn: "Id",
             keyValues: new object[] { 1, 2 });
     }
 }

@@ -5,9 +5,8 @@ using FastEndpoints.Swagger;
 using Microsoft.EntityFrameworkCore;
 using Music.Backend.Global.Impl;
 using Music.CommandHandlers;
-using Music.Global.Contracts;
 using Music.EntityFramework;
-using Music.QueryHandlers;
+using Music.Global.Contracts;
 using Music.Services;
 using Music.Services.DataAccess.AWS;
 
@@ -27,14 +26,6 @@ public static class DependencyInjectionConfiguration
         var commandHandlers = ExtractConcreteHandlers(extractFrom,
             [typeof(IBaseCommandHandler), typeof(IBaseCommandHandler<>), typeof(IBaseCommandHandler<,>)]);
         foreach (var handler in commandHandlers)
-            services.AddScoped(handler);
-    }
-
-    public static void ConfigureQueryHandlers(this IServiceCollection services, Type[] extractFrom)
-    {
-        var queryHandlers =
-            ExtractConcreteHandlers(extractFrom, [typeof(IBaseQueryHandler<>), typeof(IBaseQueryHandler<,>)]);
-        foreach (var handler in queryHandlers)
             services.AddScoped(handler);
     }
 

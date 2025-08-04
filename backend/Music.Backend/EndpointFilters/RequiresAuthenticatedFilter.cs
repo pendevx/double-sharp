@@ -1,5 +1,5 @@
 using Music.Backend.HttpContextExtensions;
-using Music.QueryHandlers.Accounts;
+using Music.EntityFramework;
 
 namespace Music.Backend.EndpointFilters;
 
@@ -8,11 +8,11 @@ public class RequiresAuthenticatedAttribute : Attribute;
 
 public class RequiresAuthenticatedFilter : IEndpointFilter
 {
-    private readonly ValidateTokenIsActiveHandler _validateTokenIsActive;
+    private readonly MusicContext _dbContext;
 
-    public RequiresAuthenticatedFilter(ValidateTokenIsActiveHandler validateTokenIsActive)
+    public RequiresAuthenticatedFilter(MusicContext dbContext)
     {
-        _validateTokenIsActive = validateTokenIsActive;
+        _dbContext = dbContext;
     }
 
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
@@ -22,7 +22,7 @@ public class RequiresAuthenticatedFilter : IEndpointFilter
         if (authCookie == Guid.Empty)
             return Results.Unauthorized();
 
-        var isActiveSession = _validateTokenIsActive.Execute(authCookie);
+        var isActiveSession = _dbContext.Sessions.FirstOrDefault(s => s.Token == authCookie)?.ExpiresOn > DateTime.UtcNow;
 
         if (!isActiveSession)
             return Results.Unauthorized();

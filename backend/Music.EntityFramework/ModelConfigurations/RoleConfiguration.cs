@@ -11,12 +11,20 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         role.HasKey(r => r.Id);
 
         role.Property(r => r.Name)
-            .HasMaxLength(50);
+            .HasConversion<string>();
 
         role.HasIndex(r => r.Name)
             .IsUnique();
 
         role.HasMany(r => r.Permissions)
             .WithMany(p => p.Roles);
+
+        role.HasData(RolesTable);
     }
+
+    public static IEnumerable<Role> RolesTable =>
+    [
+        new() { Id = 1, Name = RoleName.User },
+        new() { Id = 2, Name = RoleName.Admin },
+    ];
 }

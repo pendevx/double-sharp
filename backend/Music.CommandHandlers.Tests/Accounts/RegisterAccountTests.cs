@@ -16,12 +16,12 @@ public class RegisterAccountTests : BaseTest
         const string password = "testPassword";
         const string displayName = "Test User";
 
-        handler.Execute(new RegisterAccountCommand(username, password, displayName));
+        var success = handler.Execute(new RegisterAccountCommand(username, password, displayName));
 
-        var registeredAccountId = DbContext.Accounts.First(acc => acc.Username == username).Id;
+        Assert.True(success);
 
-        var hasUserRole = DbContext.Accounts
-            .Any(a => a.Id == registeredAccountId && a.Roles.Select(r => r.Name).Contains(nameof(RoleName.User)));
+        var registeredAccount = DbContext.Accounts.First(acc => acc.Username == username);
+        var hasUserRole = registeredAccount.HasAllRoles(RoleName.User);
 
         Assert.True(hasUserRole);
     }
