@@ -1,11 +1,7 @@
-using System.IO;
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.IAM;
-using Amazon.CDK.AWS.Lambda;
-using Amazon.CDK.AWS.Lambda.EventSources;
 using Amazon.CDK.AWS.S3;
-using Amazon.CDK.AWS.SQS;
 using Constructs;
 using Music.CDK.Services;
 
@@ -95,12 +91,22 @@ public class MusicStack : Stack
                 Principals = [ new AnyPrincipal() ],
             }));
 
+        var otherArtifactsName = serviceEnvironment.CreateName("other-artifacts");
+        var otherArtifacts = new Bucket(this, otherArtifactsName, new BucketProps
+        {
+            BucketName = otherArtifactsName,
+            RemovalPolicy = RemovalPolicy.DESTROY,
+        });
+
+        var serviceDiscoveryNamespace = ServiceDiscovery.Create(this, serviceEnvironment, vpc);
+        ApiGateway.Create(this, serviceEnvironment, vpc, otherArtifacts, otherArtifactsName); // adds an access policy to the S3 bucket
+
         var distribution = Cloudfront.Create(this, serviceEnvironment, frontend);
         Domains.CreateAliasForRoot(this, serviceEnvironment, distribution);
 
         var connectionStringSecret = Database.Create(this, serviceEnvironment, vpc);
-        var (repository, service) = Containers.Create(this, serviceEnvironment, vpc, connectionStringSecret);
+        var (repository, service) = Containers.Create(this, serviceEnvironment, vpc, connectionStringSecret, serviceDiscoveryNamespace);
 
-        new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service.Service);
+        new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service);
     }
 }

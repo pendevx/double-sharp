@@ -1,35 +1,32 @@
+using System.Collections.Generic;
 using Amazon.CDK;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECR;
 using Amazon.CDK.AWS.ECS;
-using Amazon.CDK.AWS.ECS.Patterns;
-using Amazon.CDK.AWS.ElasticLoadBalancing;
-using Amazon.CDK.AWS.ElasticLoadBalancingV2;
 using Amazon.CDK.AWS.IAM;
-using Amazon.CDK.AWS.Route53.Targets;
 using Amazon.CDK.AWS.SecretsManager;
+using Amazon.CDK.AWS.ServiceDiscovery;
 using Constructs;
-using ApplicationLoadBalancerProps = Amazon.CDK.AWS.ElasticLoadBalancingV2.ApplicationLoadBalancerProps;
+using CfnService = Amazon.CDK.AWS.ECS.CfnService;
 using Cluster = Amazon.CDK.AWS.ECS.Cluster;
 using ClusterProps = Amazon.CDK.AWS.ECS.ClusterProps;
-using HealthCheck = Amazon.CDK.AWS.ElasticLoadBalancingV2.HealthCheck;
+using Environment = System.Environment;
 using Secret = Amazon.CDK.AWS.SecretsManager.Secret;
 
 namespace Music.CDK.Services;
 
 public class Containers
 {
-    public static (Repository, ApplicationLoadBalancedFargateService) Create(Construct scope, ServiceEnvironment serviceEnvironment,
-        Vpc vpc, Secret dbConnectionString)
+    public static (Repository, FargateService) Create(Construct scope, ServiceEnvironment serviceEnvironment,
+        Vpc vpc, Secret dbConnectionString, PrivateDnsNamespace namespaceService)
     {
         var baseName = serviceEnvironment.CreateName("backend");
         var clusterName = baseName + nameof(Cluster);
         var repositoryName = baseName + nameof(Repository).ToLower();
         var containerName = $"{baseName}-container";
         var taskDefinitionName = baseName + nameof(TaskDefinition);
-        var serviceName = baseName + nameof(FargateService);
+        var serviceName = baseName + "service";
         var backendSgName = baseName + nameof(SecurityGroup);
-        var loadBalancerName = baseName + nameof(LoadBalancer);
 
         var cluster = new Cluster(scope, clusterName, new ClusterProps
         {
@@ -49,14 +46,14 @@ public class Containers
         {
             RoleName = taskRoleName,
             Description = "Allow the ECS task to perform read/write operations on the S3 bucket.",
-            ManagedPolicies = [ ManagedPolicy.FromAwsManagedPolicyName("AmazonS3FullAccess") ],
+            ManagedPolicies = [ManagedPolicy.FromAwsManagedPolicyName("AmazonS3FullAccess")],
             AssumedBy = new ServicePrincipal("ecs-tasks.amazonaws.com"),
         });
 
         taskRole.AddToPolicy(new PolicyStatement(new PolicyStatementProps
         {
-            Actions = [ "ssm:GetParameter" ],
-            Resources = [ $"arn:aws:ssm:{Aws.REGION}:{Aws.ACCOUNT_ID}:parameter/*" ],
+            Actions = ["ssm:GetParameter"],
+            Resources = [$"arn:aws:ssm:{Aws.REGION}:{Aws.ACCOUNT_ID}:parameter/*"],
             Effect = Effect.ALLOW,
         }));
 
@@ -78,74 +75,70 @@ public class Containers
         });
         backendSg.AddIngressRule(Peer.AnyIpv4(), Port.Tcp(8080)); // Allow port 8080
 
-        var backendCertificate = Domains.GenerateUniqueCertificate(scope, serviceEnvironment, serviceName, ServicesWithDomains.WebBackend);
-
         var secrets = GetLoginSecrets(scope, serviceEnvironment);
 
-        var containerDefinition = new ContainerDefinition(scope, containerName, new ContainerDefinitionProps
+        var containerDefinition = taskDefinition.AddContainer(containerName, new ContainerDefinitionOptions
         {
             ContainerName = containerName,
             Cpu = 256,
             MemoryLimitMiB = 512,
             Image = ContainerImage.FromEcrRepository(repo),
-            PortMappings = [
+            PortMappings =
+            [
                 new PortMapping
                 {
                     ContainerPort = 8080,
                     HostPort = 8080,
                 }
             ],
-            TaskDefinition = taskDefinition,
             Logging = LogDriver.AwsLogs(new AwsLogDriverProps { StreamPrefix = "doublesharp-backend", }),
+            Secrets = new Dictionary<string, Amazon.CDK.AWS.ECS.Secret>
+            {
+                { "DOUBLESHARP_DB_CONNECTION_STRING", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(dbConnectionString) }
+            },
         });
-
-        containerDefinition.AddSecret("DOUBLESHARP_DB_CONNECTION_STRING", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(dbConnectionString));
 
         if (secrets is not null)
         {
             var (emailSecret, passwordSecret) = secrets.Value;
-            containerDefinition.AddSecret("DOUBLESHARP_EMAIL", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(emailSecret));
-            containerDefinition.AddSecret("DOUBLESHARP_PASSWORD", Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(passwordSecret));
+            containerDefinition.AddSecret("DOUBLESHARP_EMAIL",
+                Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(emailSecret));
+            containerDefinition.AddSecret("DOUBLESHARP_PASSWORD",
+                Amazon.CDK.AWS.ECS.Secret.FromSecretsManager(passwordSecret));
         }
 
-        var service = new ApplicationLoadBalancedFargateService(scope, serviceName, new ApplicationLoadBalancedFargateServiceProps
+        var service = new FargateService(scope, serviceName, new FargateServiceProps
         {
             ServiceName = serviceName,
             TaskDefinition = taskDefinition,
             Cluster = cluster,
             DesiredCount = 1,
-            TaskSubnets = new SubnetSelection { SubnetType = SubnetType.PUBLIC },
             AssignPublicIp = true,
-            SecurityGroups = [ backendSg ],
-            LoadBalancer = new ApplicationLoadBalancer(scope, loadBalancerName, new ApplicationLoadBalancerProps
-            {
-                Vpc = vpc,
-                VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PUBLIC, OnePerAz = true },
-                LoadBalancerName = loadBalancerName,
-                InternetFacing = true,
-            }),
-            Certificate = backendCertificate,
+            SecurityGroups = [backendSg],
+            VpcSubnets = new SubnetSelection { SubnetType = SubnetType.PUBLIC },
             EnableExecuteCommand = true,
+            CloudMapOptions = new CloudMapOptions
+            {
+                Name = "api",
+                CloudMapNamespace = namespaceService,
+                DnsRecordType = DnsRecordType.A,
+                DnsTtl = Duration.Seconds(30),
+            },
         });
 
         // Override the desired count to 0
-        var cfnService = service.Service.Node.DefaultChild as CfnService;
-        if (cfnService is not null && secrets is null)
+        if (service.Node.DefaultChild is CfnService cfnService && secrets is null)
         {
             cfnService.DesiredCount = 0;
         }
-
-        service.TargetGroup.ConfigureHealthCheck(new HealthCheck { Path = "/healthcheck.html" });
-
-        Domains.CreateAliasForService(scope, serviceEnvironment, ServicesWithDomains.WebBackend,
-            serviceEnvironment.CreateName("backend"), new LoadBalancerTarget(service?.LoadBalancer));
 
         return (repo, service);
     }
 
     private const string LoginsSetupFlagName = "LOGINS_SETUP";
+
     public static bool IsLoginsSetup(Construct scope) =>
-        (System.Environment.GetEnvironmentVariable(LoginsSetupFlagName) ?? scope.Node.TryGetContext(LoginsSetupFlagName))
+        (Environment.GetEnvironmentVariable(LoginsSetupFlagName) ?? scope.Node.TryGetContext(LoginsSetupFlagName))
         as string == "true";
 
     private static (ISecret, ISecret)? GetLoginSecrets(Construct scope, ServiceEnvironment serviceEnvironment)
@@ -182,6 +175,5 @@ public class Containers
         });
 
         return null;
-
     }
 }

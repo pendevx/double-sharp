@@ -14,9 +14,10 @@ public static class Domains
 
     public static Dictionary<ServicesWithDomains, string> DomainsList { get; } = new()
     {
-        { ServicesWithDomains.CloudfrontDistribution, RootDomain },
+        { ServicesWithDomains.Root, RootDomain },
         { ServicesWithDomains.WebBackend, $"api.{RootDomain}" },
-        { ServicesWithDomains.Database, $"db.{RootDomain}" }
+        { ServicesWithDomains.Database, $"db.{RootDomain}" },
+        { ServicesWithDomains.ApiGateway, $"gateway.{RootDomain}" },
     };
 
     private static IHostedZone _hostedZone;
@@ -46,7 +47,7 @@ public static class Domains
         _certificate = new DnsValidatedCertificate(scope, certificateName, new DnsValidatedCertificateProps
         {
             HostedZone = GetHostedZone(scope, serviceEnvironment),
-            DomainName = DomainsList[ServicesWithDomains.CloudfrontDistribution],
+            DomainName = DomainsList[ServicesWithDomains.Root],
             Validation = CertificateValidation.FromDns(_hostedZone),
             SubjectAlternativeNames = [ $"*.{RootDomain}" ],
             Region = "us-east-1",
@@ -82,21 +83,25 @@ public static class Domains
     }
 
     public static (ARecord, AaaaRecord) CreateAliasForService(Construct scope, ServiceEnvironment serviceEnvironment,
-        ServicesWithDomains service, string serviceName, IAliasRecordTarget target)
+        ServicesWithDomains service, string serviceName, RecordTarget target, bool createIpv6 = true)
     {
         var ipv4 = new ARecord(scope, serviceName + "-alias", new ARecordProps
         {
             Zone = GetHostedZone(scope, serviceEnvironment),
-            Target = RecordTarget.FromAlias(target),
+            Target = target,
             RecordName = DomainsList[service],
         });
 
-        var ipv6 = new AaaaRecord(scope, serviceName + "-alias-ipv6", new AaaaRecordProps
+        AaaaRecord ipv6 = null;
+        if (createIpv6)
         {
-            Zone = GetHostedZone(scope, serviceEnvironment),
-            Target = RecordTarget.FromAlias(target),
-            RecordName = DomainsList[service],
-        });
+            ipv6 = new AaaaRecord(scope, serviceName + "-alias-ipv6", new AaaaRecordProps
+            {
+                Zone = GetHostedZone(scope, serviceEnvironment),
+                Target = target,
+                RecordName = DomainsList[service],
+            });
+        }
 
         return (ipv4, ipv6);
     }
@@ -109,7 +114,8 @@ public static class Domains
 
 public enum ServicesWithDomains
 {
-    CloudfrontDistribution,
+    Root,
     WebBackend,
     Database,
+    ApiGateway,
 }

@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\Cloudfront\redirect-function.js" />
+    <EmbeddedResource Include="Resources\ApiGateway\nginx.conf" />
   </ItemGroup>
 
 </Project>
