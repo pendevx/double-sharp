@@ -1,14 +1,22 @@
+using Music.Models.Data.Utils;
+
 namespace Music.Backend.HttpContextExtensions;
 
 public static class AuthenticationCookie
 {
     private const string CookieName = "Authorization";
 
-    public static Guid GetAuthenticationCookie(this HttpRequest ctx)
-    {
-        var cookie = ctx.Cookies[CookieName];
-        return cookie is null ? Guid.Empty : Guid.Parse(cookie);
-    }
+    public static Guid GetAuthenticationCookie(this HttpRequest ctx) =>
+        ctx.GetAuthenticationCookie_Option()
+            .Match(cookie => cookie, () => Guid.Empty);
+
+    public static OptionType<Guid> GetAuthenticationCookie_Option(this HttpRequest ctx) =>
+        ctx.Cookies[CookieName]
+            .ToOption()
+            .Bind(ParseSessionCookie);
+
+    private static OptionType<Guid> ParseSessionCookie(string reqCookie) =>
+        Guid.TryParse(reqCookie, out var cookieGuid) ? Option.Some(cookieGuid) : Option.None<Guid>();
 
     public static void SetAuthenticationCookie(this HttpResponse ctx, Guid value)
     {

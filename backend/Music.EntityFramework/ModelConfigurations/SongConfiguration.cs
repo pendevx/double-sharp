@@ -12,5 +12,10 @@ public class SongConfiguration : IEntityTypeConfiguration<Song>
 
         song.Property(s => s.Name)
             .HasMaxLength(256);
+
+        song.Ignore(s => s.Artists);
+
+        song.HasMany<Artist>("_artists")
+            .WithMany("_songs");
     }
 }

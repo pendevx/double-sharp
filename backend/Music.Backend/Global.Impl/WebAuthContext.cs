@@ -2,6 +2,7 @@ using Music.Backend.HttpContextExtensions;
 using Music.EntityFramework;
 using Music.Global.Contracts;
 using Music.Models.Data;
+using Music.Models.Data.Utils;
 
 namespace Music.Backend.Global.Impl;
 
@@ -16,16 +17,15 @@ public class WebAuthContext : IAuthContext
         _dbContext = dbContext;
     }
 
-    public Account? GetAccount()
-    {
-        var authCookie = _httpContextAccessor.HttpContext?.Request.GetAuthenticationCookie();
+    public Account? GetAccount() =>
+        GetAccount_Option().Match(x => x, Account? () => null);
 
-        if (authCookie is null)
-            return null;
+    public OptionType<Account> GetAccount_Option() =>
+        _httpContextAccessor.HttpContext
+            .ToOption()
+            .Bind(ctx => ctx.Request.GetAuthenticationCookie_Option())
+            .Bind(TryGetAccountFromSession);
 
-        var account = _dbContext.Accounts
-            .FirstOrDefault(a => a.Sessions.Select(s => s.Token).Any(s => s == authCookie));
-
-        return account;
-    }
+    private OptionType<Account> TryGetAccountFromSession(Guid cookie) =>
+        _dbContext.Accounts.FirstOrDefault(a => a.Sessions.Any(s => s.Token == cookie)).ToOption();
 }

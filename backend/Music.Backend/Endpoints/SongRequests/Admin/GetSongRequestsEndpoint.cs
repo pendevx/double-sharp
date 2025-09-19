@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Music.EntityFramework;
 using Music.Global.Contracts;
 using Music.Models.Data;
-using Music.Models.Data.SongRequests;
+using Music.Models.Data.Requests;
 
 namespace Music.Backend.Endpoints.SongRequests.Admin;
 

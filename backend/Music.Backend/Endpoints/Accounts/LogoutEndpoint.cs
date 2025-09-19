@@ -1,5 +1,3 @@
-using FastEndpoints;
-using Music.Backend.EndpointFilters;
 using Music.Backend.HttpContextExtensions;
 using Music.CommandHandlers.Accounts;
 

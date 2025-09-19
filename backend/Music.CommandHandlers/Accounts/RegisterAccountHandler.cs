@@ -1,8 +1,8 @@
-using System.Security.Cryptography;
 using System.Text;
 using Music.Commands.Accounts;
-using Music.Models.Data;
 using Music.EntityFramework;
+using Music.Models.Data;
+using Music.Services;
 using Account = Music.Models.Data.Account;
 
 namespace Music.CommandHandlers.Accounts;
@@ -16,12 +16,6 @@ public class RegisterAccountHandler : IBaseCommandHandler<RegisterAccountCommand
         _dbContext = dbContext;
     }
 
-    private static byte[] GenerateSaltedHash(byte[] raw, byte[] salt)
-    {
-        var salted = raw.Concat(salt).ToArray();
-        return SHA256.HashData(salted);
-    }
-
     public bool Execute(RegisterAccountCommand command)
     {
         var existingAccount = _dbContext.Accounts.FirstOrDefault(acc => acc.Username == command.Username);
@@ -30,7 +24,7 @@ public class RegisterAccountHandler : IBaseCommandHandler<RegisterAccountCommand
             return false;
 
         var newGuid = Guid.NewGuid();
-        var saltedPassword = GenerateSaltedHash(Encoding.UTF8.GetBytes(command.Password), newGuid.ToByteArray());
+        var saltedPassword = Cryptography.GenerateSaltedHash(Encoding.UTF8.GetBytes(command.Password), newGuid.ToByteArray());
 
         var userRole = _dbContext.Roles.Single(r => r.Name == RoleName.User);
 

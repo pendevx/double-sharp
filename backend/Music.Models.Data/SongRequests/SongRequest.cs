@@ -1,6 +1,8 @@
-﻿namespace Music.Models.Data.SongRequests;
+﻿using Music.Models.Data.Requests;
 
-public class SongRequest : BaseEntity
+namespace Music.Models.Data.SongRequests;
+
+public class SongRequest : BaseEntity, IRequestable<Song>
 {
     protected SongRequest() { }
 
@@ -12,7 +14,7 @@ public class SongRequest : BaseEntity
 
     public string Name { get; }
     public virtual Account Uploader { get; }
-    public RequestStatus Status { get; private set; }
+    public RequestStatus Status { get; set; }
     public Source Source { get; }
 
     private string _urlValue;
@@ -45,13 +47,6 @@ public class SongRequest : BaseEntity
     }
 
     public void Reject() => Status = RequestStatus.Rejected;
-}
-
-public enum RequestStatus
-{
-    Pending, // Awaiting review
-    Approved, // Approved and already added to the system
-    Rejected, // Rejected
 }
 
 public enum Source
