@@ -1,8 +1,10 @@
+using Music.Models.Data.Errors;
 using Music.Models.Data.Requests;
+using Music.Models.Data.Utils;
 
 namespace Music.Models.Data;
 
-public class ArtistRequest : BaseEntity, IRequestable<Artist>
+public class ArtistRequest : BaseEntity
 {
     private ArtistRequest() { }
 
@@ -19,12 +21,17 @@ public class ArtistRequest : BaseEntity, IRequestable<Artist>
     public virtual Artist? Artist { get; set; }
     public int? ArtistId { get; set; }
 
-    public Artist Approve()
+    public ResultType<ArtistRequest, ResultError> Approve()
     {
+        if (Status == RequestStatus.Rejected)
+            return Result.Fail<ArtistRequest, ResultError>(new FailedOperationError("Can't approve a rejected Artist Request."));
+
         Status = RequestStatus.Approved;
-        Artist = Artist.Create(Name);
-        return Artist;
+        return Result.Ok<ArtistRequest, ResultError>(this);
     }
+
+    public OptionType<Artist> CreateArtist() =>
+        Status == RequestStatus.Approved ? Option.Some(Artist.Create(Name)) : Option.None<Artist>();
 
     public void Reject() =>
         Status = RequestStatus.Rejected;

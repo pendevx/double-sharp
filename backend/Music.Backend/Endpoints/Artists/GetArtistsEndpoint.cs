@@ -6,11 +6,11 @@ namespace Music.Backend.Endpoints.Artists;
 public record GetArtistsResponse(int Id, string Name, string ImageUrl, DateOnly DateOfBirth);
 
 [HttpGet("/artists")]
-public class GetArtists : Ep.NoReq.Res<IList<GetArtistsResponse>>
+public class GetArtistsEndpoint : Ep.NoReq.Res<IList<GetArtistsResponse>>
 {
     private readonly MusicContext _musicContext;
 
-    public GetArtists(MusicContext musicContext)
+    public GetArtistsEndpoint(MusicContext musicContext)
     {
         _musicContext = musicContext;
     }
