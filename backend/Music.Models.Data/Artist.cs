@@ -14,27 +14,19 @@ public class Artist : BaseEntity
 
     public virtual ArtistRequest? ArtistRequest { get; set; }
 
-    protected virtual ICollection<Song> _songs { get; private set; }
-    public IImmutableList<Song> Songs => _songs
-        .OrderBy(song => song.Name, StringComparer.InvariantCultureIgnoreCase)
-        .ToImmutableList();
+    public ImmutableList<Song> Songs { get; private set; }
 
-    public Song CreateSong(string name)
+    public Song CreateSong(string name) => Song.CreateWithAuthors(name, [this]);
+
+    public Artist AddSong(Song song)
     {
-        var song = Song.CreateWithAuthors(name, [this]);
-        _songs.Add(song);
-        return song;
+        Songs = Songs.Add(song);
+        return this;
     }
 
-    public void AddToSong(Song song)
+    public Artist RemoveFromSong(Song song)
     {
-        if (song.TryAddArtist(this))
-            _songs = _songs.Any(s => s.Id == song.Id) ? throw new Exception() : _songs.Concat([ song ]).ToList();
-    }
-
-    public void RemoveFromSong(Song song)
-    {
-        if (song.TryRemoveArtist(this))
-            _songs = _songs.All(s => s.Id != song.Id) ? throw new Exception() : _songs.Where(s => s != song).ToList();
+        Songs = Songs.Where(s => s.Id != song.Id).ToImmutableList();
+        return this;
     }
 }
