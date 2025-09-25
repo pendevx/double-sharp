@@ -31,21 +31,21 @@ public class SuggestArtistEndpoint : Ep.Req<SuggestArtistRequest>.Res<TResponse>
     public override Task<TResponse> HandleAsync(SuggestArtistRequest req, CancellationToken ct) =>
         _authContext.GetAccount_Option()
             .ToResult(new UnauthenticatedError())
-            .Map(account => ArtistRequest.Create(req.Name, req.DateOfBirth, account))
-            .MapAsync(artistRequest => SaveArtistRequest(artistRequest, ct))
-            .MapAsync(MapArtistRequestToResponse)
+            .Map(account => Artist.SuggestNew(req.Name, req.DateOfBirth, account))
+            .MapAsync(artistRequest => SaveArtistSuggestion(artistRequest, ct))
+            .MapAsync(MapSuggestedArtistToResponse)
             .MatchAsync(
                 TResponse (artistRequest) => TypedResults.Ok(artistRequest),
                 TResponse (_) => TypedResults.Forbid()
             );
 
-    private async Task<ArtistRequest> SaveArtistRequest(ArtistRequest artist, CancellationToken ct)
+    private async Task<Artist> SaveArtistSuggestion(Artist artist, CancellationToken ct)
     {
-        await _musicContext.ArtistRequests.AddAsync(artist, ct);
+        await _musicContext.Artists.AddAsync(artist, ct);
         await _musicContext.SaveChangesAsync(ct);
         return artist;
     }
 
-    private static SuggestArtistResponse MapArtistRequestToResponse(ArtistRequest artistRequest) =>
-        new(artistRequest.Id, artistRequest.Name, artistRequest.DateOfBirth);
+    private static SuggestArtistResponse MapSuggestedArtistToResponse(Artist artist) =>
+        new(artist.Id, artist.Name, artist.DateOfBirth);
 }

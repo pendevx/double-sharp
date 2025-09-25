@@ -12,7 +12,6 @@ public class Account : BaseEntity
     public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
     public virtual ICollection<Session> Sessions { get; set; } = new List<Session>();
     public virtual ICollection<SongRequest> SongRequests { get; set; } = new List<SongRequest>();
-    public virtual ICollection<ArtistRequest> ArtistRequests { get; set; } = new List<ArtistRequest>();
 
     public bool HasAllRoles(params HashSet<RoleName> roles) =>
         Roles.Select(r => r.Name).ToHashSet().IsSupersetOf(roles);

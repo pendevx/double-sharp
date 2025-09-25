@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Music.Backend.EndpointConfigurations;
 using Music.EntityFramework;
 using Music.Global.Contracts;
@@ -35,12 +34,9 @@ public class ApproveArtistEndpoint : Ep.Req<ApproveArtistRequest>.Res<TResponse>
 
     public override Task<TResponse> HandleAsync(ApproveArtistRequest req, CancellationToken ct) =>
         ValidateUserHasRoles(_authContext)
-            .BindAsync(_ => TryFindArtistRequestAsync(req.Id, ct))
-            .BindAsync(artistRequest => artistRequest.Approve())
-            .TapAsync(artistRequest => _dbContext.ArtistRequests.Update(artistRequest))
-            .MapAsync(artistRequest => artistRequest.CreateArtist())
-            .TapAsync(artist => artist.IfSomeAsync(some => AddArtistToDbAsync(some, _dbContext, ct)))
-            .TapAsync(_ => _dbContext.SaveChangesAsync(ct))
+            .BindAsync(_ => TryFindArtistAsync(req.Id, ct))
+            .TapAsync(artist => artist.RequestInformation.IfSome(requestInformation => requestInformation.Approve()))
+            .TapAsync(artist => AddArtistToDbAsync(artist, _dbContext, ct))
             .MatchAsync(
                 TResponse (_) => TypedResults.Ok(),
                 TResponse (error) => error switch
@@ -56,14 +52,15 @@ public class ApproveArtistEndpoint : Ep.Req<ApproveArtistRequest>.Res<TResponse>
                 account.HasAllRoles(RoleName.Admin) ? Option.Some(account) : Option.None<Account>())
             .ToResult<Account, ResultError>(new UnauthorizedError());
 
-    private async Task<ResultType<ArtistRequest, ResultError>> TryFindArtistRequestAsync(int id, CancellationToken ct) =>
-        (await _dbContext.ArtistRequests.FirstOrDefaultAsync(a => a.Id == id, ct))
+    private async Task<ResultType<Artist, ResultError>> TryFindArtistAsync(int id, CancellationToken ct) =>
+        (await _dbContext.Artists.FirstOrDefaultAsync(a => a.Id == id, ct))
             .ToOption()
-            .ToResult<ArtistRequest, ResultError>(new NotFoundError());
+            .ToResult<Artist, ResultError>(new NotFoundError());
 
     private static async Task<Artist> AddArtistToDbAsync(Artist artist, MusicContext dbContext, CancellationToken ct)
     {
-        await dbContext.Artists.AddAsync(artist, ct);
+        dbContext.Artists.Update(artist);
+        await dbContext.SaveChangesAsync(ct);
         return artist;
     }
 }

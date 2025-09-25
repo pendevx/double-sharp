@@ -13,7 +13,6 @@ public sealed class MusicContext : DbContext
 
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Artist> Artists { get; set; }
-    public DbSet<ArtistRequest> ArtistRequests { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<Session> Sessions { get; set; }
     public DbSet<Song> Songs { get; set; }
