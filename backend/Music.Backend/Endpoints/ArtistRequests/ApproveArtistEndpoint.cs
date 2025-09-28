@@ -35,7 +35,7 @@ public class ApproveArtistEndpoint : Ep.Req<ApproveArtistRequest>.Res<TResponse>
     public override Task<TResponse> HandleAsync(ApproveArtistRequest req, CancellationToken ct) =>
         ValidateUserHasRoles(_authContext)
             .BindAsync(_ => TryFindArtistAsync(req.Id, ct))
-            .TapAsync(artist => artist.RequestInformation.IfSome(requestInformation => requestInformation.Approve()))
+            .BindAsync(artist => artist.TryApproveSuggestion())
             .TapAsync(artist => AddArtistToDbAsync(artist, _dbContext, ct))
             .MatchAsync(
                 TResponse (_) => TypedResults.Ok(),

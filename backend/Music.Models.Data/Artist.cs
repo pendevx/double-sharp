@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using Music.Models.Data.Errors;
 using Music.Models.Data.Utils;
 
 namespace Music.Models.Data;
@@ -12,18 +13,33 @@ public class Artist : BaseEntity
     {
         Name = name,
         DateOfBirth = dateOfBirth,
-        _requestInformation = Data.RequestInformation.Create(requester)
+        RequestInformation = Data.RequestInformation.Create(requester).ToOption()
     };
 
     public string Name { get; init; }
     public DateOnly DateOfBirth { get; set; }
 
-    protected RequestInformation? _requestInformation { get; private init; }
-    public OptionType<RequestInformation> RequestInformation => _requestInformation.ToOption();
+    private RequestInformation? _requestInformation { get; set; }
+
+    public OptionType<RequestInformation> RequestInformation
+    {
+        get => _requestInformation.ToOption();
+        set => _requestInformation = value.ToNullable();
+    }
 
     public virtual ImmutableList<Song> Songs { get; private set; }
 
     public Song CreateSong(string name) => Song.CreateWithAuthors(name, [this]);
+
+    public ResultType<Artist, ResultError> TryApproveSuggestion() =>
+        RequestInformation.Match(
+            reqInfo => reqInfo.Approve().Map(approved =>
+            {
+                RequestInformation = Option.Some(approved);
+                return this;
+            }),
+            () => Result.Fail<Artist, ResultError>(new FailedOperationError("No request information found."))
+        );
 
     public Artist AddSong(Song song)
     {

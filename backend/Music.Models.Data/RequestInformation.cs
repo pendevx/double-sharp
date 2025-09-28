@@ -13,15 +13,27 @@ public class RequestInformation
 
     public static RequestInformation Create(Account requester) => new(RequestStatus.Pending, requester);
 
-    public ResultType<RequestInformation, ResultError> Approve() =>
-        Status != RequestStatus.Pending
-            ? Result.Fail<RequestInformation, ResultError>(new FailedOperationError("Only Pending requests can be approved."))
-            : Result.Ok<RequestInformation, ResultError>(this);
+    public ResultType<RequestInformation, ResultError> Approve()
+    {
+        if (Status != RequestStatus.Pending)
+            return Result.Fail<RequestInformation, ResultError>(
+                new FailedOperationError("Only Pending requests can be approved."));
 
-    public ResultType<RequestInformation, ResultError> Reject() =>
-        Status != RequestStatus.Pending
-            ? Result.Fail<RequestInformation, ResultError>(new FailedOperationError("Only Pending requests can be rejected."))
-            : Result.Ok<RequestInformation, ResultError>(this);
+        Status = RequestStatus.Approved;
+
+        return Result.Ok<RequestInformation, ResultError>(this);
+    }
+
+    public ResultType<RequestInformation, ResultError> Reject()
+    {
+        if (Status != RequestStatus.Pending)
+            return Result.Fail<RequestInformation, ResultError>(
+                new FailedOperationError("Only Pending requests can be approved."));
+
+        Status = RequestStatus.Rejected;
+
+        return Result.Ok<RequestInformation, ResultError>(this);
+    }
 }
 
 public enum RequestStatus

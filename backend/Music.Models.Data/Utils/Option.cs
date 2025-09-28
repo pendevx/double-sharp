@@ -14,6 +14,14 @@ public static class Option
 
     public static OptionType<T> ToOption<T>(this T? @this) => @this is null ? None<T>() : Some(@this);
 
+    public static T? ToNullable<T>(this OptionType<T> @this) =>
+        @this switch
+        {
+            OptionSomeType<T> some => some.Value,
+            OptionNoneType<T> => default,
+            _ => throw new InvalidOperationException()
+        };
+
     public static bool IsSome<T>(this OptionType<T> @this, out OptionSomeType<T>? result)
     {
         result = @this as OptionSomeType<T>;
