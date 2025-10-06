@@ -62,6 +62,15 @@ public static class Result
 
         return @this;
     }
+
+    public static ResultType<TValue, TError> TapError<TValue, TError>(
+        this ResultType<TValue, TError> @this, Action<TError> tap) where TError : ResultError
+    {
+        if (@this is FailedResultType<TValue, TError> failure)
+            tap(failure.Error);
+
+        return @this;
+    }
 }
 
 public static class AsyncResult
@@ -231,6 +240,35 @@ public static class AsyncResult
         var awaited = await @this;
         if (awaited is SuccessResultType<TValue, TError> success)
             await tap(success.Value);
+
+        return awaited;
+    }
+
+    public static async Task<ResultType<TValue, TError>> TapErrorAsync<TValue, TError>(
+        this ResultType<TValue, TError> @this, Func<TError, Task> tap) where TError : ResultError
+    {
+        if (@this is FailedResultType<TValue, TError> failure)
+            await tap(failure.Error);
+
+        return @this;
+    }
+
+    public static async Task<ResultType<TValue, TError>> TapErrorAsync<TValue, TError>(
+        this Task<ResultType<TValue, TError>> @this, Action<TError> tap) where TError : ResultError
+    {
+        var awaited = await @this;
+        if (awaited is FailedResultType<TValue, TError> failure)
+            tap(failure.Error);
+
+        return awaited;
+    }
+
+    public static async Task<ResultType<TValue, TError>> TapErrorAsync<TValue, TError>(
+        this Task<ResultType<TValue, TError>> @this, Func<TError, Task> tap) where TError : ResultError
+    {
+        var awaited = await @this;
+        if (awaited is FailedResultType<TValue, TError> failure)
+            await tap(failure.Error);
 
         return awaited;
     }

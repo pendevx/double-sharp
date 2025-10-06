@@ -1,6 +1,6 @@
-export default function UserIcon() {
+export default function UserIcon({ className }: { className?: string }) {
     return (
-        <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 60.671 60.671" xmlSpace="preserve">
+        <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 60.671 60.671" xmlSpace="preserve" className={className}>
             <g>
                 <g>
                     <ellipse fill="#010002" cx="30.336" cy="12.097" rx="11.997" ry="12.097" />

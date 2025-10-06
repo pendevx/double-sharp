@@ -3,25 +3,26 @@ import { Scrollable } from "../../components";
 import useFetch from "../../hooks/useFetch";
 import UserIcon from "../../icons/UserIcon";
 import { AuthContext, Role } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 
-function Card({ children, ...props }: { children: React.ReactNode } & React.HTMLAttributes<HTMLButtonElement>) {
+function Card({ children, to, ...props }: { children: React.ReactNode; to: string } & React.HTMLAttributes<HTMLAnchorElement>) {
     return (
-        <button className="h-20 rounded-xl bg-gray-700 px-8 py-4" {...props}>
+        <Link className="block h-fit rounded-xl bg-gray-700 px-8 py-4" {...props} to={to}>
             {children}
-        </button>
+        </Link>
     );
 }
 
 function ArtistCard({ imageUrl, name }: { imageUrl?: string; name: string }) {
     return (
-        <Card>
-            <div className="flex h-full gap-4">
+        // fix the "to" later
+        <Card to={name.replace(/\s+/g, "-").toLowerCase()}>
+            <div className="flex h-full items-center gap-4">
                 {imageUrl ? (
                     <img src={imageUrl} alt={name} className="aspect-square h-full rounded-full" />
                 ) : (
-                    <i className="aspect-square h-full rounded-full p-2">
-                        <UserIcon />
+                    <i className="h-full rounded-full">
+                        <UserIcon className="h-full w-16" />
                     </i>
                 )}
                 <div>
@@ -35,10 +36,8 @@ function ArtistCard({ imageUrl, name }: { imageUrl?: string; name: string }) {
 }
 
 function SuggestArtistCard() {
-    const navigate = useNavigate();
-
     return (
-        <Card onClick={() => navigate("request-artist")}>
+        <Card to="request-artist">
             <div className="flex h-full w-full items-center gap-6">
                 <i className="relative -top-2 text-6xl">+</i>
                 <span className="text-xl">Suggest a new artist</span>
@@ -64,7 +63,7 @@ export default function ArtistsList() {
     }, []);
 
     return (
-        <Scrollable>
+        <Scrollable className="h-full">
             <ul className="flex flex-col gap-4">
                 {authContext.hasRole(Role.User) && (
                     <li className="sticky top-0">

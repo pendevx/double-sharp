@@ -16,7 +16,11 @@ public class ArtistConfiguration : IEntityTypeConfiguration<Artist>
         artist.HasMany(a => a.Songs)
             .WithMany(s => s.Artists);
 
-        artist.OwnsOne<RequestInformation>("_requestInformation");
+        artist.OwnsOne<RequestInformation>("_requestInformation", requestInfo =>
+        {
+            requestInfo.Property(ri => ri.Status)
+                .HasConversion<string>();
+        });
         artist.Navigation("_requestInformation").IsRequired(false);
         artist.Ignore(a => a.RequestInformation);
     }
