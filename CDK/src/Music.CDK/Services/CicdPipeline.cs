@@ -30,7 +30,7 @@ public class CicdPipeline
         _repository = repository;
     }
 
-    public bool IsOauthTokenEnabled() =>
+    public bool IsCodestarConnectionEnabled() =>
         (Environment.GetEnvironmentVariable(GithubOauthFlagName) ?? _scope.Node.TryGetContext(GithubOauthFlagName))
         as string == "true";
 
@@ -124,41 +124,32 @@ public class CicdPipeline
         return (pipelineRole, buildRole);
     }
 
-    private GitHubSourceAction GetSourceCode(out Artifact_ sourceCode)
+    private CodeStarConnectionsSourceAction GetSourceCode(out Artifact_ sourceCode)
     {
         sourceCode = new Artifact_("repository");
 
-        var secretName = _serviceEnvironment.CreateName("github-oauth");
-
-        var oauthSecret = new Secret(_scope, secretName, new SecretProps
+        if (!IsCodestarConnectionEnabled())
         {
-            SecretName = secretName,
-            RemovalPolicy = RemovalPolicy.DESTROY,
-        });
-
-        if (!IsOauthTokenEnabled())
-        {
-            _ = new CfnOutput(_scope, _serviceEnvironment.CreateName("populate-github-oauth-warning"), new CfnOutputProps
+            _ = new CfnOutput(_scope, _serviceEnvironment.CreateName("populate-codestar-connection-warning"), new CfnOutputProps
             {
-                Description = "Instructions to set the GitHub OAuth token",
-                Value = $"Run this to set the GitHub token:\n" +
-                        $"aws secretsmanager put-secret-value " +
-                        $"--secret-id {secretName} " +
-                        $"--secret-string \"<github-oauth-token>\"",
+                Description = "Instructions to set the Codestar Connection",
+                Value = $"Follow this guide to set up the Codestar connection:\n" +
+                        $"https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html",
             });
 
             return null;
         }
 
-        var sourceAction = new GitHubSourceAction(new GitHubSourceActionProps
+        var sourceAction = new CodeStarConnectionsSourceAction(new CodeStarConnectionsSourceActionProps
         {
+            ActionName = "Copy-Repository",
+            TriggerOnPush = false,
             Owner = "pendevx",
             Repo = "double-sharp",
             Branch = "main",
-            OauthToken = oauthSecret.SecretValue,
+            ConnectionArn =
+                "arn:aws:codeconnections:ap-southeast-2:144565159812:connection/e657d7e5-baea-474f-8a17-741f6e233712",
             Output = sourceCode,
-            ActionName = "Copy-Repository",
-            Trigger = GitHubTrigger.NONE,
         });
 
         return sourceAction;
