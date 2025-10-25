@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Music.EntityFramework;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Music.EntityFramework.Migrations
 {
     [DbContext(typeof(MusicContext))]
-    partial class MusicContextModelSnapshot : ModelSnapshot
+    [Migration("20251013084824_Artists_AddSlug")]
+    partial class Artists_AddSlug
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("RolesId");
 
-                    b.ToTable("AccountRole", (string)null);
+                    b.ToTable("AccountRole");
                 });
 
             modelBuilder.Entity("ArtistSong", b =>
@@ -49,7 +52,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("SongsId");
 
-                    b.ToTable("ArtistSong", (string)null);
+                    b.ToTable("ArtistSong");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Account", b =>
@@ -82,7 +85,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Accounts", (string)null);
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Artist", b =>
@@ -103,7 +106,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Artists", (string)null);
+                    b.ToTable("Artists");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Permission", b =>
@@ -124,7 +127,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("PermissionName")
                         .IsUnique();
 
-                    b.ToTable("Permission", (string)null);
+                    b.ToTable("Permission");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Role", b =>
@@ -144,7 +147,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new
@@ -183,7 +186,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
-                    b.ToTable("Sessions", (string)null);
+                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Song", b =>
@@ -201,7 +204,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Songs", (string)null);
+                    b.ToTable("Songs");
                 });
 
             modelBuilder.Entity("Music.Models.Data.SongRequests.SongRequest", b =>
@@ -239,7 +242,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("UploaderId");
 
-                    b.ToTable("SongRequests", (string)null);
+                    b.ToTable("SongRequests");
                 });
 
             modelBuilder.Entity("PermissionRole", b =>
@@ -254,7 +257,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("RolesId");
 
-                    b.ToTable("PermissionRole", (string)null);
+                    b.ToTable("PermissionRole");
                 });
 
             modelBuilder.Entity("AccountRole", b =>
@@ -294,27 +297,25 @@ namespace Music.EntityFramework.Migrations
                             b1.Property<int>("ArtistId")
                                 .HasColumnType("integer");
 
+                            b1.Property<int>("RequesterId")
+                                .HasColumnType("integer");
+
                             b1.Property<string>("Status")
                                 .IsRequired()
-                                .HasColumnType("text")
-                                .HasColumnName("RequestStatus");
-
-                            b1.Property<int>("_requesterId")
-                                .HasColumnType("integer")
-                                .HasColumnName("RequesterId");
+                                .HasColumnType("text");
 
                             b1.HasKey("ArtistId");
 
-                            b1.HasIndex("_requesterId");
+                            b1.HasIndex("RequesterId");
 
-                            b1.ToTable("Artists", (string)null);
+                            b1.ToTable("Artists");
 
                             b1.WithOwner()
                                 .HasForeignKey("ArtistId");
 
                             b1.HasOne("Music.Models.Data.Account", "Requester")
                                 .WithMany()
-                                .HasForeignKey("_requesterId")
+                                .HasForeignKey("RequesterId")
                                 .OnDelete(DeleteBehavior.Cascade)
                                 .IsRequired();
 
@@ -329,15 +330,11 @@ namespace Music.EntityFramework.Migrations
                             b1.Property<string>("Value")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .HasColumnType("character varying(50)")
-                                .HasColumnName("Slug");
+                                .HasColumnType("character varying(50)");
 
                             b1.HasKey("ArtistId");
 
-                            b1.HasIndex("Value")
-                                .IsUnique();
-
-                            b1.ToTable("Artists", (string)null);
+                            b1.ToTable("Artists");
 
                             b1.WithOwner()
                                 .HasForeignKey("ArtistId");

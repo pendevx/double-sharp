@@ -7,16 +7,16 @@ import { Link } from "react-router";
 
 function Card({ children, to, ...props }: { children: React.ReactNode; to: string } & React.HTMLAttributes<HTMLAnchorElement>) {
     return (
-        <Link className="block h-fit rounded-xl bg-gray-700 px-8 py-4" {...props} to={to}>
+        <Link className="block h-fit rounded-xl border-2 border-dotted border-white px-8 py-4 transition-colors duration-150 hover:bg-stone-900" {...props} to={to}>
             {children}
         </Link>
     );
 }
 
-function ArtistCard({ imageUrl, name }: { imageUrl?: string; name: string }) {
+function ArtistCard({ imageUrl, name, slug }: { imageUrl?: string; name: string; slug: string }) {
     return (
         // fix the "to" later
-        <Card to={name.replace(/\s+/g, "-").toLowerCase()}>
+        <Card to={slug}>
             <div className="flex h-full items-center gap-4">
                 {imageUrl ? (
                     <img src={imageUrl} alt={name} className="aspect-square h-full rounded-full" />
@@ -51,6 +51,7 @@ type Artist = {
     name: string;
     imageUrl?: string;
     dateOfBirth?: string;
+    slug: string;
 };
 
 export default function ArtistsList() {
@@ -73,7 +74,7 @@ export default function ArtistsList() {
 
                 {artists.map(artist => (
                     <li key={artist.id}>
-                        <ArtistCard imageUrl={artist.imageUrl} name={artist.name} />
+                        <ArtistCard imageUrl={artist.imageUrl} name={artist.name} slug={artist.slug} />
                     </li>
                 ))}
             </ul>

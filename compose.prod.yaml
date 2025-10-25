@@ -1,23 +1,11 @@
 services:
     database:
-        image: 192.168.1.136:5000/music-db-schema-update:latest
-        container_name: music-db-schema-update
-        volumes:
-            - ./database/appsettings.json:/database/appsettings.json
-
-    frontend:
-        image: 192.168.1.136:5000/music-frontend:latest
-        container_name: music-frontend
+        image: postgres
+        container_name: music-database
+        environment:
+            POSTGRES_USER: admin
+            POSTGRES_DB: double-sharp
+        env_file:
+            - ./db.prod.env
         ports:
-            - "8000:443"
-            - "8888:8888"
-        volumes:
-            - ./certbot/www/:/var/www/certbot/:ro
-            - ./certbot/conf/:/etc/letsencrypt/:ro
-
-    certbot:
-        image: certbot/certbot:latest
-        container_name: certbot
-        volumes:
-            - ./certbot/www/:/var/www/certbot/:rw
-            - ./certbot/conf/:/etc/letsencrypt/:rw
+            - 5433:5432

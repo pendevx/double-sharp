@@ -5,10 +5,11 @@ namespace Music.Models.Data;
 
 public class RequestInformation
 {
-    private RequestInformation() { }
+    protected RequestInformation() { }
     private RequestInformation(RequestStatus status, Account requester) => (Status, Requester) = (status, requester);
 
     public RequestStatus Status { get; private set; }
+    private int _requesterId;
     public virtual Account Requester { get; private set; }
 
     public static RequestInformation Create(Account requester) => new(RequestStatus.Pending, requester);

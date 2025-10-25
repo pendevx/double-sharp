@@ -1,4 +1,5 @@
 .idea/
+db.prod.env
 
 # song requests utilities
 yt-dlp.exe

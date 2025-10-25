@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Music.EntityFramework;
+using Music.Models.Data;
+using Music.Models.Data.Utils;
 
 namespace Music.Backend.Endpoints.Artists;
 
-public record GetArtistsResponse(int Id, string Name, string ImageUrl, DateOnly DateOfBirth);
+public record GetArtistsResponse(int Id, string Name, string ImageUrl, DateOnly DateOfBirth, string Slug);
 
 [HttpGet("/artists")]
 public class GetArtistsEndpoint : Ep.NoReq.Res<IList<GetArtistsResponse>>
@@ -18,7 +20,7 @@ public class GetArtistsEndpoint : Ep.NoReq.Res<IList<GetArtistsResponse>>
     public override async Task HandleAsync(CancellationToken ct)
     {
         var artists = await _musicContext.Artists.AsNoTracking()
-            .Select(artist => new GetArtistsResponse(artist.Id, artist.Name, "", artist.DateOfBirth))
+            .Select(artist => new GetArtistsResponse(artist.Id, artist.Name, "", artist.DateOfBirth, artist._slug!))
             .ToListAsync(ct);
 
         await SendOkAsync(artists, ct);

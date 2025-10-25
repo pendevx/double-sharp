@@ -19,6 +19,14 @@ public class Artist : BaseEntity
     public string Name { get; init; }
     public DateOnly DateOfBirth { get; set; }
 
+    public string? _slug { get; set; }
+
+    public OptionType<string> Slug
+    {
+        get => _slug.ToOption();
+        set => _slug = value.ToNullable();
+    }
+
     private RequestInformation? _requestInformation { get; set; }
 
     public OptionType<RequestInformation> RequestInformation
@@ -31,11 +39,12 @@ public class Artist : BaseEntity
 
     public Song CreateSong(string name) => Song.CreateWithAuthors(name, [this]);
 
-    public ResultType<Artist, ResultError> TryApproveSuggestion() =>
+    public ResultType<Artist, ResultError> Approve(string slug) =>
         RequestInformation.Match(
             reqInfo => reqInfo.Approve().Map(approved =>
             {
                 RequestInformation = Option.Some(approved);
+                Slug = Option.Some(slug);
                 return this;
             }),
             () => Result.Fail<Artist, ResultError>(new FailedOperationError("No request information found."))
