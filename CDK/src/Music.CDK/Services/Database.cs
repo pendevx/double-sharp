@@ -50,6 +50,9 @@ public class Database
         Domains.CreateCnameForService(scope, serviceEnvironment, Domains.DomainsList[ServicesWithDomains.Database],
             database.InstanceEndpoint.Hostname);
 
+        Domains.CreateCnameForService(scope, serviceEnvironment, "db-local.music.pendevx.com",
+            "e7176097-f760-46f1-92cf-9350017545fb.cfargotunnel.com");
+
         var connStrSecretName = serviceEnvironment.CreateName("connection-string");
         var connectionStringSecret = new Secret(scope, connStrSecretName, new SecretProps
         {

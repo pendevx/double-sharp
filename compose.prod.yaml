@@ -1,11 +1,36 @@
 services:
     database:
         image: postgres
-        container_name: music-database
+        container_name: database
         environment:
             POSTGRES_USER: admin
             POSTGRES_DB: double-sharp
         env_file:
-            - ./db.prod.env
+            - ./db.env.prod
+        networks:
+            - doublesharp
+
+    backend:
+        image: 144565159812.dkr.ecr.ap-southeast-2.amazonaws.com/doublesharp-backendrepository:latest
+        container_name: ui-backend
+        env_file:
+            - ./backend.env.prod
         ports:
-            - 5433:5432
+            - 8080:8080
+        depends_on:
+            - database
+        networks:
+            - doublesharp
+
+    tunnel:
+        image: cloudflare/cloudflared:latest
+        container_name: tunnel
+        command: tunnel run
+        env_file:
+            - ./tunnel.env.prod
+        networks:
+            - doublesharp
+
+networks:
+    doublesharp:
+        external: true
