@@ -7,6 +7,8 @@ services:
             POSTGRES_DB: double-sharp
         env_file:
             - ./db.env.prod
+        ports:
+            - 5433:5432
         networks:
             - doublesharp
 

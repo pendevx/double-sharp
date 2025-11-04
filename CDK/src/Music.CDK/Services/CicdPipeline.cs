@@ -34,7 +34,8 @@ public class CicdPipeline
         (Environment.GetEnvironmentVariable(GithubOauthFlagName) ?? _scope.Node.TryGetContext(GithubOauthFlagName))
         as string == "true";
 
-    public void Create(Bucket frontendDeployTarget, BaseService backendDeployTarget)
+    // public void Create(Bucket frontendDeployTarget, BaseService backendDeployTarget)
+    public void Create()
     {
         var artifactsBucketName = _serviceEnvironment.CreateName("cicd-artifacts");
         var artifactsBucket = new Bucket(_scope, artifactsBucketName, new BucketProps
@@ -52,11 +53,10 @@ public class CicdPipeline
             return;
 
         var buildUIAction = BuildWebUI(sourceCode, out var uiArtifacts);
-        var buildBackendAction = BuildWebBackend(sourceCode, buildServiceRole,
-            backendDeployTarget.TaskDefinition.DefaultContainer?.ContainerName, out var backendArtifacts);
+        var buildBackendAction = BuildWebBackend(sourceCode, buildServiceRole, "doublesharp-backend", out var backendArtifacts);
 
-        var deployUIAction = DeployWebUI(uiArtifacts, frontendDeployTarget);
-        var deployBackendAction = DeployWebBackend(backendArtifacts, backendDeployTarget);
+        // var deployUIAction = DeployWebUI(uiArtifacts, frontendDeployTarget);
+        // var deployBackendAction = DeployWebBackend(backendArtifacts, backendDeployTarget);
 
         var pipelineName = _serviceEnvironment.CreateName("cicd");
         var pipeline = new Pipeline(_scope, pipelineName, new PipelineProps
@@ -73,11 +73,11 @@ public class CicdPipeline
                     StageName = "Build",
                     Actions = [ buildUIAction, buildBackendAction ],
                 },
-                new StageProps
-                {
-                    StageName = "Deploy",
-                    Actions = [ deployUIAction, deployBackendAction ],
-                }
+                // new StageProps
+                // {
+                //     StageName = "Deploy",
+                //     Actions = [ deployUIAction, deployBackendAction ],
+                // }
             ],
             ArtifactBucket = artifactsBucket,
             Role = pipelineRole,

@@ -12,12 +12,12 @@ public class MusicStack : Stack
     internal MusicStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
     {
         CreateCommonEnvironment(ServiceEnvironment.Development);
-        var productionVpc = CreateCommonEnvironment(ServiceEnvironment.Production);
+        CreateCommonEnvironment(ServiceEnvironment.Production);
 
-        CreateProductionEnvironment(productionVpc);
+        CreateProductionEnvironment();
     }
 
-    private Vpc CreateCommonEnvironment(ServiceEnvironment serviceEnvironment)
+    private void CreateCommonEnvironment(ServiceEnvironment serviceEnvironment)
     {
         var bucketName = serviceEnvironment.CreateName("files");
 
@@ -28,39 +28,39 @@ public class MusicStack : Stack
 
         var cookiesParameter = SsmParameters.CookiesTxt(this, serviceEnvironment);
 
-        var vpcName = serviceEnvironment.CreateName("vpc");
-        var privateSubnetName = serviceEnvironment.CreateName("subnet-private");
-        var publicSubnetName = serviceEnvironment.CreateName("subnet-public");
-
-        var vpc = new Vpc(this, vpcName, new VpcProps
-        {
-            VpcName = vpcName,
-            MaxAzs = 2,
-            IpProtocol = IpProtocol.IPV4_ONLY,
-            IpAddresses = IpAddresses.Cidr("192.168.0.0/16"),
-            CreateInternetGateway = true,
-            RestrictDefaultSecurityGroup = false,
-            NatGateways = 0,
-            SubnetConfiguration = [
-                new SubnetConfiguration
-                {
-                    Name = privateSubnetName,
-                    SubnetType = SubnetType.PUBLIC, // should be private_with_egress
-                    CidrMask = 24,
-                },
-                new SubnetConfiguration
-                {
-                    Name = publicSubnetName,
-                    SubnetType = SubnetType.PUBLIC,
-                    CidrMask = 24,
-                }
-            ],
-        });
-
-        return vpc;
+        // var vpcName = serviceEnvironment.CreateName("vpc");
+        // var privateSubnetName = serviceEnvironment.CreateName("subnet-private");
+        // var publicSubnetName = serviceEnvironment.CreateName("subnet-public");
+        //
+        // var vpc = new Vpc(this, vpcName, new VpcProps
+        // {
+        //     VpcName = vpcName,
+        //     MaxAzs = 2,
+        //     IpProtocol = IpProtocol.IPV4_ONLY,
+        //     IpAddresses = IpAddresses.Cidr("192.168.0.0/16"),
+        //     CreateInternetGateway = true,
+        //     RestrictDefaultSecurityGroup = false,
+        //     NatGateways = 0,
+        //     SubnetConfiguration = [
+        //         new SubnetConfiguration
+        //         {
+        //             Name = privateSubnetName,
+        //             SubnetType = SubnetType.PUBLIC, // should be private_with_egress
+        //             CidrMask = 24,
+        //         },
+        //         new SubnetConfiguration
+        //         {
+        //             Name = publicSubnetName,
+        //             SubnetType = SubnetType.PUBLIC,
+        //             CidrMask = 24,
+        //         }
+        //     ],
+        // });
+        //
+        // return vpc;
     }
 
-    private void CreateProductionEnvironment(Vpc vpc)
+    private void CreateProductionEnvironment()
     {
         var serviceEnvironment = ServiceEnvironment.Production;
         var domainName = "music.pendevx.com";
@@ -98,15 +98,15 @@ public class MusicStack : Stack
             RemovalPolicy = RemovalPolicy.DESTROY,
         });
 
-        var serviceDiscoveryNamespace = ServiceDiscovery.Create(this, serviceEnvironment, vpc);
-        ApiGateway.Create(this, serviceEnvironment, vpc, otherArtifacts, otherArtifactsName); // adds an access policy to the S3 bucket
+        // var serviceDiscoveryNamespace = ServiceDiscovery.Create(this, serviceEnvironment, vpc);
+        // ApiGateway.Create(this, serviceEnvironment, vpc, otherArtifacts, otherArtifactsName); // adds an access policy to the S3 bucket
 
         var distribution = Cloudfront.Create(this, serviceEnvironment, frontend);
         Domains.CreateAliasForRoot(this, serviceEnvironment, distribution);
 
-        var connectionStringSecret = Database.Create(this, serviceEnvironment, vpc);
-        var (repository, service) = Containers.Create(this, serviceEnvironment, vpc, connectionStringSecret, serviceDiscoveryNamespace);
+        // var connectionStringSecret = Database.Create(this, serviceEnvironment, vpc);
+        var repository = Containers.Create(this, serviceEnvironment);
 
-        new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service);
+        // new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service);
     }
 }
