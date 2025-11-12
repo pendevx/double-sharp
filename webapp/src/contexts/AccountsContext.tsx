@@ -21,6 +21,7 @@ type TAccountsContext = {
 
 export type UserInformation = {
     displayName: string;
+    sessionToken: string;
 };
 
 export const AccountsContext = React.createContext<TAccountsContext>({} as TAccountsContext);
@@ -32,19 +33,27 @@ export default function AccountsProvider({ children }: { children?: React.ReactN
         refreshData(userDetails());
     }, []);
 
-    const register = (registrationInfo: RegisterInformation) => {
-        refreshData(registerAccount(), {
+    const register = async (registrationInfo: RegisterInformation) => {
+        const result = await refreshData(registerAccount(), {
             method: "POST",
             body: JSON.stringify({ ...registrationInfo }),
         });
+
+        if (result) {
+            localStorage.setItem("token", result.sessionToken);
+        }
     };
 
-    const login = (credentials: Credentials) => {
-        refreshData(loginAccount(), {
+    const login = async (credentials: Credentials) => {
+        const result = await refreshData(loginAccount(), {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({ ...credentials }),
         });
+
+        if (result) {
+            localStorage.setItem("token", result.sessionToken);
+        }
     };
 
     const logout = () => {

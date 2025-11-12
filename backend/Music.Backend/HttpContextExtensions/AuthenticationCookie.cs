@@ -11,7 +11,8 @@ public static class AuthenticationCookie
             .Match(cookie => cookie, () => Guid.Empty);
 
     public static OptionType<Guid> GetAuthenticationCookie_Option(this HttpRequest ctx) =>
-        ctx.Cookies[CookieName]
+        // ctx.Cookies[CookieName]
+        ctx.Headers.Authorization.ToString()
             .ToOption()
             .Bind(ParseSessionCookie);
 

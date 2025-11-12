@@ -39,12 +39,13 @@ public class RegisterEndpoint : Endpoint<UserRegistrationInfo, UserInformation>
         var token = _loginHandler.Execute(new LoginCommand(req.Username, req.Password));
         var account = _dbContext.Accounts.First(a => a.Username == req.Username);
 
-        HttpContext.Response.SetAuthenticationCookie(token);
+        // HttpContext.Response.SetAuthenticationCookie(token);
 
         await SendAsync(
             new UserInformation
             {
-                DisplayName = account.DisplayName
+                DisplayName = account.DisplayName,
+                SessionToken = token,
             }, 200, ct);
     }
 }

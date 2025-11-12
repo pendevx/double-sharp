@@ -47,7 +47,19 @@ export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
                     }
                 }
 
-                const response = await fetch(finalUrl, fetchOptions);
+                fetchOptions.headers = Object.assign(fetchOptions.headers ?? {}, {
+                    Authorization: localStorage.getItem("token"),
+                });
+
+                // const requestUrl = new URL(finalUrl);
+                // if (finalUrl.startsWith("/api")) {
+                //     requestUrl.hostname = "music.cfpendevx.com";
+                //     requestUrl.pathname = requestUrl.pathname.replace(/\/api/g, "");
+                // }
+
+                const requestUrl = finalUrl.startsWith("/api") ? `${import.meta.env.VITE_BACKEND_URL}${finalUrl.replace("/api", "")}` : "";
+
+                const response = await fetch(requestUrl, fetchOptions);
                 const json: T = await response.json();
                 setData(json);
                 return json;
