@@ -1,5 +1,7 @@
 import React from "react";
 
+export const processRequestUrl = (url: string) => (url.startsWith("/api") ? `${import.meta.env.VITE_BACKEND_URL}${url.replace("/api", "")}` : "");
+
 export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
     const fallback = fallbackValue as T;
 
@@ -51,15 +53,7 @@ export default function useFetch<T>(fallbackValue?: T, defaultUrl?: string) {
                     Authorization: localStorage.getItem("token"),
                 });
 
-                // const requestUrl = new URL(finalUrl);
-                // if (finalUrl.startsWith("/api")) {
-                //     requestUrl.hostname = "music.cfpendevx.com";
-                //     requestUrl.pathname = requestUrl.pathname.replace(/\/api/g, "");
-                // }
-
-                const requestUrl = finalUrl.startsWith("/api") ? `${import.meta.env.VITE_BACKEND_URL}${finalUrl.replace("/api", "")}` : "";
-
-                const response = await fetch(requestUrl, fetchOptions);
+                const response = await fetch(processRequestUrl(finalUrl), fetchOptions);
                 const json: T = await response.json();
                 setData(json);
                 return json;

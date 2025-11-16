@@ -5,6 +5,7 @@ import { MusicContext } from "../contexts/MusicContext";
 import { downloadSong } from "../utils/url-builder.api";
 import { formatTime } from "../utils/formats";
 import { AudioTimeContext } from "../contexts/AudioTimeContext";
+import { processRequestUrl } from "../hooks/useFetch";
 
 type MusicPlayerControlProps = {
     onplay?: () => void;
@@ -74,7 +75,7 @@ export default function MusicPlayerControl({ onplay, goFullscreen, audioRef }: M
         const songUrl = downloadSong(musicContext.currentSongId);
 
         audioRef.current.pause();
-        audioRef.current.src = songUrl;
+        audioRef.current.src = processRequestUrl(songUrl);
         audioRef.current.load();
         audioRef.current.play().then(musicContext.play);
     }
