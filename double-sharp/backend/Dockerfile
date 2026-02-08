@@ -13,11 +13,10 @@ COPY --from=build /backend/out .
 
 RUN apt-get update && apt-get install -y curl unzip python3
 
-# nodejs
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && node --version \
-    && npm --version
+# deno
+ENV DENO_INSTALL=/usr/local
+RUN curl -fsSL https://deno.land/install.sh | sh \
+    && deno --version
 
 # yt-dlp
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /backend/yt-dlp \
