@@ -7,8 +7,8 @@ using Music.Backend.Global.Impl;
 using Music.CommandHandlers;
 using Music.EntityFramework;
 using Music.Global.Contracts;
-using Music.Services;
 using Music.Services.DataAccess.AWS;
+using LocalStack.Client.Extensions;
 
 namespace Music.Backend.Startup;
 
@@ -80,13 +80,13 @@ public static class DependencyInjectionConfiguration
         builder.Services.AddDelegate<GetEnvironment>(AppEnvironment.GetEnvironment, ServiceLifetime.Singleton);
     }
 
-    public static void ConfigureAws(this IServiceCollection services)
+    public static void ConfigureAws(this IServiceCollection services, IConfiguration configuration)
     {
         services
+            .AddLocalStack(configuration)
             .AddAWSService<IAmazonS3>()
             .AddAWSService<IAmazonSecurityTokenService>()
-            .AddAWSService<IAmazonSimpleSystemsManagement>()
-            .AddSingleton<AwsEnvironment>();
+            .AddAWSService<IAmazonSimpleSystemsManagement>();
     }
 
     public static void ConfigureWeb(this IServiceCollection services)

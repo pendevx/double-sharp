@@ -1,6 +1,9 @@
 .idea/
 db.prod.env
 
+postgres-data/
+volume/
+
 # song requests utilities
 yt-dlp.exe
 ffmpeg.exe
