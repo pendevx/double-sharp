@@ -2,14 +2,21 @@
 @import "tailwindcss/utilities";
 
 @theme {
+    /* some day... https://ui.shadcn.com/docs/theming */
+    --color-muted: #f1f5f9;
+    --color-primary: #ffc421;
+    --color-ring: transparent;
+
+    /* Breakpoints */
     --breakpoint-*: initial;
     --breakpoint-mobile: 0px;
     --breakpoint-tablet: 641px;
     --breakpoint-laptop: 769px;
     --breakpoint-desktop: 1280px;
 
-    --animate-spin: spin 12s linear infinite;
+    /* Animations */
 
+    --animate-spin: spin 12s linear infinite;
     @keyframes spin {
         0% {
             transform: rotate(0deg);
@@ -18,10 +25,6 @@
             transform: rotate(360deg);
         }
     }
-
-    --color-muted: #f1f5f9;
-    --color-primary: #ffc421;
-    --color-ring: transparent;
 }
 
 /*

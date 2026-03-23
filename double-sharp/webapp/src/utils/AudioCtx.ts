@@ -25,10 +25,7 @@ class DoublesharpAudioCtx implements IDoublesharpAudioCtx {
         this.gain = this.audioCtx.createGain();
         this.gain.gain.setValueAtTime(1, this.audioCtx.currentTime);
 
-        input
-            .connect(this.analyzer)
-            .connect(this.gain)
-            .connect(this.audioCtx.destination);
+        input.connect(this.analyzer).connect(this.gain).connect(this.audioCtx.destination);
     }
 
     getFreqs(): Uint8Array {

@@ -49,7 +49,7 @@ function FrequencyGraph({ audioRef, audioCtx }: FrequencyGraphProps) {
 
             function raf() {
                 requestAnimationFrame(() => {
-                    if (!musicContext.isPlaying) {
+                    if (!musicContext.isPlaying || musicContext.isMuted) {
                         return;
                     }
 
@@ -65,8 +65,8 @@ function FrequencyGraph({ audioRef, audioCtx }: FrequencyGraphProps) {
                         barWidth = totalWidth / len;
                     }
 
-                    for (let i = 0; i < (len as number); i++) {
-                        canvasCtx.current?.fillRect((barWidth as number) * i, 0, (barWidth as number) - 2, (freqData[i] / 255) * (totalHeight - 20));
+                    for (let i = 0; i < len!; i++) {
+                        canvasCtx.current?.fillRect(barWidth! * i, 0, barWidth! - 2, (freqData[i] / 255) * (totalHeight - 20));
                     }
 
                     raf();

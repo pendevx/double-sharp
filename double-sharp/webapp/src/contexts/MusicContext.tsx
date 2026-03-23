@@ -20,7 +20,7 @@ type TMusicContext = {
     volume: number;
     setVolume: (volume: number) => void;
     isMuted: boolean;
-    setIsMuted: (isMuted: boolean) => void;
+    toggleMuted: () => void;
 };
 
 type SongInformation = {
@@ -109,6 +109,8 @@ export default function MusicProvider({ children }: { children: React.ReactNode 
     const play = () => setIsPlaying(true);
     const pause = () => setIsPlaying(false);
 
+    const toggleMuted = () => setIsMuted(prev => !prev);
+
     if (currentSong.index === -1) {
         if (playBehaviour === "shuffle") {
             shuffleSeed.current ||= randomSeed();
@@ -140,7 +142,7 @@ export default function MusicProvider({ children }: { children: React.ReactNode 
                 volume,
                 setVolume,
                 isMuted,
-                setIsMuted,
+                toggleMuted,
             }}>
             {children}
         </MusicContext.Provider>

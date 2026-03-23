@@ -20,7 +20,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
     const checkRoleAsync: AuthContextType["checkRoleAsync"] = async role => {
         if (roleMap.has(role)) {
-            return roleMap.get(role) as boolean;
+            return roleMap.get(role)!;
         }
 
         const hasRole = (await refreshData(`/api/accounts/checkUserHasRole/${role}`)) as boolean;
@@ -32,7 +32,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
     const hasRole: AuthContextType["hasRole"] = role => {
         if (roleMap.has(role)) {
-            return roleMap.get(role) as boolean;
+            return roleMap.get(role);
         }
 
         return undefined;
