@@ -1,13 +1,13 @@
 import React from "react";
 import { MusicContext } from "../contexts/MusicContext";
-import AudioAnalyzer, { IAudioAnalyzer } from "../utils/AudioAnalyzer";
+import DoublesharpAudioCtx, { IDoublesharpAudioCtx } from "../utils/AudioCtx";
 
 type FrequencyGraphProps = {
     audioRef: React.RefObject<HTMLAudioElement>;
+    audioCtx: React.RefObject<IDoublesharpAudioCtx | null>;
 };
 
-function FrequencyGraph({ audioRef }: FrequencyGraphProps) {
-    const audioCtx = React.useRef<IAudioAnalyzer | null>(null);
+function FrequencyGraph({ audioRef, audioCtx }: FrequencyGraphProps) {
     const canvas = React.useRef<HTMLCanvasElement | null>(null);
     const canvasCtx = React.useRef<CanvasRenderingContext2D | null>(null);
     const musicContext = React.useContext(MusicContext);
@@ -40,7 +40,7 @@ function FrequencyGraph({ audioRef }: FrequencyGraphProps) {
                 return;
             }
 
-            audioCtx.current = new AudioAnalyzer(audioRef.current);
+            audioCtx.current = new DoublesharpAudioCtx(audioRef.current);
 
             let len: number | null;
             let barWidth: number | null;

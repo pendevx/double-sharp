@@ -1,6 +1,5 @@
 import React from "react";
 import createPRNG from "../utils/pseudo-rng";
-import { playBehaviours } from "../utils/playBehaviour";
 import { useStoreRef, useStoreState } from "../hooks/useStore";
 import useFetch from "../hooks/useFetch";
 import { listSongs } from "../utils/url-builder.api";
@@ -18,6 +17,10 @@ type TMusicContext = {
     selectSongById: (id: number, play?: boolean) => void;
     play: () => void;
     pause: () => void;
+    volume: number;
+    setVolume: (volume: number) => void;
+    isMuted: boolean;
+    setIsMuted: (isMuted: boolean) => void;
 };
 
 type SongInformation = {
@@ -38,6 +41,8 @@ export default function MusicProvider({ children }: { children: React.ReactNode 
     const [currentSong, setCurrentSong] = React.useState<SongInformation>({ name: "", index: -1 });
     const [currentSongId, setCurrentSongId] = useStoreState<number>("lastSongId", Number);
     const [isPlaying, setIsPlaying] = React.useState<boolean>(false);
+    const [volume, setVolume] = React.useState(1);
+    const [isMuted, setIsMuted] = React.useState(false);
     const { data: musicList, refreshData } = useFetch<SongInfoDTO[]>([]);
     const [playBehaviour, updatePlayBehaviour] = useStoreState<PlayBehaviour>("playBehaviour");
     const shuffleSeed = useStoreRef<number>("seed", Number);
@@ -132,6 +137,10 @@ export default function MusicProvider({ children }: { children: React.ReactNode 
                 selectSongById,
                 play,
                 pause,
+                volume,
+                setVolume,
+                isMuted,
+                setIsMuted,
             }}>
             {children}
         </MusicContext.Provider>
