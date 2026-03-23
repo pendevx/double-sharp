@@ -27,11 +27,11 @@ export default function SettingsModal() {
                             <span className="relative z-10">Account</span>
                         </SelectableTab>
 
-                        <i className="absolute bottom-0 left-0 top-0 w-[1px] bg-[#333]" />
+                        <i className="absolute bottom-0 left-0 top-0 w-px bg-[#333]" />
                     </div>
                 </div>
 
-                <Scrollable showScroller={false} className="grow-[3] basis-1 pl-12">
+                <Scrollable showScroller={false} className="grow-3 basis-1 pl-12">
                     <GeneralTab />
                     <AppearanceTab />
                     <AccountTab />
@@ -50,7 +50,7 @@ type SelectableTabProps = {
 function SelectableTab({ children, selected, onClick }: SelectableTabProps) {
     return (
         <button
-            className={`relative w-full cursor-pointer p-2 pl-6 text-left transition-colors duration-150 before:absolute before:left-0 before:top-0 before:h-full before:bg-[#222] before:transition-all before:duration-300 before:content-[''] hover:text-[#ffc421] before:hover:w-full ${selected ? "text-[#ffc421] before:w-full" : "text-white before:w-0"}`}
+            className={`relative w-full cursor-pointer p-2 pl-6 text-left transition-colors duration-150 before:absolute before:left-0 before:top-0 before:h-full before:bg-[#222] before:transition-all before:duration-300 before:content-[''] hover:text-[#ffc421] hover:before:w-full ${selected ? "text-[#ffc421] before:w-full" : "text-white before:w-0"}`}
             onClick={onClick}>
             {children}
         </button>

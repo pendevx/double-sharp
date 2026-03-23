@@ -1,28 +1,68 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/theme';
+@import 'tailwindcss/utilities';
 
-@layer utilities {
-    .animation-paused {
-        animation-play-state: paused;
-    }
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-mobile: 0px;
+  --breakpoint-tablet: 641px;
+  --breakpoint-laptop: 769px;
+  --breakpoint-desktop: 1280px;
 
-    .bg-rainbow {
-        background: linear-gradient(
-            90deg,
-            rgba(255, 0, 0, 1) 0%,
-            rgba(255, 154, 0, 1) 10%,
-            rgba(208, 222, 33, 1) 20%,
-            rgba(79, 220, 74, 1) 30%,
-            rgba(63, 218, 216, 1) 40%,
-            rgba(47, 201, 226, 1) 50%,
-            rgba(28, 127, 238, 1) 60%,
-            rgba(95, 21, 242, 1) 70%,
-            rgba(186, 12, 248, 1) 80%,
-            rgba(251, 7, 217, 1) 90%,
-            rgba(255, 0, 0, 1) 100%
-        );
+  --animate-spin: spin 12s linear infinite;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
     }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility animation-paused {
+  animation-play-state: paused;
+}
+
+@utility bg-rainbow {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 1) 0%,
+    rgba(255, 154, 0, 1) 10%,
+    rgba(208, 222, 33, 1) 20%,
+    rgba(79, 220, 74, 1) 30%,
+    rgba(63, 218, 216, 1) 40%,
+    rgba(47, 201, 226, 1) 50%,
+    rgba(28, 127, 238, 1) 60%,
+    rgba(95, 21, 242, 1) 70%,
+    rgba(186, 12, 248, 1) 80%,
+    rgba(251, 7, 217, 1) 90%,
+    rgba(255, 0, 0, 1) 100%
+  );
+}
+
+@theme {
+  --color-muted: #f1f5f9;
+  --color-primary: #ffc421;
+  --color-ring: transparent;
 }
 
 ::-webkit-scrollbar {

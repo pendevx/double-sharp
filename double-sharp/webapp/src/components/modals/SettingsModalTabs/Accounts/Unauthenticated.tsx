@@ -47,12 +47,12 @@ export default function Unauthenticated() {
                 {action === "login" ? <LoginForm reportValidity={setFormValid} /> : <RegistrationForm reportValidity={setFormValid} />}
 
                 <div className="grid w-full grid-cols-2 gap-4">
-                    <button type="reset" className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white bg-[#333] p-2 text-center text-white">
+                    <button type="reset" className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border border-solid border-white bg-[#333] p-2 text-center text-white">
                         Reset
                     </button>
                     <button
                         type="submit"
-                        className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white bg-[#004317] p-2 text-center text-white disabled:cursor-not-allowed disabled:bg-[#355c42] [&:hover:not(:disabled)]:bg-[#117b38]"
+                        className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border border-solid border-white bg-[#004317] p-2 text-center text-white disabled:cursor-not-allowed disabled:bg-[#355c42] [&:hover:not(:disabled)]:bg-[#117b38]"
                         disabled={!formValid}>
                         {actionName}
                     </button>

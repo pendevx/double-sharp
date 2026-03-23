@@ -60,7 +60,7 @@ export default function UrlUpload({ toggleUploadSource }: UploaderProps) {
         <form onSubmit={handleSubmit(submitSongRequest)} onKeyDown={e => e.stopPropagation()}>
             <div className="flex flex-col gap-4">
                 <RaisedInputPlaceholder
-                    className={`block w-full rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white p-2 ${getFieldState("title").invalid ? "border-red-600" : ""}`}
+                    className={`block w-full rounded-br-lg rounded-tl-lg border border-solid border-white p-2 ${getFieldState("title").invalid ? "border-red-600" : ""}`}
                     inputClass="text-white bg-[#080808] h-fit bottom-0 top-0"
                     placeholder="Title"
                     required
@@ -70,19 +70,19 @@ export default function UrlUpload({ toggleUploadSource }: UploaderProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                     <RaisedInputPlaceholder
-                        className={`block w-full rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white p-2 ${getFieldState("url").invalid ? "border-red-600" : ""}`}
+                        className={`block w-full rounded-br-lg rounded-tl-lg border border-solid border-white p-2 ${getFieldState("url").invalid ? "border-red-600" : ""}`}
                         inputClass="text-white bg-[#080808] h-fit bottom-0 top-0 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-none disabled:pointer-events-auto"
                         placeholder="URL"
                         required
                         type="text"
-                        before={<span className="text-gray-400 [line-height:normal]">{source?.prefix}</span>}
+                        before={<span className="text-gray-400 leading-[normal]">{source?.prefix}</span>}
                         forceRaise={!!source?.prefix}
                         disabled={!source}
                         title="Please select a source first"
                         {...register("url", { required: true })}
                     />
 
-                    <label className="rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white pr-2">
+                    <label className="rounded-br-lg rounded-tl-lg border border-solid border-white pr-2">
                         <select
                             className="block w-full p-2 text-white"
                             {...register("source", { required: true })}
@@ -107,12 +107,12 @@ export default function UrlUpload({ toggleUploadSource }: UploaderProps) {
                 <button
                     type="reset"
                     onClick={toggleUploadSource}
-                    className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white bg-[#333] p-2 text-center text-white">
+                    className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border border-solid border-white bg-[#333] p-2 text-center text-white">
                     Switch to File Upload
                 </button>
                 <button
                     type="submit"
-                    className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white bg-[#004317] p-2 text-center text-white disabled:cursor-not-allowed disabled:bg-[#355c42] [&:hover:not(:disabled)]:bg-[#117b38]"
+                    className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border border-solid border-white bg-[#004317] p-2 text-center text-white disabled:cursor-not-allowed disabled:bg-[#355c42] [&:hover:not(:disabled)]:bg-[#117b38]"
                     disabled={!formState.isValid || submitting}>
                     {submitting ? "Submitting..." : "Submit Song Request"}
                 </button>

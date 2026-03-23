@@ -148,7 +148,7 @@ export default function Scrollable({ className, children, showScroller = true, s
 
             {showCustomScrollbar && showScroller && (
                 <span className="sticky top-0 h-full min-w-2">
-                    <i className="absolute inset-0 ml-auto mr-auto w-[1px] bg-[#333]" />
+                    <i className="absolute inset-0 ml-auto mr-auto w-px bg-[#333]" />
                     <i
                         className={`absolute z-10 block w-full rounded-xl bg-[#666] transition-colors duration-100 hover:bg-[#aaa] ${scrolling ? "bg-[#aaa]" : ""}`}
                         style={{

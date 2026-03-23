@@ -32,7 +32,7 @@ export default function LoopShuffleControl() {
 
     return (
         <div className="relative z-10 ml-2 hidden h-full items-center laptop:flex">
-            <i className={`w-full ${height} absolute -z-10 rounded-[1.5rem] bg-[#585858]`} />
+            <i className={`w-full ${height} absolute -z-10 rounded-3xl bg-[#585858]`} />
             <i
                 className={`absolute left-0 right-0 ${height} -z-10 ml-auto mr-auto aspect-square rounded-[50%] bg-[#cea127] transition-all duration-200 ${playBehaviourStyles(musicContext.playBehaviour)} `}
             />

@@ -34,7 +34,7 @@ export default function RequestArtistForm() {
 
             <form onSubmit={handleSubmit(onSubmit)} onKeyDown={e => e.stopPropagation} className="flex w-3/5 flex-col gap-4">
                 <RaisedInputPlaceholder
-                    className={`block w-full rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white p-2 ${getFieldState("name").invalid ? "border-red-600" : ""}`}
+                    className={`block w-full rounded-br-lg rounded-tl-lg border border-solid border-white p-2 ${getFieldState("name").invalid ? "border-red-600" : ""}`}
                     inputClass="text-white bg-[#080808] h-fit bottom-0 top-0"
                     placeholder="Name"
                     required
@@ -43,7 +43,7 @@ export default function RequestArtistForm() {
                 />
 
                 <RaisedInputPlaceholder
-                    className={`block w-full rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white p-2 ${getFieldState("dateOfBirth").invalid ? "border-red-600" : ""}`}
+                    className={`block w-full rounded-br-lg rounded-tl-lg border border-solid border-white p-2 ${getFieldState("dateOfBirth").invalid ? "border-red-600" : ""}`}
                     inputClass="text-white bg-[#080808] h-fit bottom-0 top-0"
                     placeholder="Date of Birth"
                     required
@@ -53,7 +53,7 @@ export default function RequestArtistForm() {
 
                 <button
                     type="submit"
-                    className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white bg-[#004317] p-2 text-center text-white disabled:cursor-not-allowed disabled:bg-[#355c42] [&:hover:not(:disabled)]:bg-[#117b38]"
+                    className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border border-solid border-white bg-[#004317] p-2 text-center text-white disabled:cursor-not-allowed disabled:bg-[#355c42] [&:hover:not(:disabled)]:bg-[#117b38]"
                     disabled={!formState.isValid || submitting}>
                     {submitting ? "Submitting..." : "Suggest Artist"}
                 </button>

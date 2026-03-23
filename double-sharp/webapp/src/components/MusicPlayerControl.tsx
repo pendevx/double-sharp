@@ -107,11 +107,12 @@ export default function MusicPlayerControl({ onplay, goFullscreen, audioRef }: M
                 onLoadedMetadata={() => audioTimeContext.setTotalDuration(audioRef.current?.duration || 0)}
                 crossOrigin="anonymous"
                 loop={musicContext.playBehaviour === "loop"}
+                muted={isMuted}
             />
 
-            <div className="flex h-16 w-full items-center gap-2 overflow-hidden border-t-[1px] border-solid border-gray-900 bg-zinc-900 pl-4 pr-4 text-white">
+            <div className="flex h-16 w-full items-center gap-2 overflow-hidden border-t border-solid border-gray-900 bg-zinc-900 pl-4 pr-4 text-white">
                 <p
-                    className="flex h-full basis-32 items-center overflow-hidden overflow-ellipsis text-nowrap border-r-[1px] border-dotted border-slate-600 hover:cursor-pointer desktop:basis-60"
+                    className="flex h-full basis-32 items-center overflow-hidden text-ellipsis text-nowrap border-r border-dotted border-slate-600 hover:cursor-pointer desktop:basis-60"
                     onClick={goFullscreen}>
                     {musicContext.currentSong.name}
                 </p>

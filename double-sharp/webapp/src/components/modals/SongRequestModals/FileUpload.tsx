@@ -55,7 +55,7 @@ export default function FileUpload({ toggleUploadSource, postSubmit }: UploaderP
         <form onSubmit={handleSubmit(onSubmit)} className="mt-2 flex flex-col gap-4">
             <div>
                 <RaisedInputPlaceholder
-                    className="block w-full rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white p-2"
+                    className="block w-full rounded-br-lg rounded-tl-lg border border-solid border-white p-2"
                     inputClass="text-white bg-[#080808] px-2 h-fit bottom-0 top-0 "
                     placeholder="Title"
                     required
@@ -64,7 +64,7 @@ export default function FileUpload({ toggleUploadSource, postSubmit }: UploaderP
                 />
             </div>
 
-            <label className="relative bottom-0 top-0 block h-40 rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white p-2 text-white">
+            <label className="relative bottom-0 top-0 block h-40 rounded-br-lg rounded-tl-lg border border-solid border-white p-2 text-white">
                 <input
                     type="file"
                     required
@@ -85,12 +85,12 @@ export default function FileUpload({ toggleUploadSource, postSubmit }: UploaderP
                 <button
                     type="reset"
                     onClick={toggleUploadSource}
-                    className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white bg-[#333] p-2 text-center text-white">
+                    className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border border-solid border-white bg-[#333] p-2 text-center text-white">
                     Switch to URL Upload
                 </button>
                 <button
                     type="submit"
-                    className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border-[1px] border-solid border-white bg-[#004317] p-2 text-center text-white disabled:cursor-not-allowed disabled:bg-[#355c42] [&:hover:not(:disabled)]:bg-[#117b38]"
+                    className="w-full cursor-pointer rounded-br-lg rounded-tl-lg border border-solid border-white bg-[#004317] p-2 text-center text-white disabled:cursor-not-allowed disabled:bg-[#355c42] [&:hover:not(:disabled)]:bg-[#117b38]"
                     disabled={!formState.isValid || submitting}>
                     {submitting ? "Submitting..." : "Submit Song Request"}
                 </button>
