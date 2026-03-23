@@ -19,8 +19,17 @@ export default defineConfig({
         sourcemap: true,
     },
     resolve: {
-        // eslint-disable-next-line no-undef
-        alias: [{ find: "@pages", replacement: path.resolve(__dirname, "src/pages") }],
+        alias: [
+            { find: "@pages", replacement: path.resolve(__dirname, "src/pages") },
+            {
+                find: "@",
+                replacement: path.resolve(__dirname, "src"),
+            },
+            {
+                find: "@ui",
+                replacement: path.resolve(__dirname, "src/components/ui"),
+            },
+        ],
     },
     server: {
         host: "0.0.0.0",

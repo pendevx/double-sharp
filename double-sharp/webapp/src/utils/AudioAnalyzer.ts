@@ -6,7 +6,7 @@ export interface IAudioAnalyzer {
 
 class AudioAnalyzer implements IAudioAnalyzer {
     private analyzer: AnalyserNode;
-    private freqsArr: Uint8Array;
+    private freqsArr: Uint8Array<ArrayBuffer>;
 
     constructor(audio: HTMLAudioElement) {
         const audioCtx = new AudioContext();

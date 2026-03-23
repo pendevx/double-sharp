@@ -6,6 +6,7 @@ import { downloadSong } from "../utils/url-builder.api";
 import { formatTime } from "../utils/formats";
 import { AudioTimeContext } from "../contexts/AudioTimeContext";
 import { processRequestUrl } from "../hooks/useFetch";
+import VolumeControl from "./VolumeControl";
 
 type MusicPlayerControlProps = {
     onplay?: () => void;
@@ -15,6 +16,8 @@ type MusicPlayerControlProps = {
 
 export default function MusicPlayerControl({ onplay, goFullscreen, audioRef }: MusicPlayerControlProps) {
     const [currentSongId, setCurrentSongId] = React.useState(0);
+    const [volume, setVolume] = React.useState(1);
+    const [isMuted, setIsMuted] = React.useState(false);
     const musicContext = React.useContext(MusicContext);
     const audioTimeContext = React.useContext(AudioTimeContext);
 
@@ -38,6 +41,10 @@ export default function MusicPlayerControl({ onplay, goFullscreen, audioRef }: M
             audioTimeContext.setRequestTime(-1);
         }
     }, [audioTimeContext.requestTime]);
+
+    React.useEffect(() => {
+        if (audioRef.current) audioRef.current.volume = volume;
+    }, [volume]);
 
     function timeUpdateHandler() {
         if (!audioRef.current) {
@@ -114,7 +121,10 @@ export default function MusicPlayerControl({ onplay, goFullscreen, audioRef }: M
                 <div className="hidden grow tablet:block">
                     <MusicProgressBar songDurationSecs={songDurationSecs} currentTime={audioTimeContext.currentTime || 0} onFastForward={fastforwardHandler} />
                 </div>
-                {time} / {totalDuration}
+                <span>
+                    {time} / {totalDuration}
+                </span>
+                <VolumeControl volume={volume} onVolumeChange={setVolume} onClick={() => setIsMuted(!isMuted)} isMuted={isMuted} />
                 <LoopShuffleControl />
             </div>
         </div>

@@ -16,7 +16,9 @@
         "noEmit": true,
         "jsx": "react-jsx",
         "paths": {
-            "@pages/*": ["src/pages/*"]
+            "@pages/*": ["src/pages/*"],
+            "@/*": ["src/*"],
+            "@ui/*": ["src/components/ui/*"]
         },
         "baseUrl": ".",
         "allowImportingTsExtensions": true
