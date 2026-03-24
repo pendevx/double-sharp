@@ -7,7 +7,7 @@ namespace Music.Backend.Endpoints.Audio;
 public record GetSongRequest(int Id);
 
 [HttpGet("/music/download/{id}")]
-public class GetSongEndpoint : Endpoint<GetSongRequest, Stream>
+public class GetSongEndpoint : Endpoint<GetSongRequest, string>
 {
     private readonly MusicContext _dbContext;
     private readonly SongsRepository _songsRepository;
@@ -26,9 +26,17 @@ public class GetSongEndpoint : Endpoint<GetSongRequest, Stream>
             return;
         }
 
-        var (stream, mimeType) = await _songsRepository.DownloadAsync(song.Id);
+        var rangeHeader = HttpContext.Request.Headers.Range.ToString();
 
-        await SendStreamAsync(stream, song.Name, contentType: mimeType, enableRangeProcessing: true,
-            cancellation: ct);
+        if (string.IsNullOrEmpty(rangeHeader))
+        {
+            await SendNotFoundAsync(ct);
+            return;
+        }
+
+        var url = await _songsRepository.GetMediaSignedUrl(song.Id);
+        HttpContext.Response.Headers.Location = url;
+        HttpContext.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+        await SendAsync(null!, 307, ct);
     }
 }

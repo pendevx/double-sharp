@@ -1,3 +1,4 @@
+using Amazon;
 using Amazon.S3;
 using Amazon.SecurityToken;
 using Amazon.SimpleSystemsManagement;
@@ -83,7 +84,6 @@ public static class DependencyInjectionConfiguration
     public static void ConfigureAws(this IServiceCollection services, IConfiguration configuration)
     {
         services
-            .AddLocalStack(configuration)
             .AddAWSService<IAmazonS3>()
             .AddAWSService<IAmazonSecurityTokenService>()
             .AddAWSService<IAmazonSimpleSystemsManagement>();

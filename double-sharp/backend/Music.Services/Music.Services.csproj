@@ -19,8 +19,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="AWSSDK.S3" Version="3.7.416.7" />
-      <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.401.85" />
+      <PackageReference Include="AWSSDK.Core" Version="4.0.3.20" />
+      <PackageReference Include="AWSSDK.S3" Version="4.0.19.1" />
+      <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.5.13" />
       <PackageReference Include="YoutubeDLSharp" Version="1.1.2" />
     </ItemGroup>
 

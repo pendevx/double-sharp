@@ -48,6 +48,37 @@ export default function Audio({ audioRef }: { audioRef: React.RefObject<HTMLAudi
         if (audioRef.current) audioTimeContext.setCurrentTime(audioRef.current!.currentTime);
     };
 
+    const onError = async () => {
+        const audio = audioRef.current!;
+        const currentTime = audio.currentTime;
+
+        audio.pause();
+
+        // full reset
+        audio.removeAttribute("src");
+        audio.load();
+
+        audio.src = processRequestUrl(downloadSong(musicContext.currentSongId) + `?t=${Date.now()}`);
+
+        // Wait until the browser knows duration / can seek
+        await new Promise<void>(resolve => {
+            const handler = () => {
+                audio.removeEventListener("loadedmetadata", handler);
+                resolve();
+            };
+            audio.addEventListener("loadedmetadata", handler);
+        });
+
+        // Now it's safe
+        audio.currentTime = currentTime;
+
+        try {
+            await audio.play();
+        } catch (err) {
+            console.warn("play failed", err);
+        }
+    };
+
     if (audioRef.current && musicContext.currentSongId && currentSongId !== musicContext.currentSongId) {
         setCurrentSongId(musicContext.currentSongId);
         document.title = musicContext.currentSong.name || "pendevx music";
@@ -75,6 +106,7 @@ export default function Audio({ audioRef }: { audioRef: React.RefObject<HTMLAudi
             crossOrigin="anonymous"
             loop={musicContext.playBehaviour === "loop"}
             muted={musicContext.isMuted}
+            onError={onError}
         />
     );
 }

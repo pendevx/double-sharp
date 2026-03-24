@@ -37,24 +37,12 @@ public sealed class SongsRepository : S3Repository
         }
     }
 
-    public async Task<(Stream, MimeType)> DownloadAsync(int id)
-    {
-        var key = _generateSongPath(id);
-
-        var request = new GetObjectRequest
+    public Task<string> GetMediaSignedUrl(int id) =>
+        S3Client.GetPreSignedURLAsync(new GetPreSignedUrlRequest
         {
             BucketName = BucketName,
-            Key = key,
-        };
-
-        _logger.LogInformation($"Requested for object '{key}'");
-        var audioContents = await S3Client.GetObjectAsync(request);
-        var mimeType = await S3Client.GetObjectMetadataAsync(new GetObjectMetadataRequest
-        {
-            BucketName = BucketName,
-            Key = key,
+            Key = _generateSongPath(id),
+            Expires = DateTime.UtcNow.AddMinutes(5),
+            Protocol = Protocol.HTTP
         });
-
-        return (AmazonS3Util.MakeStreamSeekable(audioContents.ResponseStream), MimeType.Create(mimeType.Headers.ContentType));
-    }
 }

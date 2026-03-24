@@ -10,16 +10,29 @@ services:
             POSTGRES_DB: double-sharp
         ports:
             - 5433:5432
-
-    localstack:
-        container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
-        image: localstack/localstack
+    minio:
+        image: minio/minio
+        command: server /data --console-address ":9001"
         ports:
-            - "127.0.0.1:4566:4566" # LocalStack Gateway
-            - "127.0.0.1:4510-4559:4510-4559" # external services port range
+            - "9000:9000"
+            - "9001:9001"
         environment:
-            - DEBUG=${DEBUG:-0}
+            MINIO_ROOT_USER: admin
+            MINIO_ROOT_PASSWORD: password
         volumes:
-            - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
-            - "/var/run/docker.sock:/var/run/docker.sock"
-            - "./localstack:/etc/localstack/init"
+            - "./minio-data:/data"
+
+    minio-init:
+        image: minio/mc
+        depends_on:
+            - minio
+        entrypoint: >
+            /bin/sh -c "
+            sleep 3;
+            mc alias set local http://minio:9000 admin password;
+            mc mb local/doublesharp-files || true;
+            mc anonymous set download local/doublesharp-files || true;
+            mc cors set local/doublesharp-files /config/cors.xml;
+            "
+        volumes:
+            - "./minio-conf/s3.cors.xml:/config/cors.xml"
