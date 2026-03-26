@@ -10,14 +10,11 @@ namespace Music.Services.DataAccess.AWS;
 public sealed class SongsRepository : S3Repository
 {
     private readonly GetSongPath _generateSongPath;
-    private readonly ILogger<SongsRepository> _logger;
 
-    public SongsRepository(IAmazonS3 s3Client, GetSongPath generateSongPath, GetBucketName getBucketName,
-        ILogger<SongsRepository> logger)
+    public SongsRepository(IAmazonS3 s3Client, GetSongPath generateSongPath, GetBucketName getBucketName)
         : base(s3Client, getBucketName)
     {
         _generateSongPath = generateSongPath;
-        _logger = logger;
     }
 
     public Task UploadAsync(int id, Stream contents, MimeType contentType) =>

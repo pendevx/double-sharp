@@ -81,7 +81,7 @@ public static class DependencyInjectionConfiguration
         builder.Services.AddDelegate<GetEnvironment>(AppEnvironment.GetEnvironment, ServiceLifetime.Singleton);
     }
 
-    public static void ConfigureAws(this IServiceCollection services, IConfiguration configuration)
+    public static void ConfigureAws(this IServiceCollection services)
     {
         services
             .AddAWSService<IAmazonS3>()

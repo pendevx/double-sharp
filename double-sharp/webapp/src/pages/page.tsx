@@ -94,7 +94,7 @@ export default function IndexPage() {
 
     return (
         <>
-            <div ref={bodyRef} className="r-0 relative flex h-full max-h-full w-full justify-end laptop:right-[33.33333%] laptop:w-[133.33333%] desktop:right-[25%] desktop:w-[125%]">
+            <div ref={bodyRef} className="r-0 laptop:right-[33.33333%] laptop:w-[133.33333%] desktop:right-[25%] desktop:w-[125%] relative flex h-full max-h-full w-full justify-end">
                 <MusicList showSonglist={showSonglist} onSongSelected={onSongSelected} />
                 <Lyrics height={bodyHeight / 2} showSonglist={showSonglist} />
             </div>
@@ -111,7 +111,7 @@ export default function IndexPage() {
                     <RequestSongModal />
                 </ModalContainer>
             </BlurredModal>
-            <div className="fixed right-6 top-6 w-12 p-1 laptop:w-14">
+            <div className="laptop:w-14 fixed top-6 right-6 w-12 p-1">
                 <div className="flex flex-col gap-2">
                     {/* In the near future:
                     - Settings should become its own page
