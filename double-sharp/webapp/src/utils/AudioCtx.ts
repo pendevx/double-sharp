@@ -1,26 +1,113 @@
 import singleton from "./singleton";
 
+const binsPerOctaveEl = "24";
+const smoothingEl = "0.6";
+const minFreqEl = "130.81";
+const maxFreqEl = "16744";
+
+// ============================================================
+// CQT Kernel Builder
+// ============================================================
+// For each CQT bin k with center frequency f_k:
+//   Q = 1 / (2^(1/B) - 1)          where B = bins per octave
+//   N_k = round(Q * sr / f_k)       window length for bin k
+//   kernel[k][n] = hann(n, N_k) * e^(-j * 2pi * f_k * n / sr) / N_k
+//
+// We precompute cos/sin tables so the per-frame work is just
+// dot-products between the time-domain buffer and the kernel.
+// ============================================================
+
+type TBin = {
+    freq: number;
+    Nk: number;
+    cosTable: Float32Array<ArrayBuffer>;
+    sinTable: Float32Array<ArrayBuffer>;
+};
+
+function buildCQTKernel(sampleRate: number, fftSize: number): TBin[] {
+    const binsPerOctave = parseInt(binsPerOctaveEl);
+    const fMin = parseFloat(minFreqEl);
+    const fMax = parseFloat(maxFreqEl);
+    const Q = 1 / (Math.pow(2, 1 / binsPerOctave) - 1);
+
+    const numBins = Math.round(binsPerOctave * Math.log2(fMax / fMin));
+    const bins = [];
+
+    for (let k = 0; k < numBins; k++) {
+        const freq = fMin * Math.pow(2, k / binsPerOctave);
+        if (freq > sampleRate / 2) break; // Nyquist
+
+        let Nk = Math.round((Q * sampleRate) / freq);
+        // Clamp to available buffer length
+        if (Nk > fftSize) Nk = fftSize;
+        // Minimum window: at least 2 full cycles
+        const minN = Math.ceil((2 * sampleRate) / freq);
+        if (Nk < minN) Nk = minN;
+        if (Nk > fftSize) Nk = fftSize;
+
+        // Precompute windowed twiddle factors
+        const cosTable = new Float32Array(Nk);
+        const sinTable = new Float32Array(Nk);
+        const omega = (2 * Math.PI * freq) / sampleRate;
+
+        for (let n = 0; n < Nk; n++) {
+            // Hann window
+            const w = 0.5 * (1 - Math.cos((2 * Math.PI * n) / (Nk - 1 || 1)));
+            cosTable[n] = (w * Math.cos(omega * n)) / Nk;
+            sinTable[n] = (w * Math.sin(omega * n)) / Nk;
+        }
+
+        bins.push({ freq, Nk, cosTable, sinTable });
+    }
+
+    return bins;
+}
+
+function computeCQT(timeDomainData: Float32Array, kernel: any) {
+    const magnitudes = new Float32Array(kernel.length);
+
+    for (let k = 0; k < kernel.length; k++) {
+        const { Nk, cosTable, sinTable } = kernel[k];
+        let re = 0,
+            im = 0;
+
+        // Use the most recent Nk samples from the buffer
+        const offset = timeDomainData.length - Nk;
+        for (let n = 0; n < Nk; n++) {
+            const sample = timeDomainData[offset + n];
+            re += sample * cosTable[n];
+            im += sample * sinTable[n];
+        }
+
+        magnitudes[k] = Math.sqrt(re * re + im * im);
+    }
+
+    return magnitudes;
+}
+
 export interface IDoublesharpAudioCtx {
-    getFreqs(): Uint8Array;
+    cqtKernel: TBin[];
+    getFreqs(): Float32Array;
     setVolume(volume: number): void;
 }
 
 class DoublesharpAudioCtx implements IDoublesharpAudioCtx {
+    public cqtKernel: TBin[];
     private audioCtx: AudioContext;
     private analyzer: AnalyserNode;
     private gain: GainNode;
-    private freqsArr: Uint8Array<ArrayBuffer>;
+    public smoothedMagnitudes: Float32Array<ArrayBuffer>;
 
     constructor(audio: HTMLAudioElement) {
         this.audioCtx = new AudioContext();
         const input = this.audioCtx.createMediaElementSource(audio);
 
         this.analyzer = this.audioCtx.createAnalyser();
-        this.analyzer.fftSize = 1024;
+        this.analyzer.fftSize = 16384;
         this.analyzer.smoothingTimeConstant = 0.75;
 
-        const count = this.analyzer.frequencyBinCount;
-        this.freqsArr = new Uint8Array(count);
+        this.cqtKernel = buildCQTKernel(this.audioCtx.sampleRate, this.analyzer.fftSize);
+        this.smoothedMagnitudes = new Float32Array(this.cqtKernel.length);
 
         this.gain = this.audioCtx.createGain();
         this.gain.gain.setValueAtTime(1, this.audioCtx.currentTime);
@@ -28,10 +115,18 @@ class DoublesharpAudioCtx implements IDoublesharpAudioCtx {
         input.connect(this.analyzer).connect(this.gain).connect(this.audioCtx.destination);
     }
 
-    getFreqs(): Uint8Array {
-        this.analyzer.getByteFrequencyData(this.freqsArr);
+    getFreqs(): Float32Array {
+        const freqsArr = new Float32Array(this.analyzer.fftSize);
+        this.analyzer.getFloatTimeDomainData(freqsArr);
 
-        return this.freqsArr;
+        const rawMag = computeCQT(freqsArr, this.cqtKernel);
+        const alpha = parseFloat(smoothingEl);
+
+        for (let k = 0; k < rawMag.length; k++) {
+            this.smoothedMagnitudes[k] = alpha * this.smoothedMagnitudes[k] + (1 - alpha) * rawMag[k];
+        }
+
+        return this.smoothedMagnitudes;
     }
 
     setVolume(volume: number): void {

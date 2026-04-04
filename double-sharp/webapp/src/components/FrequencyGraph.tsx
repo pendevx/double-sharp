@@ -7,6 +7,14 @@ type FrequencyGraphProps = {
     audioCtx: React.RefObject<IDoublesharpAudioCtx | null>;
 };
 
+const DB_MIN = -80;
+const DB_MAX = 0;
+
+function magnitudeToDb(mag: number) {
+    if (mag < 1e-10) return DB_MIN;
+    return 20 * Math.log10(mag);
+}
+
 function FrequencyGraph({ audioRef, audioCtx }: FrequencyGraphProps) {
     const canvas = React.useRef<HTMLCanvasElement | null>(null);
     const canvasCtx = React.useRef<CanvasRenderingContext2D | null>(null);
@@ -42,10 +50,15 @@ function FrequencyGraph({ audioRef, audioCtx }: FrequencyGraphProps) {
 
             audioCtx.current = new DoublesharpAudioCtx(audioRef.current);
 
-            let len: number | null;
-            let barWidth: number | null;
+            let barWidth: number;
             const totalWidth = canvas.current.width;
             const totalHeight = canvas.current.height;
+
+            const W = canvas.current.width;
+            const H = canvas.current.height;
+            const pad = { top: 0, bottom: 0, left: 0, right: 0 };
+            const plotW = W - pad.left - pad.right;
+            const plotH = H - pad.top - pad.bottom;
 
             function raf() {
                 requestAnimationFrame(() => {
@@ -53,20 +66,27 @@ function FrequencyGraph({ audioRef, audioCtx }: FrequencyGraphProps) {
                         return;
                     }
 
-                    const freqData = audioCtx.current?.getFreqs();
+                    const freqData = audioCtx.current?.getFreqs()!;
                     canvasCtx.current?.clearRect(0, 0, totalWidth, totalHeight);
 
-                    if (freqData == null) {
+                    const numBins = audioCtx.current?.cqtKernel.length;
+
+                    if (numBins === 0) {
                         return;
                     }
 
-                    if (len == null && barWidth == null) {
-                        len = freqData.length / 2.5;
-                        barWidth = totalWidth / len;
+                    if (barWidth == null) {
+                        barWidth = plotW / numBins!;
                     }
 
-                    for (let i = 0; i < len!; i++) {
-                        canvasCtx.current?.fillRect(barWidth! * i, 0, barWidth! - 2, (freqData[i] / 255) * (totalHeight - 20));
+                    for (let k = 0; k < numBins!; k++) {
+                        const db = magnitudeToDb(freqData[k]);
+                        const t = Math.max(0, Math.min(1, (db - DB_MIN) / (DB_MAX - DB_MIN)));
+                        const barH = t * plotH;
+                        const x = pad.left + k * barWidth;
+                        const y = pad.top + plotH - barH;
+
+                        canvasCtx.current?.fillRect(x, y, Math.max(barWidth - 0.5, 1), barH);
                     }
 
                     raf();
@@ -80,7 +100,7 @@ function FrequencyGraph({ audioRef, audioCtx }: FrequencyGraphProps) {
 
     return (
         <div className="relative">
-            <canvas className="block h-14 w-full -scale-y-100 bg-black" ref={canvas} />
+            <canvas className="block h-14 w-full bg-black" ref={canvas} />
             <div className="absolute inset-0 bg-[linear-gradient(to_top,#6666,#0000)]" />
             <div className="bg-rainbow absolute inset-0 opacity-80 mix-blend-multiply" />
         </div>
