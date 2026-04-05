@@ -42,10 +42,12 @@ public class ApproveSongRequestEndpoint : Ep.Req<ApproveSongRequestRequest>.NoRe
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
         var newSong = songRequest.Approve();
 
+        newSong.IsHls = true;
+
         await _dbContext.Songs.AddAsync(newSong, ct);
         await _dbContext.SaveChangesAsync(ct);
 
-        await _songRequestService.ApproveSongRequestAsync(songRequest, newSong.Id);
+        await _songRequestService.ApproveSongRequestAsync(songRequest, newSong.Id, ct);
         await transaction.CommitAsync(ct);
 
         await SendOkAsync(null, ct);

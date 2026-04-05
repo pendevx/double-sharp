@@ -11,5 +11,6 @@ public class Song : BaseEntity
     internal static Song CreateWithAuthors(string name, ImmutableList<Artist> artists) => new(name, artists);
 
     public string Name { get; init; }
+    public bool IsHls { get; set; }
     public virtual ImmutableList<Artist> Artists { get; set; }
 }

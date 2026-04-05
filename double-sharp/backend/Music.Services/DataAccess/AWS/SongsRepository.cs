@@ -1,7 +1,6 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.S3.Util;
-using Microsoft.Extensions.Logging;
+using Amazon.S3.Transfer;
 using Music.Global.Contracts;
 using Music.Models.Data;
 
@@ -11,28 +10,23 @@ public sealed class SongsRepository : S3Repository
 {
     private readonly GetSongPath _generateSongPath;
 
-    public SongsRepository(IAmazonS3 s3Client, GetSongPath generateSongPath, GetBucketName getBucketName)
-        : base(s3Client, getBucketName)
+    public SongsRepository(IAmazonS3 s3Client, GetSongPath generateSongPath, GetBucketName getBucketName,
+        ITransferUtility transferUtility)
+        : base(s3Client, getBucketName, transferUtility)
     {
         _generateSongPath = generateSongPath;
     }
 
-    public Task UploadAsync(int id, Stream contents, MimeType contentType) =>
-        UploadObjectAsync(_generateSongPath(id), contents, contentType);
-
-    public async Task<(bool exists, string key)> ExistsAsync(int id)
-    {
-        var key = _generateSongPath(id);
-        try
-        {
-            await CheckObjectExistsAsync(key);
-            return (true, key);
-        }
-        catch (AmazonS3Exception)
-        {
-            return (false, "");
-        }
-    }
+    public Task UploadAsync(IEnumerable<UploadData> uploadData) =>
+        Task.WhenAll(uploadData.Select(toUpload =>
+            TransferUtility.UploadAsync(new TransferUtilityUploadRequest
+            {
+                BucketName = BucketName,
+                FilePath = toUpload.File,
+                Key = toUpload.Key,
+                ContentType = MimeType.InferFromFileName(toUpload.File)
+            })
+        ));
 
     public Task<string> GetMediaSignedUrl(int id) =>
         S3Client.GetPreSignedURLAsync(new GetPreSignedUrlRequest
@@ -43,3 +37,5 @@ public sealed class SongsRepository : S3Repository
             Protocol = Protocol.HTTP
         });
 }
+
+public record struct UploadData(string File, string Key);

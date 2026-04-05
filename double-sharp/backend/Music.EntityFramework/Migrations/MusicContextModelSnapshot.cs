@@ -34,7 +34,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("RolesId");
 
-                    b.ToTable("AccountRole", (string)null);
+                    b.ToTable("AccountRole");
                 });
 
             modelBuilder.Entity("ArtistSong", b =>
@@ -49,7 +49,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("SongsId");
 
-                    b.ToTable("ArtistSong", (string)null);
+                    b.ToTable("ArtistSong");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Account", b =>
@@ -82,7 +82,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Accounts", (string)null);
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Artist", b =>
@@ -101,9 +101,17 @@ namespace Music.EntityFramework.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<string>("_slug")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("Slug");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Artists", (string)null);
+                    b.HasIndex("_slug")
+                        .IsUnique();
+
+                    b.ToTable("Artists");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Permission", b =>
@@ -124,7 +132,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("PermissionName")
                         .IsUnique();
 
-                    b.ToTable("Permission", (string)null);
+                    b.ToTable("Permission");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Role", b =>
@@ -144,7 +152,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new
@@ -183,7 +191,7 @@ namespace Music.EntityFramework.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
-                    b.ToTable("Sessions", (string)null);
+                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Song", b =>
@@ -194,6 +202,11 @@ namespace Music.EntityFramework.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("IsHls")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -201,7 +214,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Songs", (string)null);
+                    b.ToTable("Songs");
                 });
 
             modelBuilder.Entity("Music.Models.Data.SongRequests.SongRequest", b =>
@@ -239,7 +252,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("UploaderId");
 
-                    b.ToTable("SongRequests", (string)null);
+                    b.ToTable("SongRequests");
                 });
 
             modelBuilder.Entity("PermissionRole", b =>
@@ -254,7 +267,7 @@ namespace Music.EntityFramework.Migrations
 
                     b.HasIndex("RolesId");
 
-                    b.ToTable("PermissionRole", (string)null);
+                    b.ToTable("PermissionRole");
                 });
 
             modelBuilder.Entity("AccountRole", b =>
@@ -307,7 +320,7 @@ namespace Music.EntityFramework.Migrations
 
                             b1.HasIndex("_requesterId");
 
-                            b1.ToTable("Artists", (string)null);
+                            b1.ToTable("Artists");
 
                             b1.WithOwner()
                                 .HasForeignKey("ArtistId");
@@ -321,31 +334,7 @@ namespace Music.EntityFramework.Migrations
                             b1.Navigation("Requester");
                         });
 
-                    b.OwnsOne("Music.Models.Data.Slug", "_slug", b1 =>
-                        {
-                            b1.Property<int>("ArtistId")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(50)
-                                .HasColumnType("character varying(50)")
-                                .HasColumnName("Slug");
-
-                            b1.HasKey("ArtistId");
-
-                            b1.HasIndex("Value")
-                                .IsUnique();
-
-                            b1.ToTable("Artists", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("ArtistId");
-                        });
-
                     b.Navigation("_requestInformation");
-
-                    b.Navigation("_slug");
                 });
 
             modelBuilder.Entity("Music.Models.Data.Session", b =>

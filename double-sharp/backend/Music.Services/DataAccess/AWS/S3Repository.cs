@@ -10,10 +10,12 @@ public abstract class S3Repository
 {
     protected readonly IAmazonS3 S3Client;
     protected readonly string BucketName;
+    protected readonly ITransferUtility TransferUtility;
 
-    protected S3Repository(IAmazonS3 s3Client, GetBucketName getBucketName)
+    protected S3Repository(IAmazonS3 s3Client, GetBucketName getBucketName, ITransferUtility transferUtility)
     {
         S3Client = s3Client;
+        TransferUtility = transferUtility;
         BucketName = getBucketName();
     }
 

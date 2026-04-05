@@ -1,5 +1,6 @@
 using Amazon;
 using Amazon.S3;
+using Amazon.S3.Transfer;
 using Amazon.SecurityToken;
 using Amazon.SimpleSystemsManagement;
 using FastEndpoints.Swagger;
@@ -85,6 +86,11 @@ public static class DependencyInjectionConfiguration
     {
         services
             .AddAWSService<IAmazonS3>()
+            .AddTransient<ITransferUtility>(sp =>
+            {
+                var s3Client = sp.GetRequiredService<IAmazonS3>();
+                return new TransferUtility(s3Client);
+            })
             .AddAWSService<IAmazonSecurityTokenService>()
             .AddAWSService<IAmazonSimpleSystemsManagement>();
     }

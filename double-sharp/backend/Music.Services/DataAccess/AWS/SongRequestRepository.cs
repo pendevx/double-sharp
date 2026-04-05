@@ -1,4 +1,5 @@
 using Amazon.S3;
+using Amazon.S3.Transfer;
 using Music.Global.Contracts;
 using Music.Models.Data;
 
@@ -9,8 +10,8 @@ public class SongRequestRepository : S3Repository
     private readonly CreateSongRequestPath _createSongRequestPath;
 
     public SongRequestRepository(IAmazonS3 s3Client, GetBucketName getBucketName,
-        CreateSongRequestPath createSongRequestPath)
-        : base(s3Client, getBucketName)
+        CreateSongRequestPath createSongRequestPath, ITransferUtility transferUtility)
+        : base(s3Client, getBucketName, transferUtility)
     {
         _createSongRequestPath = createSongRequestPath;
     }

@@ -13,6 +13,9 @@ public class SongConfiguration : IEntityTypeConfiguration<Song>
         song.Property(s => s.Name)
             .HasMaxLength(256);
 
+        song.Property(s => s.IsHls)
+            .HasDefaultValue(false);
+
         song.HasMany(s => s.Artists)
             .WithMany(a => a.Songs);
     }

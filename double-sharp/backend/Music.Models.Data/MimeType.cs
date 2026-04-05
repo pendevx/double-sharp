@@ -21,6 +21,10 @@ public abstract record MimeType(string Value)
         ".webm" => new WebM(),
         ".mp3" => new Mp3(),
         ".m4a" => new M4A(),
+        ".m3u8" => new M3U8(),
+        ".ts" => new TS(),
+        ".mp4" => new MP4(),
+        ".m4s" => new M4S(),
         _ => throw new ArgumentException($"Unsupported file extension: {fileName}")
     };
 }
@@ -30,3 +34,7 @@ public sealed record Aac() : MimeType("audio/aac");
 public sealed record WebM() : MimeType("audio/webm");
 public sealed record Mp3() : MimeType("audio/mpeg");
 public sealed record M4A() : MimeType("audio/mp4");
+public sealed record M3U8() : MimeType("application/vnd.apple.mpegurl");
+public sealed record TS() : MimeType("video/mp2t");
+public sealed record MP4() : MimeType("video/mp4");
+public sealed record M4S() : MimeType("video/mp4");

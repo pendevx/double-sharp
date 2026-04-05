@@ -1,9 +1,37 @@
 import singleton from "./singleton";
 
-const binsPerOctaveEl = "24";
-const smoothingEl = "0.6";
-const minFreqEl = "130.81";
-const maxFreqEl = "16744";
+const binsPerOctaveEl = "24"; // 12 - 36. 48+ eats CPU
+const smoothingEl = "0.85"; // responsive visualizer 0.5-0.7, smooth ui 0.7-0.85
+const minFreqEl = "130.81"; // full music 60-80, cleaner+faster 100-130, reasonable UI 130.81
+const maxFreqEl = "16744"; // no more than sampleRate / 2. 12k-16k most musical stuff, 16k-18k full audible. no more than 18k
+
+/*
+PRESETS
+
+Balanced Visualizer
+binsPerOctave = 24;
+smoothing = 0.65;
+minFreq = 80;
+maxFreq = 14000;
+
+Musical-focused
+binsPerOctave = 12;
+smoothing = 0.7;
+minFreq = 65;   // C2
+maxFreq = 8000;
+
+High-detail
+binsPerOctave = 36;
+smoothing = 0.75;
+minFreq = 60;
+maxFreq = 16000;
+
+Performance friendly
+binsPerOctave = 12;
+smoothing = 0.6;
+minFreq = 120;
+maxFreq = 10000;
+*/
 
 // ============================================================
 // CQT Kernel Builder
