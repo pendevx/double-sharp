@@ -9,6 +9,7 @@ import { MusicContext } from "../contexts/MusicContext";
 import AuthGuard from "../components/AuthGuard";
 import { AdminLock } from "../icons";
 import { Role } from "../contexts/AuthContext";
+import { processRequestUrl } from "@/hooks/useFetch";
 
 export default function IndexPage() {
     const [showSonglist, setShowSonglist] = React.useState<boolean>(true);
@@ -125,6 +126,25 @@ export default function IndexPage() {
                             <AdminLock />
                         </div>
                     </AuthGuard>
+                    <button
+                        className="h-8 w-8 bg-black text-white hover:bg-red-200"
+                        onClick={async () => {
+                            const url = processRequestUrl("/api/music/download-hls/267");
+                            const response = await fetch(url, {
+                                credentials: "include",
+                            });
+                        }}>
+                        cookies
+                    </button>
+                    <button
+                        className="h-8 w-8 bg-black text-white hover:bg-red-200"
+                        onClick={async () => {
+                            const response = await fetch("http://localhost:5258/Songs/267/master.m3u8", {
+                                credentials: "include",
+                            });
+                        }}>
+                        file
+                    </button>
                 </div>
             </div>
         </>

@@ -8,13 +8,12 @@ namespace Music.Services.DataAccess.AWS;
 
 public sealed class SongsRepository : S3Repository
 {
-    private readonly GetSongPath _generateSongPath;
+    private const string AudioMp3FileName = "audio.mp3";
 
-    public SongsRepository(IAmazonS3 s3Client, GetSongPath generateSongPath, GetBucketName getBucketName,
+    public SongsRepository(IAmazonS3 s3Client, GetBucketName getBucketName,
         ITransferUtility transferUtility)
         : base(s3Client, getBucketName, transferUtility)
     {
-        _generateSongPath = generateSongPath;
     }
 
     public Task UploadAsync(IEnumerable<UploadData> uploadData) =>
@@ -32,7 +31,8 @@ public sealed class SongsRepository : S3Repository
         S3Client.GetPreSignedURLAsync(new GetPreSignedUrlRequest
         {
             BucketName = BucketName,
-            Key = _generateSongPath(id),
+            // Key = _generateSongPath(id),
+            Key = $"Songs/{id}/{AudioMp3FileName}",
             Expires = DateTime.UtcNow.AddMinutes(5),
             Protocol = Protocol.HTTP
         });

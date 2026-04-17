@@ -9,7 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.CloudFront" Version="4.0.12.4" />
     <PackageReference Include="AWSSDK.Core" Version="4.0.3.20" />
+    <PackageReference Include="AWSSDK.Extensions.CloudFront.Signers" Version="4.0.0.29" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.26" />
     <PackageReference Include="AWSSDK.S3" Version="4.0.19.1" />
     <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.5.13" />

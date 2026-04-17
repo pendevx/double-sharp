@@ -108,5 +108,8 @@ public class MusicStack : Stack
         var repository = Containers.Create(this, serviceEnvironment);
 
         // new CicdPipeline(this, serviceEnvironment, repository).Create(frontend, service);
+
+        Domains.CreateCnameForService(this, serviceEnvironment, Domains.DomainsList[ServicesWithDomains.WebBackend],
+            "music.cfpendevx.com");
     }
 }

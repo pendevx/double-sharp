@@ -7,21 +7,19 @@ namespace Music.Services.DataAccess.AWS;
 
 public class SongRequestRepository : S3Repository
 {
-    private readonly CreateSongRequestPath _createSongRequestPath;
+    private const string AudioMp3FileName = "audio.mp3";
 
-    public SongRequestRepository(IAmazonS3 s3Client, GetBucketName getBucketName,
-        CreateSongRequestPath createSongRequestPath, ITransferUtility transferUtility)
+    public SongRequestRepository(IAmazonS3 s3Client, GetBucketName getBucketName, ITransferUtility transferUtility)
         : base(s3Client, getBucketName, transferUtility)
     {
-        _createSongRequestPath = createSongRequestPath;
     }
 
     public Task UploadAsync(Guid id, MimeType contentType, Stream contents) =>
-        UploadObjectAsync(_createSongRequestPath(id), contents, contentType);
+        UploadObjectAsync($"SongRequests/{id}/{AudioMp3FileName}", contents, contentType);
 
     public async Task<(bool exists, string key)> ExistsAsync(Guid id)
     {
-        var key = _createSongRequestPath(id);
+        var key = $"SongRequests/{id}/{AudioMp3FileName}";
         try
         {
             await CheckObjectExistsAsync(key);

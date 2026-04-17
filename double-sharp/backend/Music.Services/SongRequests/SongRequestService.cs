@@ -13,15 +13,14 @@ public class SongRequestService
 {
     private readonly IAmazonS3 _s3Client;
     private readonly GetBucketName _getBucketName;
-    private readonly GetSongPath _getSongPath;
     private readonly SongsRepository _songsRepository;
 
-    public SongRequestService(IAmazonS3 s3Client, GetBucketName getBucketName, GetSongPath getSongPath,
-        SongsRepository songsRepository)
+    private const string AudioMp3FileName = "audio.mp3";
+
+    public SongRequestService(IAmazonS3 s3Client, GetBucketName getBucketName, SongsRepository songsRepository)
     {
         _s3Client = s3Client;
         _getBucketName = getBucketName;
-        _getSongPath = getSongPath;
         _songsRepository = songsRepository;
     }
 
@@ -65,7 +64,7 @@ public class SongRequestService
     private Task<CopyObjectResponse> CopySongRequestFileToSongsAsync(S3Key key, int newSongId)
     {
         var bucketName = _getBucketName();
-        var newSongKey = _getSongPath(newSongId);
+        var newSongKey = $"Songs/{newSongId}/{AudioMp3FileName}";
 
         var request = new CopyObjectRequest
         {

@@ -24,7 +24,7 @@ builder.ConfigureDataSources();
 
 builder.Services.AddControllers();
 builder.Services.ConfigureWeb();
-builder.Services.ConfigureAws();
+builder.Services.ConfigureAws(builder.Configuration);
 builder.Services.ConfigureLogging();
 builder.Services.ConfigureCommandHandlers(types);
 builder.Services.ConfigureServices(types);

@@ -76,16 +76,16 @@ public static class DependencyInjectionConfiguration
 
         builder.Services.AddScoped<SongsRepository>();
 
-        builder.Services.AddDelegate<GetSongPath>(AwsFunctions.GetSongPath, ServiceLifetime.Scoped);
-        builder.Services.AddDelegate<CreateSongRequestPath>(AwsFunctions.CreateSongRequestPath, ServiceLifetime.Scoped);
         builder.Services.AddDelegate<GetBucketName>(AwsFunctions.GetBucketName, ServiceLifetime.Singleton);
         builder.Services.AddDelegate<GetEnvironment>(AppEnvironment.GetEnvironment, ServiceLifetime.Singleton);
     }
 
-    public static void ConfigureAws(this IServiceCollection services)
+    public static void ConfigureAws(this IServiceCollection services, ConfigurationManager config)
     {
+        var s3Options = config.GetAWSOptions("S3Settings");
+
         services
-            .AddAWSService<IAmazonS3>()
+            .AddAWSService<IAmazonS3>(s3Options)
             .AddTransient<ITransferUtility>(sp =>
             {
                 var s3Client = sp.GetRequiredService<IAmazonS3>();
